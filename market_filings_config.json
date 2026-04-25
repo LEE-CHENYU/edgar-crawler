@@ -1,0 +1,43 @@
+{
+  "output_folder": "MARKET_FILINGS",
+  "download_documents": true,
+  "request_timeout": 30,
+  "markets": {
+    "sgx": {
+      "enabled": true,
+      "start_date": "2026-04-25",
+      "end_date": "2026-04-25",
+      "page_size": 20,
+      "max_filings": 5,
+      "delay_seconds": 0.2
+    },
+    "hkex": {
+      "enabled": true,
+      "start_date": "2026-04-20",
+      "end_date": "2026-04-25",
+      "market": "SEHK",
+      "stock_ids": ["00005"],
+      "max_filings": 5,
+      "delay_seconds": 0.2
+    },
+    "edinet": {
+      "enabled": true,
+      "start_date": "2026-04-24",
+      "end_date": "2026-04-24",
+      "api_key_env": "EDINET_API_KEY",
+      "list_type": "2",
+      "document_type": "2",
+      "max_filings": 5,
+      "delay_seconds": 0.2
+    },
+    "dart": {
+      "enabled": true,
+      "start_date": "2026-04-24",
+      "end_date": "2026-04-24",
+      "api_key_env": "DART_API_KEY",
+      "page_count": 100,
+      "max_filings": 5,
+      "delay_seconds": 0.2
+    }
+  }
+}
