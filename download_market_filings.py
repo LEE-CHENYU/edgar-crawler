@@ -324,13 +324,14 @@ def build_sgx_rows(
                 safe_filename(filing_id),
                 filename,
             )
-            download_binary(
+            if not try_download_binary(
                 session=session,
                 url=document_url,
                 path=local_path,
                 headers={"User-Agent": SGX_USER_AGENT, "Referer": source_url},
                 timeout=timeout,
-            )
+            ):
+                local_path = ""
 
         rows.append(
             FilingDocument(
@@ -466,7 +467,7 @@ def build_hkex_row(
             safe_filename(news_id),
             filename,
         )
-        download_binary(
+        if not try_download_binary(
             session=session,
             url=document_url,
             path=local_path,
@@ -475,7 +476,8 @@ def build_hkex_row(
                 "Referer": "https://www1.hkexnews.hk/search/titlesearch.xhtml?lang=en",
             },
             timeout=timeout,
-        )
+        ):
+            local_path = ""
 
     return FilingDocument(
         market="HKEX",
@@ -590,13 +592,14 @@ def build_edinet_row(
             safe_filename(doc_id),
             filename,
         )
-        download_binary(
+        if not try_download_binary(
             session=session,
             url=f"https://api.edinet-fsa.go.jp/api/v2/documents/{doc_id}",
             path=local_path,
             params={"type": document_type, "Subscription-Key": api_key},
             timeout=timeout,
-        )
+        ):
+            local_path = ""
 
     return FilingDocument(
         market="EDINET",
@@ -679,6 +682,9 @@ def collect_dart(
 
 
 def dart_filing_matches_filters(filing: Dict, config: Dict) -> bool:
+    if config.get("require_stock_code") and not filing.get("stock_code"):
+        return False
+
     report_name = str(filing.get("report_nm") or "")
     include_keywords = config.get("include_report_keywords") or []
     if include_keywords and not any(keyword in report_name for keyword in include_keywords):
@@ -710,13 +716,14 @@ def build_dart_row(
             safe_filename(receipt_no),
             filename,
         )
-        download_binary(
+        if not try_download_binary(
             session=session,
             url="https://opendart.fss.or.kr/api/document.xml",
             path=local_path,
             params={"crtfc_key": api_key, "rcept_no": receipt_no},
             timeout=timeout,
-        )
+        ):
+            local_path = ""
 
     return FilingDocument(
         market="DART",
@@ -892,6 +899,29 @@ def download_binary(
     finally:
         if os.path.exists(temp_path):
             os.remove(temp_path)
+
+
+def try_download_binary(
+    session: requests.Session,
+    url: str,
+    path: str,
+    headers: Optional[Dict[str, str]] = None,
+    params: Optional[Dict[str, str]] = None,
+    timeout: int = 30,
+) -> bool:
+    try:
+        download_binary(
+            session=session,
+            url=url,
+            path=path,
+            headers=headers,
+            params=params,
+            timeout=timeout,
+        )
+    except requests.RequestException as exc:
+        print(f"Download failed for {url}: {exc}")
+        return False
+    return True
 
 
 def write_json_document(path: str, payload: Dict) -> None:
