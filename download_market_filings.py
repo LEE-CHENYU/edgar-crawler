@@ -1,5 +1,6 @@
 import argparse
 import csv
+import fcntl
 import json
 import os
 import re
@@ -1184,6 +1185,15 @@ def write_json_document(path: str, payload: Dict) -> None:
 
 
 def write_metadata(path: str, rows: List[Dict[str, str]]) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    lock_path = f"{path}.lock"
+    with open(lock_path, "w") as lock_file:
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+        write_metadata_locked(path, rows)
+        fcntl.flock(lock_file, fcntl.LOCK_UN)
+
+
+def write_metadata_locked(path: str, rows: List[Dict[str, str]]) -> None:
     existing_rows: Dict[tuple, Dict[str, str]] = {}
     if os.path.exists(path):
         with open(path, newline="", encoding="utf-8") as fin:
