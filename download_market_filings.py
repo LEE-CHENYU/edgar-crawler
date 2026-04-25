@@ -44,6 +44,7 @@ SGX_USER_AGENT = (
 )
 HKEX_USER_AGENT = SGX_USER_AGENT
 TWSE_USER_AGENT = SGX_USER_AGENT
+TWSE_MOPS_BASE_URL = "https://mopsov.twse.com.tw/mops/web"
 
 
 @dataclass
@@ -744,6 +745,14 @@ def build_dart_row(
 def collect_twse(
     config: Dict, raw_dir: str, download_documents: bool, timeout: int
 ) -> List[FilingDocument]:
+    if config.get("source") == "mops_historical":
+        return collect_twse_mops_historical(
+            config=config,
+            raw_dir=raw_dir,
+            download_documents=download_documents,
+            timeout=timeout,
+        )
+
     dataset = config.get("dataset", "t187ap04_L")
     source_url = f"https://openapi.twse.com.tw/v1/opendata/{dataset}"
     session = build_session()
@@ -772,6 +781,238 @@ def collect_twse(
         )
         time.sleep(float(config.get("delay_seconds", 0.0)))
     return rows
+
+
+def collect_twse_mops_historical(
+    config: Dict, raw_dir: str, download_documents: bool, timeout: int
+) -> List[FilingDocument]:
+    session = build_session()
+    rows: List[FilingDocument] = []
+    max_filings = int(config.get("max_filings", 1000))
+    delay_seconds = float(config.get("delay_seconds", 0.2))
+    company_codes = [str(code) for code in config.get("company_codes") or []]
+    if not company_codes:
+        print("Skipping TWSE MOPS historical: company_codes is required")
+        return rows
+
+    for company_code in company_codes:
+        for month_start, month_end in month_ranges(
+            parse_date(config.get("start_date")), parse_date(config.get("end_date"))
+        ):
+            filings = fetch_twse_mops_month(
+                session=session,
+                company_code=company_code,
+                month_start=month_start,
+                month_end=month_end,
+                timeout=timeout,
+            )
+            for filing in filings:
+                if len(rows) >= max_filings:
+                    return rows
+                if not twse_mops_filing_matches_filters(filing, config):
+                    continue
+                rows.append(
+                    build_twse_mops_row(
+                        session=session,
+                        filing=filing,
+                        raw_dir=raw_dir,
+                        download_documents=download_documents,
+                        timeout=timeout,
+                    )
+                )
+                time.sleep(delay_seconds)
+    return rows
+
+
+def fetch_twse_mops_month(
+    session: requests.Session,
+    company_code: str,
+    month_start: date,
+    month_end: date,
+    timeout: int,
+) -> List[Dict[str, str]]:
+    source_url = f"{TWSE_MOPS_BASE_URL}/ajax_t05st01"
+    payload = {
+        "encodeURIComponent": "1",
+        "step": "1",
+        "firstin": "1",
+        "off": "1",
+        "keyword4": "",
+        "code1": "",
+        "TYPEK2": "",
+        "checkbtn": "",
+        "queryName": "co_id",
+        "inpuType": "co_id",
+        "TYPEK": "all",
+        "co_id": company_code,
+        "year": f"{month_start.year - 1911:03d}",
+        "month": f"{month_start.month:02d}",
+        "b_date": f"{month_start.day:02d}",
+        "e_date": f"{month_end.day:02d}",
+    }
+    try:
+        response = session.post(
+            source_url,
+            data=payload,
+            headers=twse_mops_headers("t05st01"),
+            timeout=timeout,
+        )
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        print(
+            f"TWSE MOPS list failed for {company_code} "
+            f"{month_start:%Y-%m}: {exc}"
+        )
+        return []
+
+    soup = BeautifulSoup(response.text, "lxml")
+    filings: List[Dict[str, str]] = []
+    for table in soup.select("table.hasBorder"):
+        for row in table.find_all("tr"):
+            cells = row.find_all("td", recursive=False)
+            if len(cells) < 6:
+                continue
+            filing = parse_twse_mops_listing_row(cells)
+            if filing:
+                filing["query_year"] = payload["year"]
+                filing["query_month"] = payload["month"]
+                filing["query_b_date"] = payload["b_date"]
+                filing["query_e_date"] = payload["e_date"]
+                filing["source_url"] = source_url
+                filings.append(filing)
+    return filings
+
+
+def parse_twse_mops_listing_row(cells: List) -> Dict[str, str]:
+    button = cells[-1].find("input", onclick=True)
+    onclick = button.get("onclick", "") if button else ""
+    company_code = clean_text(cells[0].get_text(" ")).replace("\xa0", "")
+    company_name = clean_text(cells[1].get_text(" "))
+    filing_date = parse_twse_mops_date(cells[2].get_text(" "))
+    filing_time = normalize_twse_time(cells[3].get_text(" "))
+    title = clean_text(cells[4].get_text(" "))
+    spoke_date = extract_onclick_value(onclick, "spoke_date")
+    if spoke_date:
+        filing_date = parse_yyyymmdd(spoke_date)
+    if not company_code or not filing_date or not filing_time:
+        return {}
+    return {
+        "company_code": company_code,
+        "company_name": company_name,
+        "filing_date": filing_date,
+        "filing_time": filing_time,
+        "title": title,
+        "seq_no": extract_onclick_value(onclick, "seq_no"),
+        "spoke_date": spoke_date,
+        "spoke_time": extract_onclick_value(onclick, "spoke_time") or filing_time,
+        "typek": extract_onclick_value(onclick, "TYPEK"),
+    }
+
+
+def twse_mops_filing_matches_filters(filing: Dict, config: Dict) -> bool:
+    title = str(filing.get("title") or "")
+    include_keywords = config.get("include_keywords") or []
+    if include_keywords and not any(keyword in title for keyword in include_keywords):
+        return False
+    exclude_keywords = config.get("exclude_keywords") or []
+    if exclude_keywords and any(keyword in title for keyword in exclude_keywords):
+        return False
+    return True
+
+
+def build_twse_mops_row(
+    session: requests.Session,
+    filing: Dict,
+    raw_dir: str,
+    download_documents: bool,
+    timeout: int,
+) -> FilingDocument:
+    company_code = str(filing.get("company_code") or "")
+    filing_date = str(filing.get("filing_date") or "")
+    filing_time = str(filing.get("filing_time") or "")
+    seq_no = str(filing.get("seq_no") or "0")
+    filing_id = "_".join(
+        part for part in ["MOPS", company_code, filing_date.replace("-", ""), filing_time, seq_no]
+    )
+    source_url = str(filing.get("source_url") or f"{TWSE_MOPS_BASE_URL}/ajax_t05st01")
+    local_path = ""
+    raw_payload = {"listing": filing}
+
+    if download_documents:
+        raw_payload["detail"] = fetch_twse_mops_detail(
+            session=session,
+            filing=filing,
+            timeout=timeout,
+        )
+        local_path = os.path.join(
+            raw_dir,
+            "TWSE",
+            filing_date.replace("-", "") or "unknown_date",
+            safe_filename(filing_id),
+            f"{safe_filename(filing_id)}.json",
+        )
+        write_json_document(local_path, raw_payload)
+
+    return FilingDocument(
+        market="TWSE",
+        filing_id=filing_id,
+        filing_date=filing_date,
+        company_name=clean_text(filing.get("company_name") or ""),
+        stock_code=company_code,
+        title=clean_text(filing.get("title") or ""),
+        category="MOPS_HISTORICAL",
+        source_url=source_url,
+        document_url=source_url,
+        local_path=local_path,
+        downloaded_at=utc_now(),
+        raw_metadata=json.dumps(filing, ensure_ascii=False, sort_keys=True),
+    )
+
+
+def fetch_twse_mops_detail(
+    session: requests.Session, filing: Dict, timeout: int
+) -> Dict[str, str]:
+    source_url = f"{TWSE_MOPS_BASE_URL}/ajax_t05st01"
+    payload = {
+        "step": "2",
+        "firstin": "true",
+        "off": "1",
+        "TYPEK": filing.get("typek") or "all",
+        "co_id": filing.get("company_code") or "",
+        "spoke_date": filing.get("spoke_date") or filing.get("filing_date", "").replace("-", ""),
+        "spoke_time": filing.get("spoke_time") or filing.get("filing_time") or "",
+        "seq_no": filing.get("seq_no") or "",
+        "year": filing.get("query_year") or "",
+        "month": filing.get("query_month") or "",
+        "b_date": filing.get("query_b_date") or "",
+        "e_date": filing.get("query_e_date") or "",
+    }
+    try:
+        response = session.post(
+            source_url,
+            data=payload,
+            headers=twse_mops_headers("t05st01"),
+            timeout=timeout,
+        )
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        return {"detail_error": str(exc)}
+
+    html = response.text
+    soup = BeautifulSoup(html, "lxml")
+    return {
+        "detail_text": clean_text(soup.get_text(" ")),
+        "detail_html": html,
+    }
+
+
+def twse_mops_headers(page_name: str) -> Dict[str, str]:
+    return {
+        "User-Agent": TWSE_USER_AGENT,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Referer": f"{TWSE_MOPS_BASE_URL}/{page_name}",
+    }
 
 
 def twse_filing_matches_filters(filing: Dict, config: Dict) -> bool:
@@ -993,6 +1234,22 @@ def date_range(start_date: date, end_date: date) -> Iterable[date]:
         current += timedelta(days=1)
 
 
+def month_ranges(start_date: date, end_date: date) -> Iterable[tuple]:
+    current = date(start_date.year, start_date.month, 1)
+    while current <= end_date:
+        next_month = add_months(current, 1)
+        month_start = max(current, start_date)
+        month_end = min(next_month - timedelta(days=1), end_date)
+        yield month_start, month_end
+        current = next_month
+
+
+def add_months(value: date, months: int) -> date:
+    year = value.year + (value.month - 1 + months) // 12
+    month = (value.month - 1 + months) % 12 + 1
+    return date(year, month, 1)
+
+
 def parse_yyyymmdd(value: str) -> str:
     if not value:
         return ""
@@ -1024,6 +1281,30 @@ def parse_twse_roc_date(value: str) -> str:
     except ValueError:
         return ""
     return ""
+
+
+def parse_twse_mops_date(value: str) -> str:
+    value = clean_text(value).replace("\xa0", "")
+    parts = [part for part in re.split(r"[/-]", value) if part]
+    if len(parts) != 3:
+        return ""
+    try:
+        year = int(parts[0])
+        if year < 1911:
+            year += 1911
+        return date(year, int(parts[1]), int(parts[2])).isoformat()
+    except ValueError:
+        return ""
+
+
+def normalize_twse_time(value: str) -> str:
+    digits = re.sub(r"\D+", "", str(value or ""))
+    return digits.zfill(6) if digits else ""
+
+
+def extract_onclick_value(onclick: str, field_name: str) -> str:
+    match = re.search(rf"{re.escape(field_name)}\.value='([^']*)'", onclick)
+    return match.group(1) if match else ""
 
 
 def edinet_extension(document_type: str) -> str:
