@@ -8,6 +8,7 @@ import tempfile
 import time
 from dataclasses import asdict, dataclass
 from datetime import date, datetime, timedelta
+from hashlib import sha1
 from typing import Dict, Iterable, List, Optional
 from urllib.parse import unquote, urljoin, urlparse
 
@@ -42,6 +43,7 @@ SGX_USER_AGENT = (
     "Chrome/123.0.0.0 Safari/537.36"
 )
 HKEX_USER_AGENT = SGX_USER_AGENT
+TWSE_USER_AGENT = SGX_USER_AGENT
 
 
 @dataclass
@@ -168,6 +170,8 @@ def collect_market(
         return collect_edinet(config, raw_dir, download_documents, timeout)
     if market_name == "dart":
         return collect_dart(config, raw_dir, download_documents, timeout)
+    if market_name == "twse":
+        return collect_twse(config, raw_dir, download_documents, timeout)
     print(f"Skipping {market_name.upper()}: unsupported market")
     return []
 
@@ -527,6 +531,8 @@ def collect_edinet(
                 return rows
             if allowed_form_codes and filing.get("formCode") not in allowed_form_codes:
                 continue
+            if not edinet_filing_matches_filters(filing, config):
+                continue
             rows.append(
                 build_edinet_row(
                     session=session,
@@ -540,6 +546,23 @@ def collect_edinet(
             )
             time.sleep(float(config.get("delay_seconds", 0.2)))
     return rows
+
+
+def edinet_filing_matches_filters(filing: Dict, config: Dict) -> bool:
+    doc_type_codes = set(str(code) for code in config.get("doc_type_codes") or [])
+    if doc_type_codes and str(filing.get("docTypeCode") or "") not in doc_type_codes:
+        return False
+    if config.get("require_sec_code") and not filing.get("secCode"):
+        return False
+
+    description = str(filing.get("docDescription") or "")
+    include_keywords = config.get("include_doc_description_keywords") or []
+    if include_keywords and not any(keyword in description for keyword in include_keywords):
+        return False
+    exclude_keywords = config.get("exclude_doc_description_keywords") or []
+    if exclude_keywords and any(keyword in description for keyword in exclude_keywords):
+        return False
+    return True
 
 
 def build_edinet_row(
@@ -633,6 +656,8 @@ def collect_dart(
         for filing in filings:
             if len(rows) >= max_filings:
                 break
+            if not dart_filing_matches_filters(filing, config):
+                continue
             rows.append(
                 build_dart_row(
                     session=session,
@@ -651,6 +676,17 @@ def collect_dart(
             break
 
     return rows
+
+
+def dart_filing_matches_filters(filing: Dict, config: Dict) -> bool:
+    report_name = str(filing.get("report_nm") or "")
+    include_keywords = config.get("include_report_keywords") or []
+    if include_keywords and not any(keyword in report_name for keyword in include_keywords):
+        return False
+    exclude_keywords = config.get("exclude_report_keywords") or []
+    if exclude_keywords and any(keyword in report_name for keyword in exclude_keywords):
+        return False
+    return True
 
 
 def build_dart_row(
@@ -692,6 +728,115 @@ def build_dart_row(
         category=str(filing.get("corp_cls") or ""),
         source_url="https://opendart.fss.or.kr/api/list.json",
         document_url=document_url,
+        local_path=local_path,
+        downloaded_at=utc_now(),
+        raw_metadata=json.dumps(filing, ensure_ascii=False, sort_keys=True),
+    )
+
+
+def collect_twse(
+    config: Dict, raw_dir: str, download_documents: bool, timeout: int
+) -> List[FilingDocument]:
+    dataset = config.get("dataset", "t187ap04_L")
+    source_url = f"https://openapi.twse.com.tw/v1/opendata/{dataset}"
+    session = build_session()
+    response = session.get(
+        source_url,
+        headers={"User-Agent": TWSE_USER_AGENT, "Accept": "application/json,*/*"},
+        timeout=timeout,
+    )
+    response.raise_for_status()
+    filings = sorted(response.json(), key=twse_sort_key, reverse=True)
+    max_filings = int(config.get("max_filings", 100))
+    rows: List[FilingDocument] = []
+
+    for filing in filings:
+        if len(rows) >= max_filings:
+            break
+        if not twse_filing_matches_filters(filing, config):
+            continue
+        rows.append(
+            build_twse_row(
+                filing=filing,
+                source_url=source_url,
+                raw_dir=raw_dir,
+                download_documents=download_documents,
+            )
+        )
+        time.sleep(float(config.get("delay_seconds", 0.0)))
+    return rows
+
+
+def twse_filing_matches_filters(filing: Dict, config: Dict) -> bool:
+    company_codes = set(str(code) for code in config.get("company_codes") or [])
+    if company_codes and str(filing.get("公司代號") or "") not in company_codes:
+        return False
+
+    filing_date = parse_twse_roc_date(filing.get("發言日期") or filing.get("出表日期") or "")
+    if config.get("start_date") or config.get("end_date"):
+        if not filing_date:
+            return False
+        filing_day = parse_date(filing_date)
+        if config.get("start_date") and filing_day < parse_date(config.get("start_date")):
+            return False
+        if config.get("end_date") and filing_day > parse_date(config.get("end_date")):
+            return False
+
+    title = clean_text(filing.get("主旨 ") or filing.get("主旨") or "")
+    body = clean_text(filing.get("說明") or "")
+    combined_text = f"{title} {body}"
+    include_keywords = config.get("include_keywords") or []
+    if include_keywords and not any(keyword in combined_text for keyword in include_keywords):
+        return False
+    exclude_keywords = config.get("exclude_keywords") or []
+    if exclude_keywords and any(keyword in combined_text for keyword in exclude_keywords):
+        return False
+    return True
+
+
+def twse_sort_key(filing: Dict) -> tuple:
+    filing_date = parse_twse_roc_date(filing.get("發言日期") or filing.get("出表日期") or "")
+    filing_time = str(filing.get("發言時間") or "").zfill(6)
+    company_code = str(filing.get("公司代號") or "")
+    return (filing_date, filing_time, company_code)
+
+
+def build_twse_row(
+    filing: Dict, source_url: str, raw_dir: str, download_documents: bool
+) -> FilingDocument:
+    company_code = str(filing.get("公司代號") or "")
+    filing_date = parse_twse_roc_date(filing.get("發言日期") or filing.get("出表日期") or "")
+    filing_time = str(filing.get("發言時間") or "")
+    title = clean_text(filing.get("主旨 ") or filing.get("主旨") or "")
+    category = clean_text(filing.get("符合條款") or "")
+    digest = sha1(
+        json.dumps(filing, ensure_ascii=False, sort_keys=True).encode("utf-8")
+    ).hexdigest()[:10]
+    filing_id = "_".join(
+        part for part in [company_code, filing_date.replace("-", ""), filing_time, digest] if part
+    )
+    local_path = ""
+
+    if download_documents:
+        local_path = os.path.join(
+            raw_dir,
+            "TWSE",
+            filing_date.replace("-", "") or "unknown_date",
+            safe_filename(filing_id),
+            f"{safe_filename(filing_id)}.json",
+        )
+        write_json_document(local_path, filing)
+
+    return FilingDocument(
+        market="TWSE",
+        filing_id=filing_id,
+        filing_date=filing_date,
+        company_name=clean_text(filing.get("公司名稱") or ""),
+        stock_code=company_code,
+        title=title,
+        category=category,
+        source_url=source_url,
+        document_url=source_url,
         local_path=local_path,
         downloaded_at=utc_now(),
         raw_metadata=json.dumps(filing, ensure_ascii=False, sort_keys=True),
@@ -743,6 +888,24 @@ def download_binary(
             for chunk in response.iter_content(chunk_size=1024 * 256):
                 if chunk:
                     fout.write(chunk)
+        shutil.move(temp_path, path)
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+
+
+def write_json_document(path: str, payload: Dict) -> None:
+    if os.path.exists(path) and os.path.getsize(path) > 0:
+        return
+
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    temp_fd, temp_path = tempfile.mkstemp(
+        prefix=".download_", dir=os.path.dirname(path), text=True
+    )
+    try:
+        with os.fdopen(temp_fd, "w", encoding="utf-8") as fout:
+            json.dump(payload, fout, ensure_ascii=False, indent=2, sort_keys=True)
+            fout.write("\n")
         shutil.move(temp_path, path)
     finally:
         if os.path.exists(temp_path):
@@ -816,6 +979,21 @@ def parse_edinet_datetime(value: str) -> str:
     if not value:
         return ""
     return datetime.strptime(value[:10], "%Y-%m-%d").date().isoformat()
+
+
+def parse_twse_roc_date(value: str) -> str:
+    value = str(value or "").strip()
+    if not value:
+        return ""
+    try:
+        if len(value) >= 8 and value[:4].isdigit() and value[:2] in ("19", "20"):
+            return datetime.strptime(value[:8], "%Y%m%d").date().isoformat()
+        if len(value) >= 7 and value[:3].isdigit():
+            year = int(value[:3]) + 1911
+            return date(year, int(value[3:5]), int(value[5:7])).isoformat()
+    except ValueError:
+        return ""
+    return ""
 
 
 def edinet_extension(document_type: str) -> str:

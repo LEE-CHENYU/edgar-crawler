@@ -27,6 +27,17 @@
       "api_key_env": "EDINET_API_KEY",
       "list_type": "2",
       "document_type": "2",
+      "require_sec_code": true,
+      "include_doc_description_keywords": [
+        "有価証券報告書",
+        "四半期報告書",
+        "半期報告書",
+        "臨時報告書"
+      ],
+      "exclude_doc_description_keywords": [
+        "内国投資信託",
+        "訂正"
+      ],
       "max_filings": 5,
       "delay_seconds": 0.2
     },
@@ -35,7 +46,16 @@
       "start_date": "2026-04-24",
       "end_date": "2026-04-24",
       "api_key_env": "DART_API_KEY",
+      "pblntf_ty": "A",
       "page_count": 100,
+      "max_filings": 5,
+      "delay_seconds": 0.2
+    },
+    "twse": {
+      "enabled": true,
+      "dataset": "t187ap04_L",
+      "start_date": "2026-04-24",
+      "end_date": "2026-04-25",
       "max_filings": 5,
       "delay_seconds": 0.2
     }
