@@ -34,7 +34,7 @@ def main() -> None:
         "--markets",
         nargs="+",
         default=["edinet", "dart", "twse"],
-        choices=["edinet", "dart", "twse"],
+        choices=["edinet", "dart", "twse", "hkex", "twse_reports"],
     )
     parser.add_argument("--start-date", default=DEFAULT_START_DATE)
     parser.add_argument("--end-date", default=date.today().isoformat())
@@ -43,7 +43,9 @@ def main() -> None:
     parser.add_argument("--refresh-company-codes", action="store_true")
     parser.add_argument("--edinet-days-per-chunk", type=int, default=1)
     parser.add_argument("--dart-days-per-chunk", type=int, default=7)
+    parser.add_argument("--hkex-days-per-chunk", type=int, default=1)
     parser.add_argument("--twse-company-batch-size", type=int, default=20)
+    parser.add_argument("--twse-report-company-batch-size", type=int, default=5)
     parser.add_argument("--request-timeout", type=int, default=90)
     parser.add_argument("--sleep-seconds", type=float, default=2.0)
     parser.add_argument("--error-sleep-seconds", type=float, default=60.0)
@@ -104,6 +106,21 @@ def main() -> None:
             did_work = did_work or result == "worked"
             had_error = had_error or result == "error"
 
+        if "hkex" in args.markets:
+            result = run_date_backfill_chunk(
+                market="hkex",
+                state_key="hkex_next_end",
+                days_per_chunk=args.hkex_days_per_chunk,
+                start_date=start_date,
+                end_date=end_date,
+                state=state,
+                state_path=state_path,
+                base_config=base_config,
+                request_timeout=args.request_timeout,
+            )
+            did_work = did_work or result == "worked"
+            had_error = had_error or result == "error"
+
         if "twse" in args.markets:
             company_codes = load_twse_company_codes(
                 company_path=company_path,
@@ -112,6 +129,24 @@ def main() -> None:
             result = run_twse_backfill_chunk(
                 company_codes=company_codes,
                 company_batch_size=args.twse_company_batch_size,
+                start_date=start_date,
+                end_date=end_date,
+                state=state,
+                state_path=state_path,
+                base_config=base_config,
+                request_timeout=args.request_timeout,
+            )
+            did_work = did_work or result == "worked"
+            had_error = had_error or result == "error"
+
+        if "twse_reports" in args.markets:
+            company_codes = load_twse_company_codes(
+                company_path=company_path,
+                refresh=args.refresh_company_codes,
+            )
+            result = run_twse_reports_backfill_chunk(
+                company_codes=company_codes,
+                company_batch_size=args.twse_report_company_batch_size,
                 start_date=start_date,
                 end_date=end_date,
                 state=state,
@@ -223,6 +258,67 @@ def run_twse_backfill_chunk(
         else:
             state["twse_next_month"] = f"{month_start:%Y-%m}"
             state["twse_company_index"] = company_index
+        save_state(state_path, state)
+        return "worked"
+    return "error"
+
+
+def run_twse_reports_backfill_chunk(
+    company_codes: List[str],
+    company_batch_size: int,
+    start_date: date,
+    end_date: date,
+    state: Dict,
+    state_path: Path,
+    base_config: Dict,
+    request_timeout: int,
+) -> str:
+    report_year = int(state.get("twse_reports_next_year", end_date.year))
+    stop_year = start_date.year
+    if report_year < stop_year:
+        return "done"
+
+    company_index = int(state.get("twse_reports_company_index", 0))
+    if company_index >= len(company_codes):
+        company_index = 0
+        report_year -= 1
+        if report_year < stop_year:
+            state["twse_reports_next_year"] = report_year
+            state["twse_reports_company_index"] = 0
+            save_state(state_path, state)
+            return "done"
+
+    batch = company_codes[company_index : company_index + company_batch_size]
+    if not batch:
+        return "done"
+
+    print(
+        f"{timestamp()} TWSE_REPORTS {report_year} companies "
+        f"{company_index + 1}-{company_index + len(batch)} of {len(company_codes)}",
+        flush=True,
+    )
+    config = config_for_market(base_config, "twse_reports", request_timeout)
+    market_config = config["markets"]["twse_reports"]
+    market_config.update(
+        {
+            "start_date": date(report_year, 1, 1).isoformat(),
+            "end_date": date(report_year, 12, 31).isoformat(),
+            "start_year": report_year,
+            "end_year": report_year,
+            "company_codes": batch,
+            "max_filings": int(market_config.get("backfill_max_filings", 5000)),
+            "delay_seconds": float(market_config.get("delay_seconds", 0.2)),
+        }
+    )
+
+    if run_downloader(config, "twse_reports"):
+        company_index += len(batch)
+        if company_index >= len(company_codes):
+            state["twse_reports_next_year"] = report_year - 1
+            state["twse_reports_company_index"] = 0
+        else:
+            state["twse_reports_next_year"] = report_year
+            state["twse_reports_company_index"] = company_index
         save_state(state_path, state)
         return "worked"
     return "error"

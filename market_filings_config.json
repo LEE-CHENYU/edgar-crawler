@@ -16,8 +16,15 @@
       "start_date": "2026-04-20",
       "end_date": "2026-04-25",
       "market": "SEHK",
-      "stock_ids": ["00005"],
+      "stock_ids": [""],
+      "titles": [
+        "annual report",
+        "interim report",
+        "quarterly report"
+      ],
       "max_filings": 5,
+      "backfill_max_filings": 1000,
+      "row_range": 1000,
       "delay_seconds": 0.2
     },
     "edinet": {
@@ -62,11 +69,42 @@
       "delay_seconds": 0.2
     },
     "twse": {
-      "enabled": true,
+      "enabled": false,
       "dataset": "t187ap04_L",
       "start_date": "2026-04-24",
       "end_date": "2026-04-25",
       "max_filings": 5,
+      "delay_seconds": 0.2
+    },
+    "twse_reports": {
+      "enabled": false,
+      "start_date": "2026-01-01",
+      "end_date": "2026-04-25",
+      "start_year": 2026,
+      "end_year": 2026,
+      "report_kinds": [
+        "A",
+        "F"
+      ],
+      "include_details_by_kind": {
+        "A": [
+          "IFRSs合併財報"
+        ],
+        "F": [
+          "股東會年報"
+        ]
+      },
+      "exclude_details_by_kind": {
+        "A": [
+          "英文版",
+          "個體財報"
+        ],
+        "F": [
+          "英文版"
+        ]
+      },
+      "max_filings": 5,
+      "backfill_max_filings": 5000,
       "delay_seconds": 0.2
     }
   }

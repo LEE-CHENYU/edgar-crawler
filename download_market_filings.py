@@ -11,7 +11,7 @@ from dataclasses import asdict, dataclass
 from datetime import date, datetime, timedelta
 from hashlib import sha1
 from typing import Dict, Iterable, List, Optional
-from urllib.parse import unquote, urljoin, urlparse
+from urllib.parse import unquote, urlencode, urljoin, urlparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -46,6 +46,11 @@ SGX_USER_AGENT = (
 HKEX_USER_AGENT = SGX_USER_AGENT
 TWSE_USER_AGENT = SGX_USER_AGENT
 TWSE_MOPS_BASE_URL = "https://mopsov.twse.com.tw/mops/web"
+TWSE_DOC_BASE_URL = "https://doc.twse.com.tw/server-java/t57sb01"
+TWSE_DOC_HOST = "https://doc.twse.com.tw"
+TWSE_READFILE_RE = re.compile(
+    r"readfile2\(['\"]([^'\"]+)['\"],['\"]([^'\"]+)['\"],['\"]([^'\"]+)['\"]\)"
+)
 
 
 @dataclass
@@ -174,6 +179,8 @@ def collect_market(
         return collect_dart(config, raw_dir, download_documents, timeout)
     if market_name == "twse":
         return collect_twse(config, raw_dir, download_documents, timeout)
+    if market_name == "twse_reports":
+        return collect_twse_reports(config, raw_dir, download_documents, timeout)
     print(f"Skipping {market_name.upper()}: unsupported market")
     return []
 
@@ -390,56 +397,68 @@ def collect_hkex(
     end_date = parse_date(config.get("end_date"))
     max_filings = int(config.get("max_filings", 100))
     stock_ids = config.get("stock_ids") or [""]
+    titles = config.get("titles")
+    if titles is None:
+        titles = [config.get("title", "")]
+    row_range = int(config.get("row_range", min(max_filings, 1000)))
     rows: List[FilingDocument] = []
     seen_news = set()
 
     for stock_id in stock_ids:
-        params = {
-            "sortDir": "0",
-            "sortByOptions": "DateTime",
-            "category": config.get("category", "0"),
-            "market": config.get("market", "SEHK"),
-            "stockId": stock_id,
-            "documentType": config.get("document_type", "-1"),
-            "from": f"{start_date:%Y%m%d}",
-            "to": f"{end_date:%Y%m%d}",
-            "title": config.get("title", ""),
-        }
-        response = session.get(
-            "https://www1.hkexnews.hk/search/titleSearchServlet.do",
-            params=params,
-            headers={
-                "User-Agent": HKEX_USER_AGENT,
-                "Accept": "application/json, text/plain, */*",
-                "Referer": "https://www1.hkexnews.hk/search/titlesearch.xhtml?lang=en",
-            },
-            timeout=timeout,
-        )
-        response.raise_for_status()
-        data = response.json()
-        filings = json.loads(data.get("result") or "[]")
-        for filing in filings:
-            news_id = str(filing.get("NEWS_ID") or "")
-            if not news_id or news_id in seen_news:
-                continue
-            filing_day = parse_hkex_datetime(filing.get("DATE_TIME") or "")
-            if filing_day:
-                filing_day_date = datetime.strptime(filing_day, "%Y-%m-%d").date()
-                if filing_day_date < start_date or filing_day_date > end_date:
-                    continue
-            seen_news.add(news_id)
-            rows.append(
-                build_hkex_row(
-                    session=session,
-                    filing=filing,
-                    raw_dir=raw_dir,
-                    download_documents=download_documents,
-                    timeout=timeout,
-                )
+        for title_query in titles:
+            query_stock_id = str(stock_id or "-1")
+            params = {
+                "sortDir": "0",
+                "sortByOptions": "DateTime",
+                "category": config.get("category", "0"),
+                "market": config.get("market", "SEHK"),
+                "stockId": query_stock_id,
+                "documentType": config.get("document_type", "-1"),
+                "fromDate": f"{start_date:%Y%m%d}",
+                "toDate": f"{end_date:%Y%m%d}",
+                "title": str(title_query or ""),
+                "searchType": config.get("search_type", "0"),
+                "t1code": config.get("tier_one_code", "-2"),
+                "t2Gcode": config.get("tier_two_group_code", "-2"),
+                "t2code": config.get("tier_two_code", "-2"),
+                "rowRange": row_range,
+                "lang": config.get("lang", "en"),
+            }
+            response = session.get(
+                "https://www1.hkexnews.hk/search/titleSearchServlet.do",
+                params=params,
+                headers={
+                    "User-Agent": HKEX_USER_AGENT,
+                    "Accept": "application/json, text/plain, */*",
+                    "Referer": "https://www1.hkexnews.hk/search/titlesearch.xhtml?lang=en",
+                },
+                timeout=timeout,
             )
-            if len(seen_news) >= max_filings:
-                return rows
-            time.sleep(float(config.get("delay_seconds", 0.2)))
+            response.raise_for_status()
+            data = response.json()
+            filings = json.loads(data.get("result") or "[]") or []
+            for filing in filings:
+                news_id = str(filing.get("NEWS_ID") or "")
+                if not news_id or news_id in seen_news:
+                    continue
+                filing_day = parse_hkex_datetime(filing.get("DATE_TIME") or "")
+                if filing_day:
+                    filing_day_date = datetime.strptime(filing_day, "%Y-%m-%d").date()
+                    if filing_day_date < start_date or filing_day_date > end_date:
+                        continue
+                seen_news.add(news_id)
+                rows.append(
+                    build_hkex_row(
+                        session=session,
+                        filing=filing,
+                        raw_dir=raw_dir,
+                        download_documents=download_documents,
+                        timeout=timeout,
+                    )
+                )
+                if len(seen_news) >= max_filings:
+                    return rows
+                time.sleep(float(config.get("delay_seconds", 0.2)))
 
     return rows
 
@@ -1016,6 +1035,334 @@ def twse_mops_headers(page_name: str) -> Dict[str, str]:
     }
 
 
+def collect_twse_reports(
+    config: Dict, raw_dir: str, download_documents: bool, timeout: int
+) -> List[FilingDocument]:
+    session = build_session()
+    rows: List[FilingDocument] = []
+    max_filings = int(config.get("max_filings", 1000))
+    delay_seconds = float(config.get("delay_seconds", 0.2))
+    company_codes = [str(code).strip() for code in config.get("company_codes") or []]
+    if not company_codes:
+        print("Skipping TWSE reports: company_codes is required")
+        return rows
+
+    start_year = int(
+        config.get("start_year") or parse_date(config.get("start_date")).year
+    )
+    end_year = int(config.get("end_year") or parse_date(config.get("end_date")).year)
+    if start_year > end_year:
+        start_year, end_year = end_year, start_year
+
+    report_kinds = [str(kind) for kind in config.get("report_kinds") or ["A", "F"]]
+    for company_code in company_codes:
+        for gregorian_year in range(end_year, start_year - 1, -1):
+            for kind in report_kinds:
+                filings = fetch_twse_report_listing(
+                    session=session,
+                    company_code=company_code,
+                    gregorian_year=gregorian_year,
+                    kind=kind,
+                    timeout=timeout,
+                )
+                for filing in filings:
+                    if len(rows) >= max_filings:
+                        return rows
+                    if not twse_report_matches_filters(filing, config):
+                        continue
+                    rows.append(
+                        build_twse_report_row(
+                            session=session,
+                            filing=filing,
+                            raw_dir=raw_dir,
+                            download_documents=download_documents,
+                            timeout=timeout,
+                        )
+                    )
+                    time.sleep(delay_seconds)
+    return rows
+
+
+def fetch_twse_report_listing(
+    session: requests.Session,
+    company_code: str,
+    gregorian_year: int,
+    kind: str,
+    timeout: int,
+) -> List[Dict[str, str]]:
+    roc_year = gregorian_year - 1911
+    params = {
+        "step": "1",
+        "colorchg": "1",
+        "co_id": company_code,
+        "year": f"{roc_year:03d}",
+        "mtype": kind,
+    }
+    try:
+        response = session.get(
+            TWSE_DOC_BASE_URL,
+            params=params,
+            headers=twse_report_headers(kind),
+            timeout=timeout,
+        )
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        print(
+            f"TWSE report list failed for {company_code} "
+            f"{gregorian_year} kind={kind}: {exc}"
+        )
+        return []
+
+    html = decode_twse_doc_response(response)
+    soup = BeautifulSoup(html, "lxml")
+    filings: List[Dict[str, str]] = []
+    for row in soup.find_all("tr"):
+        filing = parse_twse_report_listing_row(
+            row=row,
+            default_company_code=company_code,
+            default_kind=kind,
+            gregorian_year=gregorian_year,
+            source_url=response.url,
+        )
+        if filing:
+            filings.append(filing)
+    return filings
+
+
+def parse_twse_report_listing_row(
+    row,
+    default_company_code: str,
+    default_kind: str,
+    gregorian_year: int,
+    source_url: str,
+) -> Dict[str, str]:
+    cells = row.find_all("td")
+    if len(cells) < 6:
+        return {}
+    texts = [clean_text(cell.get_text(" ")) for cell in cells]
+    tag_payload = " ".join(
+        " ".join(str(tag.get(attr) or "") for attr in ("href", "onclick"))
+        for tag in row.find_all(True)
+    )
+    match = TWSE_READFILE_RE.search(tag_payload)
+    link_kind = match.group(1) if match else ""
+    link_company_code = match.group(2) if match else ""
+    filename = match.group(3) if match else ""
+    if not filename:
+        filename = next(
+            (text for text in texts if text.lower().endswith(".pdf")),
+            "",
+        )
+    if not filename or not filename.lower().endswith(".pdf"):
+        return {}
+
+    filename_cell_index = next(
+        (
+            index
+            for index, text in enumerate(texts)
+            if filename in text or text.lower().endswith(".pdf")
+        ),
+        -1,
+    )
+
+    def cell(index: int) -> str:
+        return texts[index] if 0 <= index < len(texts) else ""
+
+    filing = {
+        "kind": link_kind or default_kind,
+        "company_code": link_company_code or default_company_code or cell(0),
+        "query_year": str(gregorian_year),
+        "roc_year": f"{gregorian_year - 1911:03d}",
+        "data_year": cell(1),
+        "data_type": cell(2),
+        "close_type": cell(3),
+        "nature": cell(4),
+        "detail": cell(5),
+        "note": cell(6),
+        "filename": filename,
+        "file_size": cell(filename_cell_index + 1) if filename_cell_index >= 0 else cell(8),
+        "upload_datetime": cell(filename_cell_index + 2)
+        if filename_cell_index >= 0
+        else cell(9),
+        "correction": cell(filename_cell_index + 3)
+        if filename_cell_index >= 0
+        else cell(10),
+        "source_url": source_url,
+    }
+    return filing
+
+
+def twse_report_matches_filters(filing: Dict, config: Dict) -> bool:
+    company_codes = set(str(code) for code in config.get("company_codes") or [])
+    if company_codes and str(filing.get("company_code") or "") not in company_codes:
+        return False
+
+    kind = str(filing.get("kind") or "")
+    search_text = " ".join(
+        str(filing.get(field) or "")
+        for field in ("data_type", "close_type", "nature", "detail", "note", "filename")
+    )
+    include_keywords = report_keywords_for_kind(
+        config, "include_details_by_kind", kind
+    ) + list(config.get("include_details") or [])
+    if include_keywords and not any(keyword in search_text for keyword in include_keywords):
+        return False
+    exclude_keywords = report_keywords_for_kind(
+        config, "exclude_details_by_kind", kind
+    ) + list(config.get("exclude_details") or [])
+    if exclude_keywords and any(keyword in search_text for keyword in exclude_keywords):
+        return False
+    return True
+
+
+def report_keywords_for_kind(config: Dict, key: str, kind: str) -> List[str]:
+    by_kind = config.get(key) or {}
+    return list(by_kind.get(kind) or by_kind.get(kind.lower()) or [])
+
+
+def build_twse_report_row(
+    session: requests.Session,
+    filing: Dict,
+    raw_dir: str,
+    download_documents: bool,
+    timeout: int,
+) -> FilingDocument:
+    company_code = str(filing.get("company_code") or "")
+    kind = str(filing.get("kind") or "")
+    filename = str(filing.get("filename") or "report.pdf")
+    filing_date = parse_twse_upload_datetime(filing.get("upload_datetime") or "")
+    filename_stem = os.path.splitext(filename)[0]
+    filing_id = "_".join(
+        part
+        for part in [
+            "TWSE_REPORT",
+            kind,
+            company_code,
+            str(filing.get("query_year") or ""),
+            filename_stem,
+        ]
+        if part
+    )
+    document_url = stable_twse_report_document_url(filing)
+    local_path = ""
+    raw_payload = {"listing": filing, "document_url": document_url}
+
+    if download_documents:
+        pdf_url = fetch_twse_report_pdf_url(
+            session=session,
+            filing=filing,
+            timeout=timeout,
+        )
+        if pdf_url:
+            raw_payload["pdf_url"] = pdf_url
+            local_path = os.path.join(
+                raw_dir,
+                "TWSE_REPORTS",
+                filing_date.replace("-", "") or "unknown_date",
+                safe_filename(filing_id),
+                safe_filename(filename, max_length=180),
+            )
+            if not try_download_binary(
+                session=session,
+                url=pdf_url,
+                path=local_path,
+                headers=twse_report_headers(kind),
+                timeout=timeout,
+            ):
+                local_path = ""
+        else:
+            raw_payload["pdf_url_error"] = "missing generated PDF URL"
+
+    title = join_unique(
+        [
+            clean_text(filing.get("detail") or ""),
+            clean_text(filing.get("nature") or ""),
+            clean_text(filing.get("data_type") or ""),
+        ]
+    )
+    return FilingDocument(
+        market="TWSE_REPORTS",
+        filing_id=safe_filename(filing_id, max_length=180),
+        filing_date=filing_date,
+        company_name="",
+        stock_code=company_code,
+        title=title,
+        category=kind,
+        source_url=str(filing.get("source_url") or TWSE_DOC_BASE_URL),
+        document_url=document_url,
+        local_path=local_path,
+        downloaded_at=utc_now(),
+        raw_metadata=json.dumps(raw_payload, ensure_ascii=False, sort_keys=True),
+    )
+
+
+def stable_twse_report_document_url(filing: Dict) -> str:
+    params = {
+        "step": "9",
+        "kind": str(filing.get("kind") or ""),
+        "co_id": str(filing.get("company_code") or ""),
+        "filename": str(filing.get("filename") or ""),
+    }
+    return f"{TWSE_DOC_BASE_URL}?{urlencode(params)}"
+
+
+def fetch_twse_report_pdf_url(
+    session: requests.Session, filing: Dict, timeout: int
+) -> str:
+    kind = str(filing.get("kind") or "")
+    payload = {
+        "colorchg": "1",
+        "step": "9",
+        "kind": kind,
+        "co_id": str(filing.get("company_code") or ""),
+        "filename": str(filing.get("filename") or ""),
+    }
+    try:
+        response = session.post(
+            TWSE_DOC_BASE_URL,
+            data=payload,
+            headers=twse_report_headers(kind),
+            timeout=timeout,
+        )
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        print(
+            f"TWSE report PDF link failed for {payload['co_id']} "
+            f"{payload['filename']}: {exc}"
+        )
+        return ""
+
+    html = decode_twse_doc_response(response)
+    soup = BeautifulSoup(html, "lxml")
+    for link in soup.find_all("a", href=True):
+        href = str(link["href"])
+        if "/pdf/" in href or href.lower().endswith(".pdf"):
+            return urljoin(TWSE_DOC_HOST, href)
+    match = re.search(r"""["']([^"']*/pdf/[^"']+\.pdf)["']""", html)
+    if match:
+        return urljoin(TWSE_DOC_HOST, match.group(1))
+    return ""
+
+
+def twse_report_headers(kind: str) -> Dict[str, str]:
+    referer_page = "t57sb01_q5" if kind == "A" else "t57sb01_q1"
+    return {
+        "User-Agent": TWSE_USER_AGENT,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Referer": f"{TWSE_MOPS_BASE_URL}/{referer_page}",
+    }
+
+
+def decode_twse_doc_response(response: requests.Response) -> str:
+    for encoding in ("cp950", "big5", "utf-8"):
+        try:
+            return response.content.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return response.content.decode("utf-8", errors="replace")
+
+
 def twse_filing_matches_filters(filing: Dict, config: Dict) -> bool:
     company_codes = set(str(code) for code in config.get("company_codes") or [])
     if company_codes and str(filing.get("公司代號") or "") not in company_codes:
@@ -1305,6 +1652,13 @@ def parse_twse_mops_date(value: str) -> str:
         return date(year, int(parts[1]), int(parts[2])).isoformat()
     except ValueError:
         return ""
+
+
+def parse_twse_upload_datetime(value: str) -> str:
+    value = clean_text(value)
+    if not value:
+        return ""
+    return parse_twse_mops_date(value.split(" ")[0])
 
 
 def normalize_twse_time(value: str) -> str:
