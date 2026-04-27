@@ -8,6 +8,9 @@
       "start_date": "2026-04-25",
       "end_date": "2026-04-25",
       "page_size": 20,
+      "include_keywords": [
+        "annual report"
+      ],
       "max_filings": 5,
       "delay_seconds": 0.2
     },
@@ -18,9 +21,10 @@
       "market": "SEHK",
       "stock_ids": [""],
       "titles": [
-        "annual report",
-        "interim report",
-        "quarterly report"
+        "annual report"
+      ],
+      "include_category_keywords": [
+        "Financial Statements/ESG Information - [Annual Report"
       ],
       "max_filings": 5,
       "backfill_max_filings": 1000,
@@ -36,13 +40,13 @@
       "document_type": "2",
       "require_sec_code": true,
       "include_doc_description_keywords": [
-        "有価証券報告書",
-        "四半期報告書",
-        "半期報告書",
-        "臨時報告書"
+        "有価証券報告書"
       ],
       "exclude_doc_description_keywords": [
         "内国投資信託",
+        "四半期",
+        "半期",
+        "臨時",
         "訂正"
       ],
       "max_filings": 5,
@@ -56,11 +60,11 @@
       "pblntf_ty": "A",
       "require_stock_code": true,
       "include_report_keywords": [
-        "사업보고서",
-        "분기보고서",
-        "반기보고서"
+        "사업보고서"
       ],
       "exclude_report_keywords": [
+        "분기보고서",
+        "반기보고서",
         "[기재정정]",
         "[첨부정정]"
       ],
@@ -83,22 +87,14 @@
       "start_year": 2026,
       "end_year": 2026,
       "report_kinds": [
-        "A",
         "F"
       ],
       "include_details_by_kind": {
-        "A": [
-          "IFRSs合併財報"
-        ],
         "F": [
           "股東會年報"
         ]
       },
       "exclude_details_by_kind": {
-        "A": [
-          "英文版",
-          "個體財報"
-        ],
         "F": [
           "英文版"
         ]

@@ -1,6 +1,7 @@
 import argparse
 import csv
 import fcntl
+import html
 import json
 import os
 import re
@@ -243,6 +244,8 @@ def collect_sgx(
         for filing in filings:
             if seen_filings >= max_filings:
                 break
+            if not sgx_filing_matches_filters(filing, config):
+                continue
             rows.extend(
                 build_sgx_rows(
                     session=session,
@@ -261,6 +264,19 @@ def collect_sgx(
             break
 
     return rows
+
+
+def sgx_filing_matches_filters(filing: Dict, config: Dict) -> bool:
+    title = clean_text(filing.get("title") or "")
+    category = clean_text(filing.get("category_name") or filing.get("cat") or "")
+    combined_text = f"{title} {category}"
+    include_keywords = config.get("include_keywords") or []
+    if include_keywords and not any(keyword.lower() in combined_text.lower() for keyword in include_keywords):
+        return False
+    exclude_keywords = config.get("exclude_keywords") or []
+    if exclude_keywords and any(keyword.lower() in combined_text.lower() for keyword in exclude_keywords):
+        return False
+    return True
 
 
 def get_sgx_token(
@@ -446,6 +462,8 @@ def collect_hkex(
                     filing_day_date = datetime.strptime(filing_day, "%Y-%m-%d").date()
                     if filing_day_date < start_date or filing_day_date > end_date:
                         continue
+                if not hkex_filing_matches_filters(filing, config):
+                    continue
                 seen_news.add(news_id)
                 rows.append(
                     build_hkex_row(
@@ -461,6 +479,35 @@ def collect_hkex(
                 time.sleep(float(config.get("delay_seconds", 0.2)))
 
     return rows
+
+
+def hkex_filing_matches_filters(filing: Dict, config: Dict) -> bool:
+    title = html.unescape(clean_text(filing.get("TITLE") or ""))
+    category = html.unescape(
+        clean_text(filing.get("LONG_TEXT") or filing.get("SHORT_TEXT") or "")
+    )
+    include_title_keywords = config.get("include_title_keywords") or []
+    if include_title_keywords and not any(
+        keyword.lower() in title.lower() for keyword in include_title_keywords
+    ):
+        return False
+    exclude_title_keywords = config.get("exclude_title_keywords") or []
+    if exclude_title_keywords and any(
+        keyword.lower() in title.lower() for keyword in exclude_title_keywords
+    ):
+        return False
+
+    include_category_keywords = config.get("include_category_keywords") or []
+    if include_category_keywords and not any(
+        keyword.lower() in category.lower() for keyword in include_category_keywords
+    ):
+        return False
+    exclude_category_keywords = config.get("exclude_category_keywords") or []
+    if exclude_category_keywords and any(
+        keyword.lower() in category.lower() for keyword in exclude_category_keywords
+    ):
+        return False
+    return True
 
 
 def build_hkex_row(
