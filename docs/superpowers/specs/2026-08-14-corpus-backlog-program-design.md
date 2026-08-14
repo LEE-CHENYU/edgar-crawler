@@ -93,6 +93,40 @@ Estimated ~9 hours at 1.5 s/doc, ~20-25 GB.
 filing on 2026-08-14. Same rescue shape. Respect DART's 20,000 calls/day cap — the
 rescue must count calls and stop cleanly at the ceiling, resuming next run. ~2 GB.
 
+### Source behaviour: doc.twse.com.tw (measured 2026-08-14)
+
+Everything below is from direct measurement, not inference. It supersedes the
+"the document PDF server path timed out from this environment" note in
+`docs/market_filing_targets.md`, which almost certainly described this same
+limiter during the original backfill.
+
+- **The limiter is IP-level, not per-session and not per-document.** A fresh
+  `requests.Session` per request failed 20/20 while a block was active, so
+  recycling connections buys nothing. The same document that had just
+  downloaded successfully failed moments later, so it is not per-document.
+- **Allowance is roughly 29 requests**, and it barely moves with pacing:
+  trips came at ~50-75 requests (0.5s pacing), ~30 (2s) and ~29 (5s). Slowing
+  down therefore trades working time for the same number of cooldowns.
+- **Recovery is fast — about 7 minutes.** While blocked, `/server-java/t57sb01`
+  refuses connections for both GET and POST while `https://doc.twse.com.tw/`
+  keeps returning 200; that pair is the cheap way to tell "blocked" from
+  "down". After recovery the endpoint served a full 1,086,164-byte PDF again.
+- **Symptom signature**: `('Connection aborted.', BadStatusLine('<!DOCTYPE HTML
+  PUBLIC ...'))` on the link-resolution step, i.e. a malformed HTTP response,
+  not an HTTP error status.
+
+Operating rules that follow:
+
+1. **One worker at a time against this host.** The budget is shared per IP, so
+   parallel workers just trip each other.
+2. **Never probe the endpoint while a job is running against it.** Doing so on
+   2026-08-14 consumed the shared allowance, invalidated the probe's own
+   result, and pushed the live rescue into an extra 15-minute cooldown. Read
+   the running job's logs instead.
+3. **Cool down and resume; do not stop.** 480s matches the observed recovery.
+4. Expect ~29 documents per cooldown cycle: with a 480s cooldown that is
+   roughly **6-7 days** for the 21,849 outstanding documents.
+
 ## 4. Workstream D1 — complete filings.xbrl.org
 
 `filings.xbrl.org` reports **25,675** filings; the corpus holds **15,875**. ~9,800
