@@ -197,6 +197,64 @@ def quota_exhausted(calls_used: int, cap: int) -> bool:
     return calls_used >= cap
 
 
+# --- job tracker reporting -----------------------------------------------
+
+
+def progress_details(state: RescueState, total: int, skipped: int) -> List[str]:
+    """Lines describing real acquisition progress, not rows scanned."""
+    attempted = state.recovered + state.failed
+    pct = (state.recovered / total * 100) if total else 0.0
+    lines = [
+        f"{state.recovered} recovered / {total} missing ({pct:.1f}%)",
+        f"{state.failed} failed, {attempted} attempted this pass",
+        f"cursor {state.cursor}/{total}",
+    ]
+    if skipped:
+        lines.append(f"{skipped} adopted from disk (already acquired)")
+    if state.calls_used:
+        lines.append(f"{state.calls_used} API calls used (cap {DAILY_CALL_CAP_DART})")
+    return lines
+
+
+def report_progress(
+    job_id: str,
+    state: RescueState,
+    total: int,
+    skipped: int,
+    updater: Optional[Callable] = None,
+) -> None:
+    """Push progress to the job tracker. Never raises.
+
+    The tracker is a reporting surface, not a dependency: if it is missing or
+    broken the rescue must keep running.
+    """
+    if updater is None:  # pragma: no cover - exercised via the live driver
+        try:
+            import sys
+
+            tracker_parent = str(Path.home())
+            if tracker_parent not in sys.path:
+                sys.path.insert(0, tracker_parent)
+            from job_tracker import update_job as updater  # type: ignore
+        except Exception:
+            return
+    try:
+        updater(
+            id=job_id,
+            current=state.recovered,
+            total=total,
+            status="running",
+            details=progress_details(state, total, skipped),
+            telemetry={
+                "failed": state.failed,
+                "adopted_from_disk": skipped,
+                "market": state.market,
+            },
+        )
+    except Exception:
+        return
+
+
 # --- state ---------------------------------------------------------------
 
 
@@ -274,6 +332,16 @@ def main() -> int:
              "adopted on restart, making infrequent checkpoints safe.",
     )
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--log-path",
+        default=None,
+        help="Absolute path of the log file, surfaced in the job tracker.",
+    )
+    parser.add_argument(
+        "--job-id",
+        default=None,
+        help="Job-tracker id to report progress under (default rescue_<market>).",
+    )
     args = parser.parse_args()
 
     # Imported here so the module stays importable (and side-effect free) in tests.
@@ -299,6 +367,20 @@ def main() -> int:
     missing = select_missing_rows(rows, market=args.market)
     state = load_state(state_path, market=args.market)
     log(f"{args.market}: {len(missing)} rows missing documents; cursor={state.cursor}")
+
+    job_id = args.job_id or f"rescue_{args.market.lower()}"
+    register_tracker_job(
+        job_id=job_id,
+        market=args.market,
+        total=len(missing),
+        log_path=str(
+            Path(args.log_path).resolve()
+            if args.log_path
+            else Path(__file__).resolve().parents[1]
+            / "logs"
+            / f"rescue_{args.market.lower()}.log"
+        ),
+    )
 
     if args.dry_run:
         for row in missing[state.cursor : state.cursor + 5]:
@@ -360,10 +442,12 @@ def main() -> int:
                 f"cursor={state.cursor}/{len(missing)}"
                 + (f", {skipped} already on disk" if skipped else "")
             )
+            report_progress(job_id, state, total=len(missing), skipped=skipped)
         if updated and processed % args.checkpoint_every == 0:
             write_metadata(str(metadata_path), updated)
             updated = []
             save_state(state_path, state)
+            report_progress(job_id, state, total=len(missing), skipped=skipped)
 
         # No need to pace when nothing was fetched.
         if not result.skipped:
@@ -372,12 +456,76 @@ def main() -> int:
     if updated:
         write_metadata(str(metadata_path), updated)
     save_state(state_path, state)
+    finish_tracker_job(
+        job_id=job_id,
+        state=state,
+        total=len(missing),
+        skipped=skipped,
+        complete=state.cursor >= len(missing),
+    )
     log(
         f"{args.market} done: {state.recovered} recovered "
         f"({skipped} adopted from disk), {state.failed} failed, "
         f"cursor={state.cursor}/{len(missing)}"
     )
     return 0
+
+
+def register_tracker_job(job_id: str, market: str, total: int, log_path: str) -> None:
+    """Register the rescue with the menubar job tracker. Never raises."""
+    try:
+        import sys
+
+        tracker_parent = str(Path.home())
+        if tracker_parent not in sys.path:
+            sys.path.insert(0, tracker_parent)
+        from job_tracker import register_job
+    except Exception:
+        return
+    try:
+        register_job(
+            id=job_id,
+            title=f"{market} document rescue",
+            purpose=(
+                f"Re-drive acquisition for {total} {market} filings that discovery "
+                "recorded but never downloaded. The backfill cursor advanced past "
+                "failed downloads, so the job reported complete=true at partial "
+                "coverage. Progress below is documents acquired, not rows scanned."
+            ),
+            agent="claude-opus-5",
+            pid=os.getpid(),
+            log_path=log_path,
+            progress_total=total,
+            progress_unit="documents",
+            tags=["corpus", "rescue", market.lower()],
+        )
+    except Exception:
+        return
+
+
+def finish_tracker_job(
+    job_id: str, state: RescueState, total: int, skipped: int, complete: bool
+) -> None:
+    """Mark the tracker entry done/paused. Never raises."""
+    try:
+        import sys
+
+        tracker_parent = str(Path.home())
+        if tracker_parent not in sys.path:
+            sys.path.insert(0, tracker_parent)
+        from job_tracker import update_job
+    except Exception:
+        return
+    try:
+        update_job(
+            id=job_id,
+            current=state.recovered,
+            total=total,
+            status="done" if complete else "paused",
+            details=progress_details(state, total, skipped),
+        )
+    except Exception:
+        return
 
 
 def read_dart_api_key() -> str:

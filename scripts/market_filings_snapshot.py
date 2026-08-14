@@ -232,7 +232,9 @@ def metadata_counts(metadata_path: Path) -> Dict[str, Any]:
         "path": str(metadata_path),
         "exists": metadata_path.exists(),
         "total_rows": 0,
+        "total_acquired": 0,
         "by_market": {},
+        "acquired_by_market": {},
         "mtime": file_mtime(metadata_path),
     }
     if not metadata_path.exists():
@@ -244,13 +246,42 @@ def metadata_counts(metadata_path: Path) -> Dict[str, Any]:
         csv.field_size_limit(2**31 - 1)
 
     by_market: Dict[str, int] = {}
+    acquired_by_market: Dict[str, int] = {}
     with open(metadata_path, newline="", encoding="utf-8") as fin:
         for row in csv.DictReader(fin):
             market = (row.get("market") or "UNKNOWN").upper()
             by_market[market] = by_market.get(market, 0) + 1
             result["total_rows"] += 1
+            # A row exists from discovery; only a local_path proves the
+            # document was actually acquired.
+            if str(row.get("local_path") or "").strip():
+                acquired_by_market[market] = acquired_by_market.get(market, 0) + 1
+                result["total_acquired"] += 1
     result["by_market"] = dict(sorted(by_market.items()))
+    result["acquired_by_market"] = dict(sorted(acquired_by_market.items()))
     return result
+
+
+def coverage_rows(metadata: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Per-market acquisition coverage, worst gap first.
+
+    Discovery completeness and document completeness are different things; the
+    queue only tracks the former. This surfaces the latter.
+    """
+    acquired_by_market = metadata.get("acquired_by_market") or {}
+    rows = []
+    for market, total in (metadata.get("by_market") or {}).items():
+        acquired = int(acquired_by_market.get(market, 0) or 0)
+        total = int(total or 0)
+        rows.append({
+            "market": market,
+            "rows": total,
+            "acquired": acquired,
+            "missing": total - acquired,
+            "pct": (acquired / total * 100) if total else 0.0,
+        })
+    rows.sort(key=lambda r: (-r["missing"], r["market"]))
+    return rows
 
 
 def raw_counts(raw_root: Path) -> Dict[str, Any]:
@@ -361,7 +392,19 @@ def render_console(snapshot: Dict[str, Any]) -> str:
         )
     metadata = snapshot["counts"]["metadata"]
     raw = snapshot["counts"]["raw_files"]
-    lines.append(f"- metadata_rows={metadata['total_rows']} raw_files={raw['total_files']}")
+    lines.append(
+        f"- metadata_rows={metadata['total_rows']} "
+        f"acquired={metadata.get('total_acquired', 0)} "
+        f"raw_files={raw['total_files']}"
+    )
+    gaps = [row for row in coverage_rows(metadata) if row["missing"] > 0]
+    if gaps:
+        lines.append("- markets with missing documents:")
+        for row in gaps[:8]:
+            lines.append(
+                f"  - {row['market']}: {row['acquired']}/{row['rows']} acquired "
+                f"({row['pct']:.1f}%), {row['missing']} missing"
+            )
     return "\n".join(lines)
 
 
@@ -386,6 +429,23 @@ def render_markdown(snapshot: Dict[str, Any]) -> str:
         lines.append(
             f"| `{job['key']}` | `{str(job['running']).lower()}` | "
             f"`{str(job['complete']).lower()}` | {job['progress']} |"
+        )
+    lines.extend([
+        "",
+        "## Document Coverage",
+        "",
+        "Rows come from discovery; `acquired` counts rows with a `local_path`.",
+        "A job can report `complete=true` while documents are still missing --",
+        "the queue's completion is defined on discovery, not acquisition.",
+        "",
+        "| Market | Rows | Acquired | Missing | Coverage |",
+        "| --- | ---: | ---: | ---: | ---: |",
+    ])
+    for row in coverage_rows(metadata):
+        flag = " :warning:" if row["missing"] else ""
+        lines.append(
+            f"| `{row['market']}` | {row['rows']} | {row['acquired']} | "
+            f"{row['missing']}{flag} | {row['pct']:.1f}% |"
         )
     lines.extend(["", "## Metadata Rows By Market", ""])
     for market, count in metadata["by_market"].items():

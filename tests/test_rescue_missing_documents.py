@@ -14,7 +14,9 @@ from scripts.rescue_missing_documents import (
     build_twse_local_path,
     dart_document_url,
     load_state,
+    progress_details,
     quota_exhausted,
+    report_progress,
     rescue_dart_row,
     rescue_twse_row,
     save_state,
@@ -290,6 +292,49 @@ def test_quota_exhausted_respects_dart_daily_cap():
 
 
 # --- state / resume ------------------------------------------------------
+
+
+# --- job tracker reporting -----------------------------------------------
+
+
+def test_progress_details_report_real_acquisition_numbers():
+    """The tracker must show documents acquired, not rows scanned."""
+    state = RescueState(
+        market="TWSE_REPORTS", cursor=500, recovered=470, failed=30, calls_used=0
+    )
+    details = progress_details(state, total=21929, skipped=12)
+    blob = " ".join(details)
+    assert "470" in blob and "recovered" in blob
+    assert "30" in blob and "failed" in blob
+    assert "12" in blob and "disk" in blob
+    assert "21929" in blob
+
+
+def test_report_progress_never_raises_when_tracker_unavailable():
+    """Tracker failure must not take the rescue down."""
+
+    def exploding_update(**kwargs):
+        raise RuntimeError("tracker gone")
+
+    state = RescueState(market="DART", cursor=1, recovered=1)
+    # Must not raise.
+    report_progress(
+        job_id="x", state=state, total=10, skipped=0, updater=exploding_update
+    )
+
+
+def test_report_progress_passes_current_as_documents_acquired():
+    captured = {}
+
+    def updater(**kwargs):
+        captured.update(kwargs)
+
+    state = RescueState(market="DART", cursor=100, recovered=90, failed=10)
+    report_progress(
+        job_id="rescue_dart", state=state, total=4750, skipped=0, updater=updater
+    )
+    assert captured["current"] == 90, "progress is documents acquired, not rows scanned"
+    assert captured["total"] == 4750
 
 
 def test_state_round_trips_and_resumes_cursor(tmp_path):
