@@ -72,6 +72,25 @@
       "max_filings": 5,
       "delay_seconds": 0.2
     },
+    "pse_edge": {
+      "enabled": false,
+      "start_date": "2026-01-01",
+      "end_date": "2026-04-25",
+      "template_name": "Annual Report",
+      "include_template_keywords": [
+        "annual report"
+      ],
+      "exclude_template_keywords": [
+        "quarterly",
+        "integrated annual corporate governance report"
+      ],
+      "include_form_numbers": [
+        "17-1"
+      ],
+      "max_filings": 5,
+      "backfill_max_filings": 1000,
+      "delay_seconds": 0.4
+    },
     "twse": {
       "enabled": false,
       "dataset": "t187ap04_L",

@@ -46,6 +46,10 @@ SGX_USER_AGENT = (
 )
 HKEX_USER_AGENT = SGX_USER_AGENT
 TWSE_USER_AGENT = SGX_USER_AGENT
+PSE_EDGE_USER_AGENT = SGX_USER_AGENT
+PSE_EDGE_BASE_URL = "https://edge.pse.com.ph"
+PSE_EDGE_FINANCIAL_SEARCH_URL = f"{PSE_EDGE_BASE_URL}/financialReports/search.ax"
+PSE_EDGE_FINANCIAL_REFERER = f"{PSE_EDGE_BASE_URL}/financialReports/form.do"
 TWSE_MOPS_BASE_URL = "https://mopsov.twse.com.tw/mops/web"
 TWSE_DOC_BASE_URL = "https://doc.twse.com.tw/server-java/t57sb01"
 TWSE_DOC_HOST = "https://doc.twse.com.tw"
@@ -178,6 +182,8 @@ def collect_market(
         return collect_edinet(config, raw_dir, download_documents, timeout)
     if market_name == "dart":
         return collect_dart(config, raw_dir, download_documents, timeout)
+    if market_name == "pse_edge":
+        return collect_pse_edge(config, raw_dir, download_documents, timeout)
     if market_name == "twse":
         return collect_twse(config, raw_dir, download_documents, timeout)
     if market_name == "twse_reports":
@@ -561,6 +567,250 @@ def build_hkex_row(
         downloaded_at=utc_now(),
         raw_metadata=json.dumps(filing, ensure_ascii=False, sort_keys=True),
     )
+
+
+def collect_pse_edge(
+    config: Dict, raw_dir: str, download_documents: bool, timeout: int
+) -> List[FilingDocument]:
+    session = build_session()
+    start_date = parse_date(config.get("start_date"))
+    end_date = parse_date(config.get("end_date"))
+    max_filings = int(config.get("max_filings", 100))
+    page_no = 1
+    rows: List[FilingDocument] = []
+    seen_edges = set()
+
+    while len(rows) < max_filings:
+        params = {
+            "pageNo": str(page_no),
+            "companyId": str(config.get("company_id") or ""),
+            "keyword": str(config.get("keyword") or ""),
+            "tmplNm": str(config.get("template_name") or "Annual Report"),
+            "fromDate": format_pse_edge_date(start_date),
+            "toDate": format_pse_edge_date(end_date),
+            "dateSortType": str(config.get("date_sort_type") or "DESC"),
+            "cmpySortType": str(config.get("company_sort_type") or "ASC"),
+        }
+        response = session.get(
+            PSE_EDGE_FINANCIAL_SEARCH_URL,
+            params=params,
+            headers=pse_edge_headers(PSE_EDGE_FINANCIAL_REFERER),
+            timeout=timeout,
+        )
+        response.raise_for_status()
+
+        page_filings = parse_pse_edge_filings(response.text)
+        if not page_filings:
+            break
+        for filing in page_filings:
+            edge_no = str(filing.get("edge_no") or "")
+            if not edge_no or edge_no in seen_edges:
+                continue
+            seen_edges.add(edge_no)
+            if not pse_edge_filing_matches_filters(filing, config):
+                continue
+            rows.append(
+                build_pse_edge_row(
+                    session=session,
+                    filing=filing,
+                    raw_dir=raw_dir,
+                    download_documents=download_documents,
+                    timeout=timeout,
+                )
+            )
+            if len(rows) >= max_filings:
+                break
+            time.sleep(float(config.get("delay_seconds", 0.2)))
+
+        total_pages = parse_pse_edge_total_pages(response.text)
+        page_no += 1
+        if total_pages and page_no > total_pages:
+            break
+
+    return rows
+
+
+def parse_pse_edge_filings(text: str) -> List[Dict[str, str]]:
+    soup = BeautifulSoup(text, "lxml")
+    filings = []
+    for row in soup.select("tbody tr"):
+        cells = row.find_all("td")
+        if len(cells) < 5:
+            continue
+        company_link = cells[0].find("a", href=True)
+        title_link = cells[1].find("a", onclick=True)
+        if not title_link:
+            continue
+        edge_no = extract_pse_edge_no(title_link.get("onclick") or "")
+        if not edge_no:
+            continue
+        company_href = company_link["href"] if company_link else ""
+        filings.append(
+            {
+                "edge_no": edge_no,
+                "company_name": clean_text(cells[0].get_text(" ")),
+                "company_id": extract_query_value(company_href, "cmpy_id"),
+                "title": clean_text(cells[1].get_text(" ")),
+                "form_number": clean_text(cells[2].get_text(" ")),
+                "announced_at": clean_text(cells[3].get_text(" ")),
+                "report_number": clean_text(cells[4].get_text(" ")),
+                "company_url": urljoin(PSE_EDGE_BASE_URL, company_href),
+            }
+        )
+    return filings
+
+
+def pse_edge_filing_matches_filters(filing: Dict, config: Dict) -> bool:
+    title = clean_text(filing.get("title") or "")
+    form_number = clean_text(filing.get("form_number") or "")
+    include_keywords = config.get("include_template_keywords") or ["annual report"]
+    if include_keywords and not any(
+        keyword.lower() in title.lower() for keyword in include_keywords
+    ):
+        return False
+    exclude_keywords = config.get("exclude_template_keywords") or [
+        "quarterly",
+        "integrated annual corporate governance report",
+    ]
+    if exclude_keywords and any(
+        keyword.lower() in title.lower() for keyword in exclude_keywords
+    ):
+        return False
+    include_form_numbers = set(str(value) for value in config.get("include_form_numbers") or ["17-1"])
+    if include_form_numbers and form_number not in include_form_numbers:
+        return False
+    return True
+
+
+def build_pse_edge_row(
+    session: requests.Session,
+    filing: Dict,
+    raw_dir: str,
+    download_documents: bool,
+    timeout: int,
+) -> FilingDocument:
+    edge_no = str(filing.get("edge_no") or "")
+    filing_date = parse_pse_edge_datetime(filing.get("announced_at") or "")
+    source_url = f"{PSE_EDGE_BASE_URL}/openDiscViewer.do?edge_no={edge_no}"
+    document_url = source_url
+    local_path = ""
+    file_id = ""
+    file_label = ""
+
+    try:
+        response = session.get(
+            source_url,
+            headers=pse_edge_headers(PSE_EDGE_FINANCIAL_REFERER),
+            timeout=timeout,
+        )
+        response.raise_for_status()
+        file_id, file_label = select_pse_edge_annual_file(response.text)
+    except requests.RequestException as exc:
+        print(f"PSE_EDGE viewer failed for {edge_no}: {exc}")
+
+    if file_id:
+        document_url = f"{PSE_EDGE_BASE_URL}/downloadFile.do?file_id={file_id}"
+        if download_documents:
+            filename = safe_filename(file_label or f"{edge_no}.html", max_length=180)
+            if "." not in filename:
+                filename = f"{filename}.html"
+            local_path = os.path.join(
+                raw_dir,
+                "PSE_EDGE",
+                filing_date.replace("-", "") or "unknown_date",
+                safe_filename(edge_no),
+                filename,
+            )
+            if not try_download_binary(
+                session=session,
+                url=document_url,
+                path=local_path,
+                headers=pse_edge_headers(source_url),
+                timeout=timeout,
+            ):
+                local_path = ""
+
+    raw_payload = dict(filing)
+    raw_payload.update({"download_file_id": file_id, "download_file_label": file_label})
+    return FilingDocument(
+        market="PSE_EDGE",
+        filing_id=edge_no,
+        filing_date=filing_date,
+        company_name=clean_text(filing.get("company_name") or ""),
+        stock_code=str(filing.get("company_id") or ""),
+        title=clean_text(filing.get("title") or ""),
+        category=clean_text(filing.get("form_number") or ""),
+        source_url=source_url,
+        document_url=document_url,
+        local_path=local_path,
+        downloaded_at=utc_now(),
+        raw_metadata=json.dumps(raw_payload, ensure_ascii=False, sort_keys=True),
+    )
+
+
+def select_pse_edge_annual_file(text: str) -> tuple[str, str]:
+    soup = BeautifulSoup(text, "lxml")
+    options = []
+    for option in soup.select("#file_list option"):
+        value = str(option.get("value") or "").strip()
+        if not value.isdigit():
+            continue
+        label = clean_text(option.get_text(" "))
+        options.append((value, label))
+
+    annual_terms = ("annual report", "17_a", "17-a", "17 a")
+    excluded_terms = ("annex", "sustainability report", "certification")
+    for value, label in options:
+        normalized = label.lower()
+        if any(term in normalized for term in annual_terms) and not any(
+            term in normalized for term in excluded_terms
+        ):
+            return value, label
+    for value, label in options:
+        normalized = label.lower()
+        if any(term in normalized for term in annual_terms):
+            return value, label
+
+    iframe = soup.find("iframe", id="viewContents")
+    if iframe and iframe.get("src"):
+        file_id = extract_query_value(str(iframe["src"]), "file_id")
+        if file_id:
+            return file_id, "annual_report.html"
+    return "", ""
+
+
+def parse_pse_edge_total_pages(text: str) -> int:
+    match = re.search(r"\[\s*\d+\s*/\s*([\d,]+)\s*\]\s*\[\s*Total", text)
+    if not match:
+        return 0
+    return int(match.group(1).replace(",", ""))
+
+
+def extract_pse_edge_no(onclick: str) -> str:
+    match = re.search(r"openPopup\('([^']+)'\)", onclick)
+    return match.group(1) if match else ""
+
+
+def format_pse_edge_date(value: date) -> str:
+    return f"{value:%m-%d-%Y}"
+
+
+def parse_pse_edge_datetime(value: str) -> str:
+    value = clean_text(value)
+    if not value:
+        return ""
+    try:
+        return datetime.strptime(value, "%b %d, %Y %I:%M %p").date().isoformat()
+    except ValueError:
+        return ""
+
+
+def pse_edge_headers(referer: str) -> Dict[str, str]:
+    return {
+        "User-Agent": PSE_EDGE_USER_AGENT,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Referer": referer,
+    }
 
 
 def collect_edinet(
@@ -1716,6 +1966,11 @@ def normalize_twse_time(value: str) -> str:
 def extract_onclick_value(onclick: str, field_name: str) -> str:
     match = re.search(rf"{re.escape(field_name)}\.value='([^']*)'", onclick)
     return match.group(1) if match else ""
+
+
+def extract_query_value(url: str, field_name: str) -> str:
+    match = re.search(rf"(?:[?&]|^){re.escape(field_name)}=([^&#]+)", str(url or ""))
+    return unquote(match.group(1)) if match else ""
 
 
 def edinet_extension(document_type: str) -> str:

@@ -1,6 +1,9 @@
 import os
-DATASET_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'datasets')
-LOGGING_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'logs')
+_REPO_DIR = os.path.dirname(os.path.realpath(__file__))
+_EXTERNAL_DRIVE = "/Volumes/OWC Express 1M2/datasets"
+
+DATASET_DIR = _EXTERNAL_DRIVE if os.path.isdir(_EXTERNAL_DRIVE) else os.path.join(_REPO_DIR, 'datasets')
+LOGGING_DIR = os.path.join(_REPO_DIR, 'logs')
 
 if not os.path.exists(DATASET_DIR):
 	os.mkdir(DATASET_DIR)

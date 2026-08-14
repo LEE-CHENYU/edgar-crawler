@@ -34,7 +34,7 @@ def main() -> None:
         "--markets",
         nargs="+",
         default=["edinet", "dart", "twse"],
-        choices=["edinet", "dart", "twse", "hkex", "twse_reports"],
+        choices=["edinet", "dart", "pse_edge", "twse", "hkex", "twse_reports"],
     )
     parser.add_argument("--start-date", default=DEFAULT_START_DATE)
     parser.add_argument("--end-date", default=date.today().isoformat())
@@ -43,6 +43,7 @@ def main() -> None:
     parser.add_argument("--refresh-company-codes", action="store_true")
     parser.add_argument("--edinet-days-per-chunk", type=int, default=1)
     parser.add_argument("--dart-days-per-chunk", type=int, default=7)
+    parser.add_argument("--pse-edge-days-per-chunk", type=int, default=31)
     parser.add_argument("--hkex-days-per-chunk", type=int, default=1)
     parser.add_argument("--twse-company-batch-size", type=int, default=20)
     parser.add_argument("--twse-report-company-batch-size", type=int, default=5)
@@ -96,6 +97,21 @@ def main() -> None:
                 market="dart",
                 state_key="dart_next_end",
                 days_per_chunk=args.dart_days_per_chunk,
+                start_date=start_date,
+                end_date=end_date,
+                state=state,
+                state_path=state_path,
+                base_config=base_config,
+                request_timeout=args.request_timeout,
+            )
+            did_work = did_work or result == "worked"
+            had_error = had_error or result == "error"
+
+        if "pse_edge" in args.markets:
+            result = run_date_backfill_chunk(
+                market="pse_edge",
+                state_key="pse_edge_next_end",
+                days_per_chunk=args.pse_edge_days_per_chunk,
                 start_date=start_date,
                 end_date=end_date,
                 state=state,
