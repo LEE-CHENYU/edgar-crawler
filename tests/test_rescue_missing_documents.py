@@ -11,6 +11,7 @@ import pytest
 from scripts.rescue_missing_documents import (
     DAILY_CALL_CAP_DART,
     FailureRun,
+    breaker_action,
     RescueState,
     build_twse_local_path,
     dart_document_url,
@@ -322,6 +323,26 @@ def test_consecutive_failures_reset_on_success():
     assert counter.consecutive == 2
     counter.record(ok=True)
     assert counter.consecutive == 0
+
+
+def test_breaker_cools_down_and_resumes_instead_of_giving_up():
+    """TWSE's limiter is a short burst window, not a ban.
+
+    Measured 2026-08-14: the endpoint refused all connections after a ~100
+    request burst, then served a full 1,086,164-byte PDF again ~7 minutes
+    later. A hard stop would strand a multi-day drip that only needed to wait.
+    """
+    assert breaker_action(consecutive=5, limit=5, cooldowns_used=0, max_cooldowns=20) == "cooldown"
+    assert breaker_action(consecutive=4, limit=5, cooldowns_used=0, max_cooldowns=20) == "continue"
+
+
+def test_breaker_gives_up_after_repeated_cooldowns():
+    """If cooling down never helps, the block is not a burst window."""
+    assert breaker_action(consecutive=5, limit=5, cooldowns_used=20, max_cooldowns=20) == "stop"
+
+
+def test_breaker_disabled_when_limit_is_zero():
+    assert breaker_action(consecutive=99, limit=0, cooldowns_used=0, max_cooldowns=5) == "continue"
 
 
 def test_cursor_does_not_advance_past_failures():

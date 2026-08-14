@@ -80,6 +80,27 @@ def should_stop_for_failures(consecutive: int, limit: int) -> bool:
     return consecutive >= limit
 
 
+def breaker_action(
+    consecutive: int, limit: int, cooldowns_used: int, max_cooldowns: int
+) -> str:
+    """What to do when failures pile up: continue, cooldown, or stop.
+
+    TWSE's limiter is a short burst window rather than a ban. Measured
+    2026-08-14: the endpoint refused every connection after a ~100-request
+    burst, then served a full 1,086,164-byte PDF again about 7 minutes later,
+    while the site root stayed 200 throughout. So the right response to a trip
+    is to wait and resume, not to abandon a multi-day drip. Repeated cooldowns
+    that never help mean it is not a burst window, and then we stop.
+    """
+    if limit <= 0:
+        return "continue"
+    if consecutive < limit:
+        return "continue"
+    if cooldowns_used >= max_cooldowns:
+        return "stop"
+    return "cooldown"
+
+
 def resume_cursor(last_index: int, first_failure_index: Optional[int]) -> int:
     """Where the next pass should start.
 
@@ -362,6 +383,19 @@ def main() -> int:
              "original backfill and is the safe default.",
     )
     parser.add_argument(
+        "--cooldown-seconds",
+        type=float,
+        default=900.0,
+        help="Wait this long when the breaker trips, then resume. TWSE's "
+             "burst limiter cleared in ~7 minutes when measured.",
+    )
+    parser.add_argument(
+        "--max-cooldowns",
+        type=int,
+        default=20,
+        help="Give up after this many cooldowns that did not help.",
+    )
+    parser.add_argument(
         "--max-consecutive-failures",
         type=int,
         default=10,
@@ -449,6 +483,7 @@ def main() -> int:
     failure_run = FailureRun()
     first_failure_index: Optional[int] = None
     tripped = False
+    cooldowns_used = 0
 
     for index in range(state.cursor, len(missing)):
         if args.limit and processed >= args.limit:
@@ -490,14 +525,31 @@ def main() -> int:
             if result.error:
                 log(f"  {row.get('filing_id')}: {result.error[:120]}")
 
-        if should_stop_for_failures(
-            failure_run.consecutive, args.max_consecutive_failures
-        ):
+        action = breaker_action(
+            failure_run.consecutive,
+            args.max_consecutive_failures,
+            cooldowns_used,
+            args.max_cooldowns,
+        )
+        if action == "cooldown":
+            cooldowns_used += 1
+            log(
+                f"COOLDOWN {cooldowns_used}/{args.max_cooldowns}: "
+                f"{failure_run.consecutive} consecutive failures -- source is "
+                f"rate limiting. Sleeping {args.cooldown_seconds:.0f}s, then "
+                f"resuming from cursor {state.cursor}."
+            )
+            save_state(state_path, state)
+            report_progress(job_id, state, total=len(missing), skipped=skipped)
+            time.sleep(args.cooldown_seconds)
+            failure_run.consecutive = 0
+            # The cursor stays put, so the cooled-off pass retries these rows.
+            first_failure_index = None
+        elif action == "stop":
             tripped = True
             log(
-                f"STOPPING: {failure_run.consecutive} consecutive failures -- "
-                "the source is likely throttling. Cursor held at "
-                f"{state.cursor}; rerun later to retry."
+                f"STOPPING after {cooldowns_used} cooldowns that did not help; "
+                f"this is not a burst window. Cursor held at {state.cursor}."
             )
             break
 
