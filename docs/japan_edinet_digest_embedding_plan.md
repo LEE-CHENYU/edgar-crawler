@@ -252,39 +252,32 @@ Evaluation set:
 - one IFRS filer
 - one US GAAP filer
 
-## Nebius Acceleration Path
+## RunPod Acceleration Path
 
-Nebius Token Factory exposes an OpenAI-compatible embeddings endpoint.
-
-Default candidate:
-
-```text
-base_url=https://api.tokenfactory.nebius.com/v1/
-model=BAAI/bge-en-icl
-encoding_format=float
-```
-
-Use it as an acceleration backend for the embedding stage only. Structured XBRL
-parsing should remain local and deterministic.
+Use RunPod for compute while Nebius is unavailable. Structured XBRL parsing is
+CPU-bound and deterministic, so it can run on a cheap CPU/Jupyter pod. Embedding
+can later use a GPU pod or a remote embedding endpoint hosted from RunPod.
 
 Operational rules:
 
-- Store `NEBIUS_API_KEY` only in the process environment or local private env
-  file, never in the repository.
+- Store provider API keys only in the process environment or local private env
+  files, never in the repository.
+- Prefer persistent volumes for long jobs. If only container disk is available,
+  use `--delete-zip-after-parse --gzip-facts` and monitor disk usage.
 - Batch chunks by token budget, not by file count.
 - Persist embeddings incrementally after each successful batch.
 - Use stable chunk IDs so failed batches can resume without duplicate vectors.
 - Record the embedding backend, model, dimension, and timestamp in metadata.
-- Keep provider-specific vectors in separate namespaces. Do not mix Nebius and
-  OpenAI embeddings in the same vector index.
+- Keep provider-specific vectors in separate namespaces. Do not mix vectors from
+  different embedding models or providers in the same vector index.
 
 Suggested output vector metadata:
 
 ```text
 chunk_id
-embedding_provider=nebius
-embedding_model=BAAI/bge-en-icl
-embedding_dim=1536
+embedding_provider=runpod|openai|local
+embedding_model=<model-name>
+embedding_dim=<dimension>
 embedded_at
 source_hash
 ```
@@ -328,7 +321,7 @@ raw/EDINET_XBRL/{YYYYMMDD}/{doc_id}/{doc_id}.zip
 ### Phase 5: Embedding Bakeoff
 
 - Run 50 filings through the chunker.
-- Embed with Nebius if `NEBIUS_API_KEY` is available.
+- Embed with the selected RunPod-hosted or external embedding backend.
 - Measure:
   - chunks/sec;
   - tokens/sec;
