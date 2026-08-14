@@ -10,6 +10,7 @@ import pytest
 
 from scripts.rescue_missing_documents import (
     DAILY_CALL_CAP_DART,
+    FailureRun,
     RescueState,
     build_twse_local_path,
     dart_document_url,
@@ -17,9 +18,11 @@ from scripts.rescue_missing_documents import (
     progress_details,
     quota_exhausted,
     report_progress,
+    resume_cursor,
     rescue_dart_row,
     rescue_twse_row,
     save_state,
+    should_stop_for_failures,
     select_missing_rows,
     twse_filing_from_row,
 )
@@ -292,6 +295,44 @@ def test_quota_exhausted_respects_dart_daily_cap():
 
 
 # --- state / resume ------------------------------------------------------
+
+
+# --- throttling protection -----------------------------------------------
+
+
+def test_circuit_breaker_trips_after_consecutive_failures():
+    """A throttling episode must stop the run, not march the cursor.
+
+    TWSE began aborting connections under sustained load; the run kept going
+    and converted 51 recoverable rows into failures in 30 seconds. That is
+    exactly how the original 21,934-document gap was created.
+    """
+    assert should_stop_for_failures(consecutive=10, limit=10) is True
+    assert should_stop_for_failures(consecutive=9, limit=10) is False
+
+
+def test_circuit_breaker_disabled_when_limit_is_zero():
+    assert should_stop_for_failures(consecutive=999, limit=0) is False
+
+
+def test_consecutive_failures_reset_on_success():
+    counter = FailureRun()
+    counter.record(ok=False)
+    counter.record(ok=False)
+    assert counter.consecutive == 2
+    counter.record(ok=True)
+    assert counter.consecutive == 0
+
+
+def test_cursor_does_not_advance_past_failures():
+    """Resume must retry failures, never skip them.
+
+    The cursor is a progress hint; the authoritative work list is re-derived
+    from rows lacking a local_path on every run. Persisting a cursor past a
+    failed row would silently drop it.
+    """
+    assert resume_cursor(last_index=105, first_failure_index=80) == 80
+    assert resume_cursor(last_index=105, first_failure_index=None) == 105
 
 
 # --- job tracker reporting -----------------------------------------------

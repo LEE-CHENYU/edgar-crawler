@@ -58,6 +58,40 @@ class RescueResult:
     skipped: bool = False
 
 
+@dataclass
+class FailureRun:
+    """Tracks consecutive failures so a throttling episode can stop the run."""
+
+    consecutive: int = 0
+
+    def record(self, ok: bool) -> None:
+        self.consecutive = 0 if ok else self.consecutive + 1
+
+
+def should_stop_for_failures(consecutive: int, limit: int) -> bool:
+    """True when the run should stop rather than keep hammering a source.
+
+    TWSE began aborting connections under sustained load and 51 recoverable
+    rows became failures in 30 seconds. Marching on during an outage is how
+    the original gap was created; stop and let a later pass retry.
+    """
+    if limit <= 0:
+        return False
+    return consecutive >= limit
+
+
+def resume_cursor(last_index: int, first_failure_index: Optional[int]) -> int:
+    """Where the next pass should start.
+
+    The cursor must never persist past a failed row, or resume would skip it.
+    The authoritative work list is re-derived from rows lacking a local_path
+    on every run; the cursor is only an optimisation on top of that.
+    """
+    if first_failure_index is None:
+        return last_index
+    return min(last_index, first_failure_index)
+
+
 def already_acquired(path: str) -> bool:
     """True when a non-empty document is already on disk.
 
@@ -320,7 +354,21 @@ def main() -> int:
     parser.add_argument("--data-root", type=Path, default=DEFAULT_DATA_ROOT)
     parser.add_argument("--state-file", type=Path, default=None)
     parser.add_argument("--limit", type=int, default=0, help="0 = no limit")
-    parser.add_argument("--sleep-seconds", type=float, default=1.0)
+    parser.add_argument(
+        "--sleep-seconds",
+        type=float,
+        default=2.0,
+        help="Pacing between fetches. TWSE throttles at 0.5s; 2s matches the "
+             "original backfill and is the safe default.",
+    )
+    parser.add_argument(
+        "--max-consecutive-failures",
+        type=int,
+        default=10,
+        help="Stop the run after this many consecutive failures (0 disables). "
+             "Prevents a throttling episode from marching the cursor through "
+             "the corpus and converting recoverable rows into gaps.",
+    )
     parser.add_argument("--timeout", type=int, default=120)
     parser.add_argument("--log-every", type=int, default=25)
     parser.add_argument(
@@ -398,6 +446,9 @@ def main() -> int:
     updated: List[Dict[str, str]] = []
     processed = 0
     skipped = 0
+    failure_run = FailureRun()
+    first_failure_index: Optional[int] = None
+    tripped = False
 
     for index in range(state.cursor, len(missing)):
         if args.limit and processed >= args.limit:
@@ -421,8 +472,10 @@ def main() -> int:
             )
 
         state.calls_used += result.calls_used
-        state.cursor = index + 1
+        # Never persist a cursor past a failed row: resume must retry it.
+        state.cursor = resume_cursor(index + 1, first_failure_index)
         processed += 1
+        failure_run.record(ok=result.ok)
 
         if result.ok:
             state.recovered += 1
@@ -432,8 +485,21 @@ def main() -> int:
             updated.append(row)
         else:
             state.failed += 1
+            if first_failure_index is None:
+                first_failure_index = index
             if result.error:
                 log(f"  {row.get('filing_id')}: {result.error[:120]}")
+
+        if should_stop_for_failures(
+            failure_run.consecutive, args.max_consecutive_failures
+        ):
+            tripped = True
+            log(
+                f"STOPPING: {failure_run.consecutive} consecutive failures -- "
+                "the source is likely throttling. Cursor held at "
+                f"{state.cursor}; rerun later to retry."
+            )
+            break
 
         if processed % args.log_every == 0:
             log(
@@ -461,7 +527,8 @@ def main() -> int:
         state=state,
         total=len(missing),
         skipped=skipped,
-        complete=state.cursor >= len(missing),
+        complete=state.cursor >= len(missing) and not tripped,
+        tripped=tripped,
     )
     log(
         f"{args.market} done: {state.recovered} recovered "
@@ -504,7 +571,12 @@ def register_tracker_job(job_id: str, market: str, total: int, log_path: str) ->
 
 
 def finish_tracker_job(
-    job_id: str, state: RescueState, total: int, skipped: int, complete: bool
+    job_id: str,
+    state: RescueState,
+    total: int,
+    skipped: int,
+    complete: bool,
+    tripped: bool = False,
 ) -> None:
     """Mark the tracker entry done/paused. Never raises."""
     try:
@@ -521,8 +593,9 @@ def finish_tracker_job(
             id=job_id,
             current=state.recovered,
             total=total,
-            status="done" if complete else "paused",
-            details=progress_details(state, total, skipped),
+            status="done" if complete else ("failed" if tripped else "paused"),
+            details=progress_details(state, total, skipped)
+            + (["stopped early: consecutive-failure breaker tripped"] if tripped else []),
         )
     except Exception:
         return
