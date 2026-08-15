@@ -11,6 +11,7 @@ import pytest
 from scripts.rescue_missing_documents import (
     DAILY_CALL_CAP_DART,
     FailureRun,
+    CooldownRun,
     breaker_action,
     RescueState,
     build_twse_local_path,
@@ -336,9 +337,27 @@ def test_breaker_cools_down_and_resumes_instead_of_giving_up():
     assert breaker_action(consecutive=4, limit=5, cooldowns_used=0, max_cooldowns=20) == "continue"
 
 
-def test_breaker_gives_up_after_repeated_cooldowns():
-    """If cooling down never helps, the block is not a burst window."""
-    assert breaker_action(consecutive=5, limit=5, cooldowns_used=20, max_cooldowns=20) == "stop"
+def test_breaker_gives_up_only_on_unproductive_cooldowns():
+    """Counting *total* cooldowns would kill a healthy long run.
+
+    Measured on TWSE: the limiter allows ~35 documents per cycle, so the
+    21,849-document backlog needs ~620 cooldowns. A cap on total cooldowns
+    (80) would have stopped the run at ~2,800 documents while it was working
+    perfectly. Only cooldowns that recover nothing indicate a real block.
+    """
+    assert breaker_action(consecutive=5, limit=5, cooldowns_used=600, max_cooldowns=5) == "cooldown"
+    assert breaker_action(
+        consecutive=5, limit=5, cooldowns_used=600, max_cooldowns=5, unproductive=5
+    ) == "stop"
+
+
+def test_productive_cooldown_resets_the_unproductive_run():
+    counter = CooldownRun()
+    counter.record(recovered_since_last=0)
+    counter.record(recovered_since_last=0)
+    assert counter.unproductive == 2
+    counter.record(recovered_since_last=35)
+    assert counter.unproductive == 0
 
 
 def test_breaker_disabled_when_limit_is_zero():

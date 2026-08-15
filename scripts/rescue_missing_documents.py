@@ -80,8 +80,22 @@ def should_stop_for_failures(consecutive: int, limit: int) -> bool:
     return consecutive >= limit
 
 
+@dataclass
+class CooldownRun:
+    """Tracks cooldowns that recovered nothing."""
+
+    unproductive: int = 0
+
+    def record(self, recovered_since_last: int) -> None:
+        self.unproductive = 0 if recovered_since_last > 0 else self.unproductive + 1
+
+
 def breaker_action(
-    consecutive: int, limit: int, cooldowns_used: int, max_cooldowns: int
+    consecutive: int,
+    limit: int,
+    cooldowns_used: int,
+    max_cooldowns: int,
+    unproductive: int = 0,
 ) -> str:
     """What to do when failures pile up: continue, cooldown, or stop.
 
@@ -96,7 +110,11 @@ def breaker_action(
         return "continue"
     if consecutive < limit:
         return "continue"
-    if cooldowns_used >= max_cooldowns:
+    # Total cooldowns are NOT a failure signal. TWSE allows ~35 documents per
+    # cycle, so a 21,849-document backlog legitimately needs ~620 cooldowns;
+    # capping the total would kill a run that is working perfectly. Only
+    # cooldowns that recover nothing mean the source is genuinely blocked.
+    if unproductive >= max_cooldowns:
         return "stop"
     return "cooldown"
 
@@ -392,8 +410,10 @@ def main() -> int:
     parser.add_argument(
         "--max-cooldowns",
         type=int,
-        default=20,
-        help="Give up after this many cooldowns that did not help.",
+        default=5,
+        help="Give up after this many CONSECUTIVE cooldowns that recovered "
+             "nothing. Not a cap on total cooldowns -- a long backlog against "
+             "a ~35-document limiter legitimately needs hundreds of them.",
     )
     parser.add_argument(
         "--max-consecutive-failures",
@@ -484,6 +504,8 @@ def main() -> int:
     first_failure_index: Optional[int] = None
     tripped = False
     cooldowns_used = 0
+    cooldown_run = CooldownRun()
+    recovered_at_last_cooldown = state.recovered
 
     for index in range(state.cursor, len(missing)):
         if args.limit and processed >= args.limit:
@@ -530,11 +552,15 @@ def main() -> int:
             args.max_consecutive_failures,
             cooldowns_used,
             args.max_cooldowns,
+            cooldown_run.unproductive,
         )
         if action == "cooldown":
             cooldowns_used += 1
+            cooldown_run.record(state.recovered - recovered_at_last_cooldown)
+            recovered_at_last_cooldown = state.recovered
             log(
-                f"COOLDOWN {cooldowns_used}/{args.max_cooldowns}: "
+                f"COOLDOWN {cooldowns_used} "
+                f"(unproductive {cooldown_run.unproductive}/{args.max_cooldowns}): "
                 f"{failure_run.consecutive} consecutive failures -- source is "
                 f"rate limiting. Sleeping {args.cooldown_seconds:.0f}s, then "
                 f"resuming from cursor {state.cursor}."
@@ -548,7 +574,9 @@ def main() -> int:
         elif action == "stop":
             tripped = True
             log(
-                f"STOPPING after {cooldowns_used} cooldowns that did not help; "
+                f"STOPPING after {cooldown_run.unproductive} consecutive "
+                f"cooldowns that recovered nothing "
+                f"({cooldowns_used} cooldowns total); "
                 f"this is not a burst window. Cursor held at {state.cursor}."
             )
             break
