@@ -35,6 +35,11 @@ BACKOFF_SECONDS = 2.0
 # the spine cache (see below) makes every later build near-instant.
 PACE_SECONDS = 2.5
 
+# A full first resolution is ~1,800 batches / ~75 min. Checkpoint the cache
+# periodically so an interrupted run keeps what it already resolved instead of
+# starting over.
+CHECKPOINT_BATCHES = 100
+
 # OpenFIGI exchange codes per market.
 #
 # NOTE (verified against the live OpenFIGI API on 2026-08-17): "in_bse" is
@@ -186,6 +191,7 @@ def resolve(
     stats: Optional[Dict[str, int]] = None,
     sleep: Callable[[float], None] = time.sleep,
     pace: float = PACE_SECONDS,
+    checkpoint: Optional[Callable[[Dict[Key, dict]], None]] = None,
 ) -> Dict[Key, dict]:
     """Resolve identifiers, preferring cache, degrading to surrogate keys.
 
@@ -220,6 +226,13 @@ def resolve(
         blocks = _fetch_batch_with_retry(fetch, batch, stats, sleep)
         if blocks is not None:
             out.update(parse_figi_response(blocks, batch))
+        if checkpoint is not None and stats["batches"] % CHECKPOINT_BATCHES == 0:
+            checkpoint(out)
+            print(
+                f"spine: {stats['batches']} batches done, "
+                f"{sum(1 for e in out.values() if e.get('figi'))} resolved so far",
+                flush=True,
+            )
 
     for market, local_id in todo:
         key = (market, local_id)

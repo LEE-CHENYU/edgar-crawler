@@ -354,7 +354,11 @@ def main() -> int:
         flush=True,
     )
     stats: Dict[str, int] = {}
-    resolved = resolve(identifiers, cache=cache, stats=stats)
+    checkpoint = None
+    if not args.no_spine_cache:
+        def checkpoint(partial):  # noqa: E306
+            save_spine_cache(args.out_root, partial)
+    resolved = resolve(identifiers, cache=cache, stats=stats, checkpoint=checkpoint)
     rows = attach_spine(rows, resolved)
     report_resolution(resolved, stats)
     if not args.no_spine_cache:

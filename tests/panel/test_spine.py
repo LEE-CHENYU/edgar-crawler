@@ -282,3 +282,19 @@ def test_resolve_paces_between_batches_to_respect_rate_limit():
             sleep=slept.append, pace=2.5)
     # Two gaps between three batches, no sleep before the first.
     assert slept == [2.5, 2.5]
+
+
+def test_resolve_checkpoints_the_cache_during_a_long_run(monkeypatch):
+    """A ~75-minute first resolution must not lose everything if interrupted."""
+    import panel.spine as spine_mod
+
+    monkeypatch.setattr(spine_mod, "CHECKPOINT_BATCHES", 2)
+    seen = []
+
+    def fetcher(batch):
+        return [{"data": [{"figi": "BBG1", "name": "X"}]} for _ in batch]
+
+    resolve([("au", f"T{i}") for i in range(45)], fetcher=fetcher,
+            sleep=lambda _s: None, checkpoint=lambda partial: seen.append(len(partial)))
+    assert len(seen) == 2  # after batch 2 and batch 4 of 5
+    assert seen[0] > 0
