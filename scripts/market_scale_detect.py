@@ -34,7 +34,19 @@ REPO = Path(__file__).resolve().parents[1]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from scripts.market_conventions import detect_scale  # noqa: E402
+# Load the sibling by PATH, not by name. `import scripts.market_conventions`
+# binds to /Users/lichenyu/leviathan/scripts instead: an easy-install.pth puts
+# that directory on sys.path and its scripts/ is a regular package, which Python
+# resolves ahead of this repo's namespace package. Path-explicit loading is
+# immune to whatever else claims the name `scripts`.
+import importlib.util  # noqa: E402
+
+_spec = importlib.util.spec_from_file_location(
+    "_market_conventions", Path(__file__).resolve().parent / "market_conventions.py"
+)
+_conv = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_conv)
+detect_scale = _conv.detect_scale
 
 DATASETS = Path("/Volumes/OWC Express 1M2/datasets/MARKET_FILINGS")
 OUT_ROOT = Path("/Users/lichenyu/datasets/panel")
