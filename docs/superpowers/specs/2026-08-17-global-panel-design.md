@@ -29,7 +29,7 @@ Structured outputs and their identifiers:
 | CN | `balance_sheet/income_statement/cash_flow_direct.parquet` | `Stkcd` + `Accper` | 691,480 | 5,956 companies, 1990-2026, genuinely quarterly |
 | HK | `hkex_financials/{facts,summaries,text}` | per-filing | 25,658 docs | needs adapter |
 | JP | `edinet_xbrl` | per-filing | 37,668 docs | needs adapter |
-| US | `processed/market_data` | — | — | needs investigation; may be prices not fundamentals |
+| US | `processed/market_data` | — | 13 GB | **not fundamentals** — land/lodging/real_estate market data; out of v1 (§10) |
 | EU (ESEF) | packages only | **LEI** | 15,875 | no stage-02 yet |
 | IE/DE (EDGAR) | documents only | **CIK** | 407 + running | no stage-02 yet |
 
