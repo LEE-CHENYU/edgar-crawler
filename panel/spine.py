@@ -72,6 +72,16 @@ def normalize_identifier(market: str, local_id: str) -> str:
     if market == "hk":
         stripped = local_id.lstrip("0")
         return stripped or "0"
+    if market == "jp" and len(local_id) == 5 and local_id.endswith("0"):
+        # EDINET stores the 4-character TSE ticker plus a trailing check '0'
+        # (7203 -> "72030", 8595 -> "85950", and the newer alphanumeric form
+        # 130A -> "130A0"). OpenFIGI only knows the 4-character ticker: probed
+        # live 2026-08-17, "85950"/"72030"/"13010" all return "No identifier
+        # found" while "8595" -> JAFCO GROUP, "7203" -> TOYOTA MOTOR,
+        # "1301" -> KYOKUYO and "130A" -> VERITAS IN SILICO all hit. Without
+        # this, every one of the 4,418 JP identifiers resolves to a surrogate
+        # (measured: a 1,900-identifier JP chunk returned 0 hits).
+        return local_id[:4]
     return local_id
 
 

@@ -298,3 +298,26 @@ def test_resolve_checkpoints_the_cache_during_a_long_run(monkeypatch):
             sleep=lambda _s: None, checkpoint=lambda partial: seen.append(len(partial)))
     assert len(seen) == 2  # after batch 2 and batch 4 of 5
     assert seen[0] > 0
+
+
+def test_normalize_identifier_strips_jp_edinet_check_digit():
+    """EDINET stores ticker + trailing '0'; OpenFIGI knows only the ticker."""
+    assert normalize_identifier("jp", "72030") == "7203"
+    assert normalize_identifier("jp", "85950") == "8595"
+    assert normalize_identifier("jp", "130A0") == "130A"
+
+
+def test_normalize_identifier_leaves_four_char_jp_codes_alone():
+    assert normalize_identifier("jp", "7203") == "7203"
+
+
+def test_normalize_identifier_leaves_jp_codes_not_ending_in_zero_alone():
+    """Only the trailing-'0' EDINET form is a check-digit form."""
+    assert normalize_identifier("jp", "13011") == "13011"
+
+
+def test_jp_surrogate_key_keeps_the_corpus_local_id():
+    def fetcher(batch):
+        return [{"warning": "No identifier found."} for _ in batch]
+    got = resolve([("jp", "85950")], fetcher=fetcher, sleep=lambda _s: None)
+    assert got[("jp", "85950")]["spine_key"] == "JT:85950"
