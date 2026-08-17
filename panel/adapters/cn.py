@@ -7,6 +7,15 @@ be retained, not dropped, so a later query can compute a restated-vs-
 originally-reported delta. `Typrep` ('A' consolidated vs 'B' parent-company)
 is recorded per row as `cn_typrep` so the two reporting bases are never
 silently mixed together.
+
+OPEN-row fiscal_year semantics (deliberate, ruled on 2026-08-17): an OPEN
+row's `fiscal_year` is `int(period_end[:4])` — the calendar year of its
+`period_end` (a 2024-01-01 opening balance gets fiscal_year=2024), NOT the
+year it restates (2023). This is uniform with every other adapter, which
+all derive fiscal_year from period_end the same way; special-casing OPEN
+rows to year-1 would be a surprise. A restatement-delta query must therefore
+join an OPEN row at YYYY-01-01 against the A row at (YYYY-1)-12-31 on
+`period_end`, never on `fiscal_year`.
 """
 from __future__ import annotations
 
@@ -51,6 +60,12 @@ def rows_from_cn_frames(
     income_statement: Optional[pd.DataFrame] = None,
     cash_flow: Optional[pd.DataFrame] = None,
 ) -> List[dict]:
+    """Build panel rows from the CSMAR balance sheet / income statement / cash
+    flow trio (only `balance_sheet` is required).
+
+    See the module docstring for OPEN-row fiscal_year semantics: fiscal_year
+    is always the calendar year of period_end, including for OPEN rows.
+    """
     merged = _merge([balance_sheet, income_statement, cash_flow])
     out: List[dict] = []
     for record in merged.to_dict("records"):

@@ -49,3 +49,52 @@ def test_unusable_accper_is_dropped():
 
 def test_missing_optional_frames_are_fine():
     assert len(rows_from_cn_frames(_bs(), income_statement=None, cash_flow=None)) == 3
+
+
+def _inc():
+    return pd.DataFrame([
+        {"Stkcd": "000001", "Accper": "2024-12-31", "Typrep": "A", "B001100000": 500.0},
+    ])
+
+
+def _cf():
+    return pd.DataFrame([
+        {"Stkcd": "000001", "Accper": "2024-12-31", "Typrep": "A", "C001000000": 40.0},
+    ])
+
+
+def test_three_frame_metrics_merge_onto_same_row():
+    """Metrics from balance sheet, income statement, and cash flow for the same
+    Stkcd/Accper/Typrep land on one row, not three separate rows."""
+    rows = {r["period_end"]: r for r in rows_from_cn_frames(_bs(), _inc(), _cf())}
+    row = rows["2024-12-31"]
+    assert row["total_assets"] == 100.0
+    assert row["revenue"] == 500.0
+    assert row["operating_cash_flow"] == 40.0
+
+
+def test_period_only_in_income_statement_still_produces_a_row():
+    """An outer join: a period present in income_statement but absent from
+    balance_sheet must still produce a row, with balance-sheet metrics as
+    None rather than a missing key or an exception."""
+    inc = pd.DataFrame([
+        {"Stkcd": "000001", "Accper": "2024-06-30", "Typrep": "A", "B001100000": 250.0},
+    ])
+    rows = {r["period_end"]: r for r in rows_from_cn_frames(_bs(), income_statement=inc)}
+    assert "2024-06-30" in rows
+    row = rows["2024-06-30"]
+    assert row["revenue"] == 250.0
+    assert row["total_assets"] is None
+
+
+def test_duplicate_metric_column_across_frames_is_not_swallowed_by_dup_suffix():
+    """When a metric code appears in two supplied frames for the same key, the
+    value that lands on the row must be the real value (not None), and no
+    '_dup'-suffixed key should leak into the emitted row dict."""
+    inc_with_overlap = pd.DataFrame([
+        {"Stkcd": "000001", "Accper": "2024-12-31", "Typrep": "A", "A001000000": 999.0},
+    ])
+    rows = rows_from_cn_frames(_bs(), income_statement=inc_with_overlap)
+    row = [r for r in rows if r["period_end"] == "2024-12-31"][0]
+    assert row["total_assets"] is not None
+    assert not any(str(k).endswith("_dup") for k in row.keys())
