@@ -1,21 +1,30 @@
 """Assemble the panel from every v1 market adapter.
 
-Currency note (found 2026-08-17 full-build review): AU/TW/PH/KR rows carry
-currency="USD" with fx_rate=1.0 on this panel's own FX step, but that is NOT
-"no conversion needed from a local currency" -- their upstream
-*_screening_input.csv builders already convert AUD/TWD/PHP/KRW to USD at
-build time, at an FX rate and as-of date this panel never sees or records.
-CN/JP/IN_BSE/HK stay in local currency (HK is a genuine three-currency mix:
-HKD/CNY/USD, since ~40% of HKEX filers report in RMB) and get FX applied
-here, with fx_rate/fx_asof captured per row. Comparing a raw `revenue`
-across markets therefore mixes units -- USD for the four upstream-converted
-markets, local currency for the rest -- until every row's own currency
-column is checked.
+Currency note: EVERY market in this panel now carries its own NATIVE reporting
+currency and gets FX applied here, with fx_rate/fx_asof captured per row.
+au/tw/ph/kr used to read *_screening_input.csv, which its upstream builder had
+already USD-converted at an unrecorded rate and as-of date; those markets now
+read the period-level canonical_metrics_wide.parquet in the same directories,
+which is native AUD/TWD/PHP/KRW (verified 2026-08-17: Telstra FY2025
+total_assets 45,550 and revenue 22,928 = A$45.5bn / A$22.9bn; Samsung
+005930 FY2022 total_assets 4.484e14 = KRW 448tn). The old USD-pre-conversion
+caveat therefore no longer applies and has been removed rather than left to
+mislead.
+
+Two unit caveats DO remain, and neither is invented by this panel:
+  * the au and tw parquets carry figures in the filings' presentation units
+    (AUD millions, TWD thousands) with no scale column, so magnitudes are not
+    comparable to kr/ph/cn/jp absolute figures. See the unit_scale column
+    (Sec FIX 3) -- it defaults to 1 because the source records no scale.
+  * a minority of ASX filers report in USD (BHP, RIO, NIC), the same
+    mixed-currency reality HK has; currency is declared per market, not per
+    filing, for au.
 """
 from __future__ import annotations
 
 import argparse
 import os
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -23,7 +32,7 @@ from typing import Dict, List, Optional
 import pandas as pd
 
 from panel.fx import fetch_rates, to_usd
-from panel.schema import PANEL_COLUMNS
+from panel.schema import PANEL_COLUMN_DEFAULTS, PANEL_COLUMNS
 from panel.spine import (
     EXCH_CODES, load_spine_cache, resolve, save_spine_cache, surrogate_key,
 )
@@ -33,21 +42,23 @@ DATA_ROOT = Path("/Volumes/OWC Express 1M2/datasets")
 DEFAULT_OUT = Path("/Users/lichenyu/datasets/panel")
 
 MARKET_SOURCES: Dict[str, dict] = {
-    # au/tw/ph/kr "currency" is declared as the local currency, but the
-    # *_screening_input.csv these adapters read is ALREADY USD-converted by
-    # its upstream builder -- verified in the 2026-08-17 full build, every
-    # row from these four markets lands with currency="USD". The FX rate and
-    # as-of date used for that upstream conversion are not recorded anywhere
-    # in this panel; this panel's own fx_rate=1.0 on those rows means
-    # "already USD", not "no conversion was needed from a local currency".
-    "au": {"kind": "screening", "currency": "AUD",
-           "path": DATA_ROOT / "MARKET_FILINGS/derived/ASX_FINANCIALS/au_screening_input.csv"},
-    "tw": {"kind": "screening", "currency": "TWD",
-           "path": DATA_ROOT / "MARKET_FILINGS/derived/TWSE_FINANCIALS/tw_screening_input.csv"},
-    "ph": {"kind": "screening", "currency": "PHP",
-           "path": DATA_ROOT / "MARKET_FILINGS/derived/PSE_FINANCIALS/ph_screening_input.csv"},
-    "kr": {"kind": "screening", "currency": "KRW",
-           "path": DATA_ROOT / "MARKET_FILINGS/derived/DART_FINANCIALS/kr_screening_input.csv"},
+    # au/tw/ph/kr read the PERIOD-LEVEL canonical_metrics_wide.parquet named in
+    # the spec's Sec 1 table. They previously read *_screening_input.csv, which
+    # holds exactly one row per ticker -- so half the panel's markets had no
+    # time series at all (mean rows per (market, local_id) was 1.000 for these
+    # four vs cn 116.5 / hk 11.3 / jp 8.5) while the parquet sat unused in the
+    # same directory. Currencies below are the parquets' NATIVE currencies.
+    "au": {"kind": "canonical", "currency": "AUD",
+           "path": DATA_ROOT / "MARKET_FILINGS/derived/ASX_FINANCIALS/canonical_metrics_wide.parquet"},
+    "tw": {"kind": "canonical", "currency": "TWD",
+           "path": DATA_ROOT / "MARKET_FILINGS/derived/TWSE_FINANCIALS/canonical_metrics_wide.parquet"},
+    "ph": {"kind": "canonical", "currency": "PHP",
+           "path": DATA_ROOT / "MARKET_FILINGS/derived/PSE_FINANCIALS/canonical_metrics_wide.parquet"},
+    # KR's parquet lives one level deeper and uses a different schema
+    # (stock_code/bsns_year/fs_div, no doc_id, no filing_date); the adapter
+    # aliases the identity columns -- see panel/adapters/in_bse.py.
+    "kr": {"kind": "canonical", "currency": "KRW",
+           "path": DATA_ROOT / "MARKET_FILINGS/derived/DART_FINANCIALS/three_statement_parquet/canonical_metrics_wide.parquet"},
     "cn": {"kind": "cn", "currency": "CNY",
            "path": DATA_ROOT / "markets/cn/02_structured"},
     "in_bse": {"kind": "canonical", "currency": "INR",
@@ -110,6 +121,20 @@ def _reporting_basis_for(row: dict) -> str:
         if typrep == "B":
             return "parent"
         return "consolidated" if typrep in (None, "") else str(typrep)
+    if market == "kr":
+        # DART fs_div: CFS = consolidated financial statements, OFS = separate
+        # (parent-only) financial statements -- the same distinction as CN
+        # Typrep A/B and JP has_consolidated_statements. Live counts
+        # 2026-08-17: CFS 2,784 / OFS 923 / None 5,486, so a blanket
+        # "consolidated" (what v1 asserted for all 1,952 KR rows) was wrong
+        # for at least 923 rows and unevidenced for 5,486 more.
+        fs_div = row.get("fs_div")
+        text = str(fs_div or "").strip().upper()
+        if text == "CFS":
+            return "consolidated"
+        if text == "OFS":
+            return "parent"
+        return "unknown"
     if market == "jp":
         flag = row.get("jp_has_consolidated_statements")
         if isinstance(flag, str):
@@ -197,7 +222,9 @@ def write_panel(rows: List[dict], out_root) -> Optional[Path]:
     df = pd.DataFrame(rows)
     for col in PANEL_COLUMNS:
         if col not in df.columns:
-            df[col] = None
+            df[col] = PANEL_COLUMN_DEFAULTS.get(col)
+        elif col in PANEL_COLUMN_DEFAULTS:
+            df[col] = df[col].fillna(PANEL_COLUMN_DEFAULTS[col])
     ordered = PANEL_COLUMNS + [c for c in df.columns if c not in PANEL_COLUMNS]
     df = df[ordered]
     out_root = Path(out_root)
@@ -209,7 +236,11 @@ def write_panel(rows: List[dict], out_root) -> Optional[Path]:
     return final
 
 
-def load_market(market: str, limit: int = 0) -> List[dict]:
+def load_market(market: str, limit: int = 0,
+                drops: Optional[Counter] = None) -> List[dict]:
+    """Adapter rows for one market; `drops` collects per-reason drop counts."""
+    if drops is None:
+        drops = Counter()
     cfg = MARKET_SOURCES[market]
     kind, path, currency = cfg["kind"], cfg["path"], cfg["currency"]
     if kind == "screening":
@@ -217,7 +248,10 @@ def load_market(market: str, limit: int = 0) -> List[dict]:
         return rows_from_screening_csv(path, market=market)
     if kind == "canonical":
         from panel.adapters.in_bse import rows_from_canonical_metrics
-        return rows_from_canonical_metrics(pd.read_parquet(path), market, currency)
+        return rows_from_canonical_metrics(
+            pd.read_parquet(path), market, currency, drops=drops,
+            source_artifact=str(path),
+        )
     if kind == "cn":
         from panel.adapters.cn import rows_from_cn_frames
         bs = pd.read_parquet(Path(path) / "balance_sheet.parquet")
@@ -247,9 +281,12 @@ def main() -> int:
 
     rows: List[dict] = []
     for market in args.markets:
+        drops: Counter = Counter()
         try:
-            got = load_market(market, limit=args.limit)
+            got = load_market(market, limit=args.limit, drops=drops)
             print(f"{market}: {len(got)} rows", flush=True)
+            if drops:
+                print(f"{market}: drops {dict(sorted(drops.items()))}", flush=True)
             rows.extend(got)
         except Exception as exc:
             print(f"{market}: FAILED ({type(exc).__name__}: {exc})", flush=True)

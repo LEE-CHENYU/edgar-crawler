@@ -21,8 +21,20 @@ PANEL_COLUMNS = [
     # CN's Typrep A/B and JP's has_consolidated_statements both legitimately
     # emit both. It is part of the panel's uniqueness key (see views.py).
     "reporting_basis",
-    "company_name", "currency", "fx_rate", "fx_asof", "source_artifact",
+    "company_name", "currency", "fx_rate", "fx_asof",
+    # Provenance and unit columns. fiscal_year_source records whether
+    # fiscal_year came from the source or was re-derived from filing_date
+    # (spec Sec 5.1 rescue). source_doc_id traces a row to its upstream
+    # filing. unit_scale is the multiplier a consumer must apply to the metric
+    # values (1 unless the source declares a scale like "HK$Million"); values
+    # are NEVER pre-multiplied here -- see panel/adapters/hk.py.
+    "fiscal_year_source", "source_doc_id", "unit_scale",
+    "source_artifact",
 ] + METRIC_COLUMNS
+
+# write_panel fills these with a default rather than None when an adapter did
+# not set them, so a consumer never has to distinguish "no scale" from "unknown".
+PANEL_COLUMN_DEFAULTS = {"unit_scale": 1, "fiscal_year_source": "reported"}
 
 CADENCES = ("annual", "semiannual", "quarterly")
 _QUARTER_ENDS = {"03-31", "06-30", "09-30"}

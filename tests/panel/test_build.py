@@ -175,3 +175,40 @@ def test_report_resolution_is_quiet_when_resolution_is_healthy(capsys):
     rate = report_resolution(resolved, {})
     assert rate == 1.0
     assert "WARNING" not in capsys.readouterr().out
+
+
+# --- FIX 2d: KR fs_div -> reporting_basis (CFS/OFS), never a blanket assertion ---
+
+
+def test_attach_reporting_basis_maps_kr_cfs_to_consolidated():
+    rows = [{"market": "kr", "fs_div": "CFS"}]
+    assert attach_reporting_basis(rows)[0]["reporting_basis"] == "consolidated"
+
+
+def test_attach_reporting_basis_maps_kr_ofs_to_parent():
+    rows = [{"market": "kr", "fs_div": "OFS"}]
+    assert attach_reporting_basis(rows)[0]["reporting_basis"] == "parent"
+
+
+def test_attach_reporting_basis_maps_kr_missing_fs_div_to_unknown():
+    """5,486 of 9,193 live KR rows have fs_div=None. v1 asserted
+    'consolidated' for all of them with no evidence."""
+    assert attach_reporting_basis([{"market": "kr", "fs_div": None}])[0][
+        "reporting_basis"] == "unknown"
+    assert attach_reporting_basis([{"market": "kr"}])[0][
+        "reporting_basis"] == "unknown"
+
+
+def test_market_sources_point_au_tw_ph_kr_at_period_level_parquet():
+    """*_screening_input.csv is one row per ticker -- no time series."""
+    for market in ("au", "tw", "ph", "kr"):
+        path = str(MARKET_SOURCES[market]["path"])
+        assert path.endswith("canonical_metrics_wide.parquet"), market
+        assert "screening_input" not in path, market
+
+
+def test_market_sources_declare_native_currencies_for_au_tw_ph_kr():
+    assert MARKET_SOURCES["au"]["currency"] == "AUD"
+    assert MARKET_SOURCES["tw"]["currency"] == "TWD"
+    assert MARKET_SOURCES["ph"]["currency"] == "PHP"
+    assert MARKET_SOURCES["kr"]["currency"] == "KRW"
