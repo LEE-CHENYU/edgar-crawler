@@ -1,12 +1,19 @@
-"""AU/TW/PH/KR adapter.
+"""*_screening_input.csv adapter.
 
-These four markets already share an identical *_screening_input.csv header, so
-this adapter is a column mapping rather than extraction.
+NO LONGER USED BY ANY MARKET (2026-08-17). au/tw/ph/kr read it until the final
+review wave found that it holds exactly ONE row per ticker -- those four
+markets had no time series at all. They now read the period-level
+canonical_metrics_wide.parquet in the same directories (see
+panel/adapters/in_bse.py). This adapter is kept because the screening CSVs
+remain a legitimate one-row-per-ticker snapshot source, but anything using it
+must accept that it carries no history and that its figures are already
+USD-converted upstream at an unrecorded rate.
 """
 from __future__ import annotations
 
 import csv
 import sys
+from collections import Counter
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -26,14 +33,21 @@ SCREENING_COLUMN_MAP: Dict[str, str] = {
 }
 
 
-def rows_from_screening_csv(path, market: str, cadence: str = "annual") -> List[dict]:
+def rows_from_screening_csv(path, market: str, cadence: str = "annual",
+                            drops: Optional[Counter] = None) -> List[dict]:
+    if drops is None:
+        drops = Counter()
     csv.field_size_limit(sys.maxsize)
     out: List[dict] = []
     with open(path, newline="", encoding="utf-8-sig", errors="replace") as fin:
         for raw in csv.DictReader(fin):
             ticker = str(raw.get("Ticker") or "").strip()
             year = raw.get("bsns_year")
-            if not ticker or not is_plausible_fiscal_year(year):
+            if not ticker:
+                drops["missing_ticker"] += 1
+                continue
+            if not is_plausible_fiscal_year(year):
+                drops["implausible_fiscal_year"] += 1
                 continue
             fiscal_year = int(year)
             period_end = f"{fiscal_year}-12-31"

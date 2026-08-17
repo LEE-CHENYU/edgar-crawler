@@ -5,7 +5,7 @@ from typing import List
 
 import pandas as pd
 
-from panel.schema import is_plausible_fiscal_year, period_type_for
+from panel.schema import is_plausible_fiscal_year, period_end_consistency_error
 
 # Relative tolerance for the balance sheet identity check
 # (total_liabilities + total_equity ~= total_assets). Figures span from tiny
@@ -126,16 +126,12 @@ def check_invariants(df: pd.DataFrame) -> List[str]:
     for _, row in df.iterrows():
         pe, pt = row.get("period_end"), row.get("period_type")
         if pe and pt:
-            cadence = "quarterly" if pt in ("Q", "OPEN") else (
-                "semiannual" if pt == "H" else "annual"
-            )
-            try:
-                expected = period_type_for(pe, cadence=cadence)
-            except ValueError:
-                violations.append(f"unusable period_end {pe!r}")
-                continue
-            if expected != pt:
-                violations.append(f"period_type {pt} inconsistent with period_end {pe}")
+            # Checked INDEPENDENTLY of period_type -- see
+            # schema.period_end_consistency_error for why deriving cadence from
+            # the very column under test made this check vacuous.
+            problem = period_end_consistency_error(pe, pt)
+            if problem:
+                violations.append(problem)
         if not is_plausible_fiscal_year(row.get("fiscal_year")):
             violations.append(f"implausible fiscal_year {row.get('fiscal_year')!r}")
         if usd_cols and any(

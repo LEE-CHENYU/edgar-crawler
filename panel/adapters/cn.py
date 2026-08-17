@@ -19,6 +19,7 @@ join an OPEN row at YYYY-01-01 against the A row at (YYYY-1)-12-31 on
 """
 from __future__ import annotations
 
+from collections import Counter
 from typing import List, Optional
 
 import pandas as pd
@@ -78,6 +79,7 @@ def rows_from_cn_frames(
     balance_sheet: pd.DataFrame,
     income_statement: Optional[pd.DataFrame] = None,
     cash_flow: Optional[pd.DataFrame] = None,
+    drops: Optional[Counter] = None,
 ) -> List[dict]:
     """Build panel rows from the CSMAR balance sheet / income statement / cash
     flow trio (only `balance_sheet` is required).
@@ -85,15 +87,22 @@ def rows_from_cn_frames(
     See the module docstring for OPEN-row fiscal_year semantics: fiscal_year
     is always the calendar year of period_end, including for OPEN rows.
     """
+    if drops is None:
+        drops = Counter()
     merged = _merge([balance_sheet, income_statement, cash_flow])
     out: List[dict] = []
     for record in merged.to_dict("records"):
         period_end = normalize_period_end(record.get("Accper"))
         if period_end is None:
+            drops["unusable_accper"] += 1
+            continue
+        local_id = str(record.get("Stkcd") or "").strip()
+        if not local_id or local_id.lower() == "nan":
+            drops["missing_stkcd"] += 1
             continue
         row = {
             "market": "cn",
-            "local_id": str(record.get("Stkcd") or "").strip(),
+            "local_id": local_id,
             "company_name": record.get("ShortName") or None,
             "currency": "CNY",
             "fiscal_year": int(period_end[:4]),

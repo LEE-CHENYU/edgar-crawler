@@ -124,3 +124,66 @@ def test_duplicate_rows_identical_including_reporting_basis_is_flagged():
     df = pd.concat([_ok(), _ok()], ignore_index=True)
     df["reporting_basis"] = ["consolidated", "consolidated"]
     assert any("duplicate" in v for v in check_invariants(df))
+
+
+# --- Final fix wave FIX 5: the period_type/period_end invariant was vacuous ---
+
+from panel.schema import is_month_end, period_end_consistency_error
+
+
+def _row(period_end, period_type="A", **kw):
+    base = {"spine_key": "S1", "period_end": period_end,
+            "period_type": period_type, "fiscal_year": int(str(period_end)[:4]),
+            "reporting_basis": "consolidated"}
+    base.update(kw)
+    return base
+
+
+def test_mid_month_period_end_is_flagged():
+    """Live JP rows carried period_end 2019-01-20 / 2020-03-05 / 2021-04-12
+    (52 distinct month-days) and ALL passed the old tautological check."""
+    violations = check_invariants(pd.DataFrame([_row("2019-01-20", "A")]))
+    assert any("not a month end" in v for v in violations)
+
+
+def test_month_end_annual_period_end_is_accepted_in_any_month():
+    """JP fiscal years commonly end 31 March, AU 30 June -- both are valid."""
+    df = pd.DataFrame([_row("2021-03-31", "A"), _row("2021-06-30", "A"),
+                       _row("2021-12-31", "A")])
+    assert [v for v in check_invariants(df) if "month" in v] == []
+
+
+def test_quarterly_period_type_cannot_end_in_a_non_quarter_month():
+    violations = check_invariants(pd.DataFrame([_row("2021-05-31", "Q")]))
+    assert any("cannot end in month 05" in v for v in violations)
+
+
+def test_semiannual_period_type_must_end_in_june():
+    assert any("cannot end in month 09" in v
+               for v in check_invariants(pd.DataFrame([_row("2021-09-30", "H")])))
+
+
+def test_open_period_type_requires_january_first():
+    assert period_end_consistency_error("2021-01-01", "OPEN") is None
+    assert "OPEN requires" in period_end_consistency_error("2021-03-31", "OPEN")
+
+
+def test_january_first_with_non_open_period_type_is_flagged():
+    problem = period_end_consistency_error("2021-01-01", "A")
+    assert "opening balance" in problem
+
+
+def test_unknown_period_type_is_flagged():
+    assert "unknown period_type" in period_end_consistency_error("2021-12-31", "X")
+
+
+def test_unusable_period_end_is_flagged():
+    assert "unusable period_end" in period_end_consistency_error("not-a-date", "A")
+
+
+def test_is_month_end_handles_leap_years_and_short_months():
+    assert is_month_end("2020-02-29")
+    assert not is_month_end("2021-02-29")  # not a real date
+    assert is_month_end("2021-02-28")  # 28 Feb 2021 IS the month end
+    assert is_month_end("2021-04-30")
+    assert not is_month_end("2021-04-29")

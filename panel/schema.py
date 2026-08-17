@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+from calendar import monthrange
 from datetime import datetime
 from typing import Optional
 
@@ -78,6 +79,64 @@ def period_type_for(period_end: str, cadence: str) -> str:
     if cadence == "semiannual" and md == "06-30":
         return "H"
     return "A" if cadence == "annual" else ("H" if md == "06-30" else "Q")
+
+
+def is_month_end(period_end) -> bool:
+    """True when period_end is the last calendar day of its own month."""
+    normalized = normalize_period_end(period_end)
+    if normalized is None:
+        return False
+    year, month, day = (int(part) for part in normalized.split("-"))
+    return day == monthrange(year, month)[1]
+
+
+# Months a period_type may legitimately end in. 'A' is deliberately open: real
+# fiscal years end in many months (JP commonly 3, AU commonly 6), so the
+# month-end test is the only constraint an annual row must pass.
+_ALLOWED_MONTHS = {"Q": {3, 6, 9}, "H": {6}}
+
+
+def period_end_consistency_error(period_end, period_type) -> Optional[str]:
+    """Why period_end and period_type disagree, or None if they agree.
+
+    INDEPENDENT of period_type by construction. views.check_invariants used to
+    derive `cadence` FROM the row's own period_type and then assert
+    period_type_for(period_end, cadence) == period_type, which for pt='A'
+    returns 'A' for every date except 01-01 -- a tautology. It passed live JP
+    rows with period_end 2019-01-20, 2020-03-05 and 2021-04-12 (52 distinct
+    month-days in all). The real constraints are: a reporting period ends on a
+    month boundary, and an interim type only ends in certain months.
+    """
+    normalized = normalize_period_end(period_end)
+    if normalized is None:
+        return f"unusable period_end {period_end!r}"
+    month_day = normalized[5:]
+    if period_type == "OPEN":
+        if month_day != "01-01":
+            return (
+                f"period_type OPEN requires a 01-01 period_end, got {normalized}"
+            )
+        return None
+    if period_type not in ("A", "H", "Q"):
+        return f"unknown period_type {period_type!r} for period_end {normalized}"
+    if month_day == "01-01":
+        return (
+            f"period_end {normalized} is an opening balance (01-01) but "
+            f"period_type is {period_type}, not OPEN"
+        )
+    if not is_month_end(normalized):
+        return (
+            f"period_end {normalized} is not a month end, so it cannot be the "
+            f"end of a {period_type} reporting period"
+        )
+    month = int(normalized[5:7])
+    allowed = _ALLOWED_MONTHS.get(period_type)
+    if allowed is not None and month not in allowed:
+        return (
+            f"period_type {period_type} cannot end in month {month:02d} "
+            f"(period_end {normalized}); allowed months {sorted(allowed)}"
+        )
+    return None
 
 
 def is_plausible_fiscal_year(year) -> bool:

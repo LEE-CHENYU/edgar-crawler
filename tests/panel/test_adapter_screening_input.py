@@ -53,3 +53,22 @@ def test_unparseable_metric_becomes_none(tmp_path):
 def test_source_artifact_records_provenance(tmp_path):
     p = _write(tmp_path, "AAA,AAA,X,ASX,,,,AUD,2024,1,1,1,1,1,1,1,1,1\n")
     assert str(p) in rows_from_screening_csv(p, market="au")[0]["source_artifact"]
+
+
+# --- FIX 4: drops are counted, never silent ---
+
+def test_screening_drop_reasons_are_counted(tmp_path):
+    from collections import Counter
+
+    path = tmp_path / "x_screening_input.csv"
+    path.write_text(
+        "Ticker,bsns_year,Revenue\n"
+        ",2024,1\n"
+        "OK,430,2\n"
+        "OK,2024,3\n"
+    )
+    drops = Counter()
+    rows = rows_from_screening_csv(path, market="au", drops=drops)
+    assert len(rows) == 1
+    assert drops["missing_ticker"] == 1
+    assert drops["implausible_fiscal_year"] == 1

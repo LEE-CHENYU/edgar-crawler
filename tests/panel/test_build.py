@@ -212,3 +212,52 @@ def test_market_sources_declare_native_currencies_for_au_tw_ph_kr():
     assert MARKET_SOURCES["tw"]["currency"] == "TWD"
     assert MARKET_SOURCES["ph"]["currency"] == "PHP"
     assert MARKET_SOURCES["kr"]["currency"] == "KRW"
+
+
+# --- FIX 4: drop accounting and row-count reconciliation (spec Sec 6 / Sec 7) ---
+
+
+def test_reconcile_market_counts_passes_when_counts_match():
+    from panel.build import reconcile_market_counts
+
+    df = pd.DataFrame({"market": ["au", "au", "hk"]})
+    assert reconcile_market_counts(df, {"au": 2, "hk": 1}) == []
+
+
+def test_reconcile_market_counts_flags_a_market_that_lost_rows():
+    from panel.build import reconcile_market_counts
+
+    df = pd.DataFrame({"market": ["au", "hk"]})
+    problems = reconcile_market_counts(df, {"au": 27635, "hk": 1})
+    assert any("au: adapter emitted 27635 rows but panel holds 1" in p
+               for p in problems)
+
+
+def test_reconcile_market_counts_flags_rows_from_no_adapter_run():
+    from panel.build import reconcile_market_counts
+
+    df = pd.DataFrame({"market": ["au", "zz"]})
+    problems = reconcile_market_counts(df, {"au": 1})
+    assert any("zz: 1 panel rows from no adapter run" in p for p in problems)
+
+
+def test_reconcile_market_counts_flags_empty_panel_with_emitted_rows():
+    from panel.build import reconcile_market_counts
+
+    assert reconcile_market_counts(pd.DataFrame(), {"au": 5})
+
+
+def test_write_panel_defaults_unit_scale_to_one(tmp_path):
+    rows = [{"spine_key": "B1", "market": "au", "local_id": "X",
+             "period_end": "2024-12-31", "period_type": "A", "fiscal_year": 2024}]
+    df = pd.read_parquet(write_panel(rows, tmp_path))
+    assert df["unit_scale"].iloc[0] == 1
+    assert df["fiscal_year_source"].iloc[0] == "reported"
+
+
+def test_write_panel_keeps_an_adapter_declared_unit_scale(tmp_path):
+    rows = [{"spine_key": "B1", "market": "hk", "local_id": "00088",
+             "period_end": "2013-12-31", "period_type": "A", "fiscal_year": 2013,
+             "unit_scale": 1000000}]
+    df = pd.read_parquet(write_panel(rows, tmp_path))
+    assert df["unit_scale"].iloc[0] == 1000000

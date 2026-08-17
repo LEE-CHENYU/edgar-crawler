@@ -216,6 +216,30 @@ def report_resolution(resolved: Dict[tuple, dict], stats: Dict[str, int]) -> flo
     return rate
 
 
+def reconcile_market_counts(
+    df: pd.DataFrame, emitted: Dict[str, int]
+) -> List[str]:
+    """Spec Sec 7 invariant: per-market panel row counts == adapter output.
+
+    Catches rows lost or duplicated between adapter and parquet (a column
+    collision, a dropped concat, a market that half-loaded).
+    """
+    problems: List[str] = []
+    if df.empty:
+        return [f"panel is empty but {sum(emitted.values())} rows were emitted"] \
+            if sum(emitted.values()) else problems
+    actual = df["market"].value_counts().to_dict() if "market" in df.columns else {}
+    for market, count in sorted(emitted.items()):
+        got = int(actual.get(market, 0))
+        if got != count:
+            problems.append(
+                f"{market}: adapter emitted {count} rows but panel holds {got}"
+            )
+    for market in sorted(set(actual) - set(emitted)):
+        problems.append(f"{market}: {actual[market]} panel rows from no adapter run")
+    return problems
+
+
 def write_panel(rows: List[dict], out_root) -> Optional[Path]:
     if not rows:
         return None
@@ -237,20 +261,32 @@ def write_panel(rows: List[dict], out_root) -> Optional[Path]:
 
 
 def load_market(market: str, limit: int = 0,
-                drops: Optional[Counter] = None) -> List[dict]:
-    """Adapter rows for one market; `drops` collects per-reason drop counts."""
+                drops: Optional[Counter] = None,
+                meta: Optional[Dict[str, int]] = None) -> List[dict]:
+    """Adapter rows for one market.
+
+    `drops` collects per-reason drop counts (spec Sec 6: a row that fails
+    parsing is dropped with a COUNTED reason, never silently skipped). `meta`
+    receives source_rows -- the upstream row/record count -- where the source
+    makes it knowable, so emitted+dropped can be reconciled against input.
+    Nothing reported this before, which is why AU yielding 1,759 rows out of an
+    available 27,665 went unnoticed for the whole of v1.
+    """
     if drops is None:
         drops = Counter()
+    if meta is None:
+        meta = {}
     cfg = MARKET_SOURCES[market]
     kind, path, currency = cfg["kind"], cfg["path"], cfg["currency"]
     if kind == "screening":
         from panel.adapters.screening_input import rows_from_screening_csv
-        return rows_from_screening_csv(path, market=market)
+        return rows_from_screening_csv(path, market=market, drops=drops)
     if kind == "canonical":
         from panel.adapters.in_bse import rows_from_canonical_metrics
+        df = pd.read_parquet(path)
+        meta["source_rows"] = len(df)
         return rows_from_canonical_metrics(
-            pd.read_parquet(path), market, currency, drops=drops,
-            source_artifact=str(path),
+            df, market, currency, drops=drops, source_artifact=str(path),
         )
     if kind == "cn":
         from panel.adapters.cn import rows_from_cn_frames
@@ -259,13 +295,19 @@ def load_market(market: str, limit: int = 0,
         cf = pd.read_parquet(Path(path) / "cash_flow_direct.parquet")
         if limit:
             bs, inc, cf = bs.head(limit), inc.head(limit), cf.head(limit)
-        return rows_from_cn_frames(bs, inc, cf)
+        # CN is an outer join of three frames, so no single input row count is
+        # THE source count; report the balance sheet's, which is the required
+        # frame and the join's left side.
+        meta["source_rows"] = len(bs)
+        return rows_from_cn_frames(bs, inc, cf, drops=drops)
     if kind == "hk":
         from panel.adapters.hk import iter_hk_fact_records, rows_from_hk_facts
         return rows_from_hk_facts(iter_hk_fact_records(path, limit=limit), drops=drops)
     if kind == "jp":
         from panel.adapters.jp import read_jp_wide, rows_from_jp_frame
-        return rows_from_jp_frame(read_jp_wide(path, limit=limit))
+        df = read_jp_wide(path, limit=limit)
+        meta["source_rows"] = len(df)
+        return rows_from_jp_frame(df, drops=drops)
     raise ValueError(f"unknown source kind: {kind}")
 
 
@@ -280,15 +322,26 @@ def main() -> int:
     args = parser.parse_args()
 
     rows: List[dict] = []
+    emitted: Dict[str, int] = {}
+    failures: List[str] = []
     for market in args.markets:
         drops: Counter = Counter()
+        meta: Dict[str, int] = {}
         try:
-            got = load_market(market, limit=args.limit, drops=drops)
-            print(f"{market}: {len(got)} rows", flush=True)
-            if drops:
-                print(f"{market}: drops {dict(sorted(drops.items()))}", flush=True)
+            got = load_market(market, limit=args.limit, drops=drops, meta=meta)
+            emitted[market] = len(got)
+            source = meta.get("source_rows")
+            print(
+                f"{market}: {len(got)} rows emitted"
+                + (f" from {source} source rows" if source is not None else "")
+                + f", {sum(drops.values())} dropped",
+                flush=True,
+            )
+            for reason, count in sorted(drops.items()):
+                print(f"{market}:   dropped[{reason}] = {count}", flush=True)
             rows.extend(got)
         except Exception as exc:
+            failures.append(market)
             print(f"{market}: FAILED ({type(exc).__name__}: {exc})", flush=True)
 
     rows = attach_reporting_basis(rows)
@@ -318,7 +371,18 @@ def main() -> int:
     path = write_panel(rows, args.out_root)
     print(f"wrote {path} ({len(rows)} rows)", flush=True)
 
-    violations = check_invariants(pd.DataFrame(rows))
+    panel_df = pd.DataFrame(rows)
+    violations = reconcile_market_counts(panel_df, emitted)
+    if violations:
+        print("ROW-COUNT RECONCILIATION FAILED:", flush=True)
+        for v in violations:
+            print(f"  - {v}", flush=True)
+    else:
+        print("row counts reconcile to adapter output", flush=True)
+    if failures:
+        print(f"MARKETS THAT FAILED TO LOAD: {failures}", flush=True)
+
+    violations = check_invariants(panel_df)
     if violations:
         print(f"INVARIANT VIOLATIONS ({len(violations)}):", flush=True)
         for v in violations[:20]:

@@ -126,3 +126,23 @@ def test_shared_non_key_columns_across_three_frames_do_not_produce_duplicate_lab
     assert record["A001000000"] == 100.0
     assert record["B001100000"] == 500.0
     assert record["C001000000"] == 40.0
+
+
+# --- FIX 4: drops are counted, never silent ---
+
+def test_unusable_accper_is_counted():
+    from collections import Counter
+
+    drops = Counter()
+    df = pd.DataFrame([{"Stkcd": "000001", "Accper": "not-a-date", "Typrep": "A"}])
+    assert rows_from_cn_frames(df, drops=drops) == []
+    assert drops["unusable_accper"] == 1
+
+
+def test_missing_stkcd_is_counted():
+    from collections import Counter
+
+    drops = Counter()
+    df = pd.DataFrame([{"Stkcd": None, "Accper": "2024-12-31", "Typrep": "A"}])
+    assert rows_from_cn_frames(df, drops=drops) == []
+    assert drops["missing_stkcd"] == 1

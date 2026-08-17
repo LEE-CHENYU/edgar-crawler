@@ -82,3 +82,20 @@ def test_missing_stock_code_is_dropped():
                         "metric_period_end": "2016-03-31", "stock_code": None,
                         "company_name": "X", "assets": 1.0}])
     assert rows_from_jp_frame(df) == []
+
+
+# --- FIX 4: drops are counted, never silent ---
+
+def test_jp_drop_reasons_are_counted():
+    from collections import Counter
+
+    drops = Counter()
+    df = pd.DataFrame([
+        {"stock_code": None, "metric_period_end": "2021-03-31", "fiscal_year": 2021},
+        {"stock_code": "7203", "metric_period_end": "nope", "fiscal_year": 2021},
+        {"stock_code": "7203", "metric_period_end": "2021-03-31", "fiscal_year": 430},
+    ])
+    assert rows_from_jp_frame(df, drops=drops) == []
+    assert drops["missing_stock_code"] == 1
+    assert drops["unusable_period_end"] == 1
+    assert drops["implausible_fiscal_year"] == 1

@@ -6,7 +6,8 @@ end 31 March, so period_end must come from the data, never assumed as 12-31.
 """
 from __future__ import annotations
 
-from typing import Dict, List
+from collections import Counter
+from typing import Dict, List, Optional
 
 import pandas as pd
 
@@ -78,15 +79,22 @@ def read_jp_wide(duckdb_path, limit: int = 0) -> pd.DataFrame:
         con.close()
 
 
-def rows_from_jp_frame(df: pd.DataFrame) -> List[dict]:
+def rows_from_jp_frame(df: pd.DataFrame, drops: Optional[Counter] = None) -> List[dict]:
+    if drops is None:
+        drops = Counter()
     out: List[dict] = []
     for record in df.to_dict("records"):
         code = str(record.get("stock_code") or "").strip()
         period_end = normalize_period_end(record.get("metric_period_end"))
         year = record.get("fiscal_year")
-        if not code or code == "None" or period_end is None:
+        if not code or code == "None":
+            drops["missing_stock_code"] += 1
+            continue
+        if period_end is None:
+            drops["unusable_period_end"] += 1
             continue
         if not is_plausible_fiscal_year(year):
+            drops["implausible_fiscal_year"] += 1
             continue
         row = {
             "market": "jp",
