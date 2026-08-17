@@ -206,6 +206,55 @@ unverified**.
 
 Check 4 costs one query and would have caught HK and IN before either shipped.
 
+**Measured outcome (2026-08-17).** `scripts/market_conventions.py` holds the
+fiscal-year table and a scale detector; `scripts/market_scale_detect.py` runs the
+detector over a market's PDFs and writes a lookup table. Validated on real Indian
+filings, full text — not first pages:
+
+| Sample | Recovered | Split |
+|---|---|---|
+| 30 reports, mixed scrips | 26 (87%) | lakh 19 · crore 3 · million 3 · thousand 1 |
+| 40 reports, first-by-walk | 38 (95%) | lakh 35 · crore 3 |
+
+Two findings worth carrying forward:
+
+- **A per-market constant would have been wrong for a quarter of the corpus.**
+  Filings in the same market differ by 100× (lakh vs crore), and small/mid caps
+  favour lakh while large caps favour crore — so the error correlates with size,
+  which is exactly the axis any screen sorts on.
+- **Recovery is 87%, not HK's 99.7%.** Four of thirty reports carry no scale word
+  anywhere. Those stay `None`. Do not let a detector's high-water mark from one
+  market set the expectation for the next, and never fill the residual with a
+  market default — that reintroduces the correlated error the detector removed.
+
+Detection must vote across statement-caption windows rather than take the first
+scale word: a single Indian report legitimately mentions crore in the narrative
+and lakh in the statements. The vote split is recorded per row
+(`anchored:33votes:{100000: 33, 1000: 11}`) so a wrong call is auditable rather
+than merely wrong.
+
+### 2.5b `sys.path` name collisions bind imports to another repo, silently
+
+> **Incident.** `from scripts.market_conventions import detect_scale` resolved to
+> `/Users/lichenyu/leviathan/scripts` — an `easy-install.pth` in the python310
+> env puts that directory on `sys.path`, and its `scripts/` is a *regular*
+> package. Python resolves a regular package found anywhere on the path ahead of
+> a namespace package, so path order did not save us. Five test modules in this
+> repo failed collection, and the same import crashed a script at launch.
+
+A generic top-level directory name (`scripts`, `utils`, `lib`, `common`) is not
+yours to claim: any other project on `sys.path` that shipped an `__init__.py`
+owns the name. For a repo whose helpers live in such a directory:
+
+- Tests: pin the name in `tests/conftest.py` before collection.
+- Scripts: load siblings by **file path** via
+  `importlib.util.spec_from_file_location`, not by module name. Path-explicit
+  loading is immune to whatever else claims the name.
+
+The failure mode to fear is not the crash — it is the *quiet* version, where the
+other repo happens to have a same-named module and the import succeeds against
+the wrong code.
+
 ### 2.6 Metric mapping is accounting, not string matching
 
 > **Incident.** `operating_income → profit_before_tax` conflated 営業利益 with
@@ -348,6 +397,9 @@ CLAUDE.md for the incident that produced this rule).
 | Complete filings.xbrl.org | `scripts/xbrl_org_discovery.py` |
 | HK text for scale recovery | `scripts/hk_text_backfill.py` |
 | HK unit-scale table | `scripts/hk_scale_recovery.py` |
+| Any market's unit-scale table | `scripts/market_scale_detect.py --market …` |
+| Fiscal year end / scale vocabulary | `scripts/market_conventions.py` (library) |
+| One entry point for all of the above | `scripts/corpus.py status\|stages\|next\|jobs` |
 | Build the panel | `python -m panel.build` |
 
 ## 6. Known open items
@@ -361,3 +413,10 @@ CLAUDE.md for the incident that produced this rule).
   `veto`/`price`/`two_track` outputs that `two_track_latest.csv` consumers
   expect have never been built outside HK.
 - The annual-financials supervisor restarts every ~80s with nothing to do.
+- AU and IN period ends are still fabricated as `{fy}-12-31` in the adapters.
+  `market_conventions.period_end_for` has the correct values (30 June / 31 March)
+  but nothing consumes it yet — the panel fix wave holds those files.
+- `in_bse_unit_scale.parquet` is being built (67,994 filings, ~14h). Nothing
+  consumes it yet; the panel's Indian figures remain up to 10^7 too small.
+- Australian, Taiwanese and Philippine unit scales are still unmeasured. The
+  detector covers them; the run has not been made.
