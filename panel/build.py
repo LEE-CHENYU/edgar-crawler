@@ -262,7 +262,7 @@ def load_market(market: str, limit: int = 0,
         return rows_from_cn_frames(bs, inc, cf)
     if kind == "hk":
         from panel.adapters.hk import iter_hk_fact_records, rows_from_hk_facts
-        return rows_from_hk_facts(iter_hk_fact_records(path, limit=limit))
+        return rows_from_hk_facts(iter_hk_fact_records(path, limit=limit), drops=drops)
     if kind == "jp":
         from panel.adapters.jp import read_jp_wide, rows_from_jp_frame
         return rows_from_jp_frame(read_jp_wide(path, limit=limit))

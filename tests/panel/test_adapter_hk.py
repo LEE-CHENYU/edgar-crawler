@@ -129,3 +129,106 @@ def test_conflicting_unit_text_in_same_group_first_recognised_wins():
     assert len(rows) == 1
     assert rows[0]["currency"] == "CNY"
     assert rows[0]["currency_source"] == "RMB"
+
+
+# --- Final fix wave FIX 3: filing_id grouping, provenance, unit_scale ---
+
+from collections import Counter
+
+from panel.adapters.hk import DEFAULT_UNIT_SCALE, scale_from_unit_text
+
+
+def _rec_filing(filing_id, metric, value, fiscal_year=2012, code="00700",
+                unit_text="RMB", vi=0, unit_scale=1):
+    return {"market": "HKEX", "filing_id": filing_id, "filing_date": "2013-01-02",
+            "company_name": "TENCENT", "stock_code": code, "metric": metric,
+            "raw_label": metric, "value": value, "value_index": vi,
+            "fiscal_year": fiscal_year, "unit_text": unit_text,
+            "unit_scale": unit_scale, "line_number": 1, "line_text": ""}
+
+
+def test_two_filings_for_same_company_year_stay_separate_rows():
+    """The Tencent 00700 case: total_assets 56,804,365 (thousands, filing
+    1617463) vs 17,506 (millions, filing 1875861) for the same company. Merged
+    on (stock_code, fiscal_year), value_index arbitrated figures 1000x apart by
+    directory iteration order."""
+    rows = rows_from_hk_facts([
+        _rec_filing("1617463", "total_assets", 56804365.0, fiscal_year=2011),
+        _rec_filing("1875861", "total_assets", 17506.0, fiscal_year=2011),
+    ])
+    assert len(rows) == 2
+    by_filing = {r["source_doc_id"]: r["total_assets"] for r in rows}
+    assert by_filing == {"1617463": 56804365.0, "1875861": 17506.0}
+
+
+def test_source_doc_id_is_emitted_for_upstream_traceability():
+    rows = rows_from_hk_facts([_rec_filing("1562416", "total_assets", 10.0)])
+    assert rows[0]["source_doc_id"] == "1562416"
+
+
+def test_records_without_filing_id_are_dropped_and_counted():
+    drops = Counter()
+    rec = _rec_filing("1562416", "total_assets", 10.0)
+    rec["filing_id"] = None
+    assert rows_from_hk_facts([rec], drops=drops) == []
+    assert drops["missing_filing_id"] == 1
+
+
+def test_value_index_still_arbitrates_within_one_filing():
+    """One filing emits 'Total assets' at group, segment and company level."""
+    rows = rows_from_hk_facts([
+        _rec_filing("1562416", "total_assets", 999.0, vi=2),
+        _rec_filing("1562416", "total_assets", 111.0, vi=0),
+    ])
+    assert len(rows) == 1
+    assert rows[0]["total_assets"] == 111.0
+
+
+def test_unit_scale_defaults_to_one_when_no_scale_is_declared():
+    rows = rows_from_hk_facts([_rec_filing("1", "total_assets", 10.0, unit_text="RMB")])
+    assert rows[0]["unit_scale"] == DEFAULT_UNIT_SCALE == 1
+
+
+def test_unit_scale_reads_the_hk_dollar_million_form():
+    """14+ live records carry unit_text='HK$Million' -- the corpus does
+    sometimes declare a scale."""
+    rows = rows_from_hk_facts([
+        _rec_filing("1692377", "total_assets", 565.7, unit_text="HK$Million",
+                    unit_scale=1000000),
+    ])
+    assert rows[0]["unit_scale"] == 1000000
+
+
+def test_unit_scale_detected_from_unit_text_even_without_source_field():
+    rows = rows_from_hk_facts([
+        _rec_filing("1", "total_assets", 5.0, unit_text="RMB million", unit_scale=1),
+    ])
+    assert rows[0]["unit_scale"] == 1000000
+
+
+def test_scale_words_cover_thousand_million_billion_forms():
+    assert scale_from_unit_text("RMB'000") == 1000
+    assert scale_from_unit_text("HK$ thousands") == 1000
+    assert scale_from_unit_text("HK$Million") == 1000000
+    assert scale_from_unit_text("RMB billion") == 1000000000
+    assert scale_from_unit_text("RMB") is None
+    assert scale_from_unit_text("") is None
+    assert scale_from_unit_text(None) is None
+
+
+def test_values_are_never_pre_multiplied_by_the_scale():
+    """Recording the scale keeps the ambiguity visible; applying it would
+    fabricate precision the corpus does not have."""
+    rows = rows_from_hk_facts([
+        _rec_filing("1", "total_assets", 565.7, unit_text="HK$Million",
+                    unit_scale=1000000),
+    ])
+    assert rows[0]["total_assets"] == 565.7
+
+
+def test_currency_is_still_resolved_per_filing_group():
+    rows = rows_from_hk_facts([
+        _rec_filing("1", "total_assets", 10.0, unit_text="RMB"),
+        _rec_filing("2", "total_assets", 10.0, unit_text="HK$"),
+    ])
+    assert sorted(r["currency"] for r in rows) == ["CNY", "HKD"]
