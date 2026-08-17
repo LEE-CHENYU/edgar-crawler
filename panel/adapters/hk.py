@@ -19,6 +19,33 @@ HK_METRIC_ALIASES: Dict[str, str] = {
     "profit_for_the_year": "net_income",
 }
 
+# unit_text on HK fact records is the REPORTING CURRENCY, not a scale factor
+# (a live scan of 30k records showed HK$/RMB/US$/Hong Kong dollars/Renminbi/
+# HKD/USD/Rmb -- ~40% of HK-listed filings report in RMB, ~7% in USD).
+# Keys are matched case-insensitively after stripping whitespace.
+HK_CURRENCY_ALIASES: Dict[str, str] = {
+    "hk$": "HKD", "hkd": "HKD", "hong kong dollars": "HKD",
+    "rmb": "CNY", "renminbi": "CNY",
+    "us$": "USD", "usd": "USD",
+}
+_HK_DEFAULT_CURRENCY = "HKD"
+
+
+def _resolve_currency(unit_text) -> "tuple[str, str]":
+    """Map a raw unit_text to (currency, currency_source).
+
+    Falls back to the exchange default (HKD) when unit_text is missing,
+    empty, or unrecognised -- but always records the raw value in
+    currency_source so the fallback is auditable rather than silent.
+    """
+    raw = str(unit_text or "").strip()
+    if not raw:
+        return _HK_DEFAULT_CURRENCY, "fallback:missing"
+    currency = HK_CURRENCY_ALIASES.get(raw.lower())
+    if currency is not None:
+        return currency, raw
+    return _HK_DEFAULT_CURRENCY, f"fallback:unrecognised:{raw}"
+
 
 def iter_hk_fact_records(facts_root, limit: int = 0) -> Iterator[dict]:
     """Yield JSON records from every *.jsonl.gz file under facts_root.
@@ -54,6 +81,7 @@ def rows_from_hk_facts(records) -> List[dict]:
     """
     grouped: Dict[tuple, dict] = {}
     winning_index: Dict[tuple, int] = {}
+    currency_locked: Dict[tuple, bool] = {}
     for rec in records:
         year = rec.get("fiscal_year")
         code = str(rec.get("stock_code") or "").strip()
@@ -64,17 +92,29 @@ def rows_from_hk_facts(records) -> List[dict]:
         row = grouped.get(key)
         if row is None:
             period_end = f"{fiscal_year}-12-31"
+            currency, currency_source = _resolve_currency(rec.get("unit_text"))
             row = {
                 "market": "hk",
                 "local_id": code,
                 "company_name": rec.get("company_name") or None,
-                "currency": "HKD",
+                "currency": currency,
+                "currency_source": currency_source,
                 "fiscal_year": fiscal_year,
                 "period_end": period_end,
                 "period_type": period_type_for(period_end, cadence="annual"),
                 "source_artifact": "markets/hk/02_structured/hkex_financials/facts",
             }
             grouped[key] = row
+            currency_locked[key] = not currency_source.startswith("fallback:")
+        elif not currency_locked.get(key):
+            # Currency is per (stock_code, fiscal_year) group; records within
+            # one filing should agree. If they disagree, the first RECOGNISED
+            # unit_text wins and further records never thrash it.
+            currency, currency_source = _resolve_currency(rec.get("unit_text"))
+            if not currency_source.startswith("fallback:"):
+                row["currency"] = currency
+                row["currency_source"] = currency_source
+                currency_locked[key] = True
 
         metric = HK_METRIC_ALIASES.get(rec.get("metric"), rec.get("metric"))
         if metric not in METRIC_COLUMNS:

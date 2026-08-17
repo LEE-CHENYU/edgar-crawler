@@ -71,3 +71,61 @@ def test_iter_skips_unreadable_lines(tmp_path):
         f.write(json.dumps(_rec("revenue", 2.0)) + "\n")
     got = list(iter_hk_fact_records(tmp_path))
     assert len(got) == 1
+
+
+def _rec_unit(metric, value, unit_text, fiscal_year=2012, code="00158", vi=0):
+    rec = _rec(metric, value, fiscal_year=fiscal_year, code=code, vi=vi)
+    rec["unit_text"] = unit_text
+    return rec
+
+
+def test_unit_text_hkdollar_sign_maps_to_hkd():
+    rows = rows_from_hk_facts([_rec_unit("revenue", 1.0, "HK$")])
+    assert rows[0]["currency"] == "HKD"
+
+
+def test_unit_text_rmb_maps_to_cny():
+    rows = rows_from_hk_facts([_rec_unit("revenue", 1.0, "RMB")])
+    assert rows[0]["currency"] == "CNY"
+
+
+def test_unit_text_rmb_case_variant_maps_to_cny():
+    rows = rows_from_hk_facts([_rec_unit("revenue", 1.0, "Rmb")])
+    assert rows[0]["currency"] == "CNY"
+
+
+def test_unit_text_renminbi_maps_to_cny():
+    rows = rows_from_hk_facts([_rec_unit("revenue", 1.0, "Renminbi")])
+    assert rows[0]["currency"] == "CNY"
+
+
+def test_unit_text_us_dollar_sign_maps_to_usd():
+    rows = rows_from_hk_facts([_rec_unit("revenue", 1.0, "US$")])
+    assert rows[0]["currency"] == "USD"
+
+
+def test_unit_text_hong_kong_dollars_prose_maps_to_hkd():
+    rows = rows_from_hk_facts([_rec_unit("revenue", 1.0, "Hong Kong dollars")])
+    assert rows[0]["currency"] == "HKD"
+
+
+def test_missing_unit_text_falls_back_to_hkd_and_is_auditable():
+    rows = rows_from_hk_facts([_rec_unit("revenue", 1.0, "")])
+    assert rows[0]["currency"] == "HKD"
+    assert rows[0]["currency_source"].startswith("fallback:")
+
+
+def test_unrecognised_unit_text_falls_back_to_hkd_and_records_raw_text():
+    rows = rows_from_hk_facts([_rec_unit("revenue", 1.0, "Martian credits")])
+    assert rows[0]["currency"] == "HKD"
+    assert "Martian credits" in rows[0]["currency_source"]
+
+
+def test_conflicting_unit_text_in_same_group_first_recognised_wins():
+    rows = rows_from_hk_facts([
+        _rec_unit("revenue", 1.0, "RMB"),
+        _rec_unit("total_assets", 2.0, "US$"),
+    ])
+    assert len(rows) == 1
+    assert rows[0]["currency"] == "CNY"
+    assert rows[0]["currency_source"] == "RMB"
