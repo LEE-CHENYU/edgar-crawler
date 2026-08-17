@@ -97,3 +97,68 @@ def test_targets_for_dispatches_by_market(tmp_path):
 def test_targets_for_rejects_unknown_market(tmp_path):
     with pytest.raises(KeyError):
         targets_for("atlantis", tmp_path, years=None)
+
+
+# --- Nordic and Oslo have their own path shapes ---------------------------
+
+
+def test_nordic_targets_read_year_and_company_from_path(tmp_path):
+    """Nordic layout is {year}/{company_id}/{file}.pdf — NOT {scrip}/{year}/."""
+    from scripts.pdf_market_sweep import build_targets_nordic
+
+    _touch(tmp_path, "2013/542683/Cryptzone_Bokslutskommunike_2012.pdf")
+    targets = build_targets_nordic(tmp_path, years=None)
+    assert len(targets) == 1
+    t = targets[0]
+    assert t["ticker"] == "542683"
+    assert t["fiscal_year"] == 2013
+    assert t["doc_id"] == "542683_2013_Cryptzone_Bokslutskommunike_2012"
+
+
+def test_nordic_targets_filter_by_year(tmp_path):
+    from scripts.pdf_market_sweep import build_targets_nordic
+
+    _touch(tmp_path, "2013/1/a.pdf")
+    _touch(tmp_path, "2019/1/b.pdf")
+    got = build_targets_nordic(tmp_path, years={"2019"})
+    assert [t["fiscal_year"] for t in got] == [2019]
+
+
+def test_nordic_skips_paths_without_a_year_first(tmp_path):
+    from scripts.pdf_market_sweep import build_targets_nordic
+
+    _touch(tmp_path, "notayear/1/a.pdf")
+    _touch(tmp_path, "loose.pdf")
+    assert build_targets_nordic(tmp_path, years=None) == []
+
+
+def test_oslo_targets_read_year_month_and_id(tmp_path):
+    """Oslo layout is {year}/{month}/{id}.pdf — the id is the FILE stem."""
+    from scripts.pdf_market_sweep import build_targets_oslo
+
+    _touch(tmp_path, "2022/03/557638.pdf")
+    targets = build_targets_oslo(tmp_path, years=None)
+    assert len(targets) == 1
+    t = targets[0]
+    assert t["ticker"] == "557638"
+    assert t["fiscal_year"] == 2022
+    assert t["filing_date"] == "2022-03"
+
+
+def test_oslo_doc_ids_unique_across_months(tmp_path):
+    from scripts.pdf_market_sweep import build_targets_oslo
+
+    _touch(tmp_path, "2022/03/1.pdf")
+    _touch(tmp_path, "2022/04/1.pdf")
+    ids = [t["doc_id"] for t in build_targets_oslo(tmp_path, years=None)]
+    assert len(ids) == len(set(ids)) == 2
+
+
+def test_registry_routes_each_market_to_its_own_builder():
+    """The in_bse builder finds 0 targets in Nordic/Oslo trees — a registration
+    pointing them at it would silently sweep nothing."""
+    from scripts.pdf_market_sweep import MARKETS
+
+    assert MARKETS["no_oslo"]["builder"] == "oslo"
+    assert MARKETS["nordic"]["builder"] == "nordic"
+    assert MARKETS["in_bse"]["builder"] == "in_bse"

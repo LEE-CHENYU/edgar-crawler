@@ -51,7 +51,14 @@ MARKETS: Dict[str, Dict[str, str]] = {
     "no_oslo": {
         "raw_root": str(DATASETS / "raw" / "NO_OSLO_NEWSWEB"),
         "out_dir": str(DATASETS / "derived" / "NO_OSLO_FINANCIALS"),
-        "builder": "in_bse",  # same {dir}/{year}/{file} shape
+        "builder": "oslo",
+    },
+    "nordic": {
+        # Folded out of the orphaned NASDAQ_NORDIC_BALTIC_NEWS tree; lives on the
+        # boot volume across seven country dirs, so raw_root is set per run.
+        "raw_root": "/Users/lichenyu/datasets/markets/se/01_raw/nasdaq_nordic_baltic",
+        "out_dir": str(DATASETS / "derived" / "NORDIC_FINANCIALS"),
+        "builder": "nordic",
     },
 }
 
@@ -103,6 +110,62 @@ def build_targets_in_bse(raw_root: Path, years: Optional[Set[str]]) -> List[dict
     return out
 
 
+def build_targets_nordic(raw_root: Path, years: Optional[Set[str]]) -> List[dict]:
+    """Nordic/Baltic layout: {year}/{company_id}/{file}.pdf.
+
+    Note the ordering is the REVERSE of IN_BSE ({scrip}/{year}/): pointing this
+    tree at the in_bse builder finds zero targets and sweeps nothing silently.
+    """
+    out: List[dict] = []
+    raw_root = Path(raw_root)
+    for pdf in raw_root.rglob("*.pdf"):
+        try:
+            parts = pdf.relative_to(raw_root).parts
+        except ValueError:
+            continue
+        if len(parts) < 3:
+            continue
+        year_dir, company = parts[0], parts[1]
+        if not _YEAR.match(year_dir):
+            continue
+        if years and year_dir not in years:
+            continue
+        out.append({
+            "ticker": company,
+            "filing_date": year_dir,
+            "doc_id": f"{company}_{year_dir}_{pdf.stem}",
+            "fiscal_year": int(year_dir),
+            "pdf_path": str(pdf),
+        })
+    return out
+
+
+def build_targets_oslo(raw_root: Path, years: Optional[Set[str]]) -> List[dict]:
+    """Oslo Newsweb layout: {year}/{month}/{disclosure_id}.pdf."""
+    out: List[dict] = []
+    raw_root = Path(raw_root)
+    for pdf in raw_root.rglob("*.pdf"):
+        try:
+            parts = pdf.relative_to(raw_root).parts
+        except ValueError:
+            continue
+        if len(parts) < 3:
+            continue
+        year_dir, month_dir = parts[0], parts[1]
+        if not _YEAR.match(year_dir):
+            continue
+        if years and year_dir not in years:
+            continue
+        out.append({
+            "ticker": pdf.stem,
+            "filing_date": f"{year_dir}-{month_dir}",
+            "doc_id": f"{year_dir}{month_dir}_{pdf.stem}",
+            "fiscal_year": int(year_dir),
+            "pdf_path": str(pdf),
+        })
+    return out
+
+
 def build_targets_asx(raw_root: Path, years: Optional[Set[str]]) -> List[dict]:
     """Preserve the existing ASX filename-regex behaviour."""
     out: List[dict] = []
@@ -122,7 +185,12 @@ def build_targets_asx(raw_root: Path, years: Optional[Set[str]]) -> List[dict]:
     return out
 
 
-_BUILDERS = {"in_bse": build_targets_in_bse, "asx": build_targets_asx}
+_BUILDERS = {
+    "in_bse": build_targets_in_bse,
+    "asx": build_targets_asx,
+    "nordic": build_targets_nordic,
+    "oslo": build_targets_oslo,
+}
 
 
 def targets_for(market: str, raw_root: Path, years: Optional[Set[str]]) -> List[dict]:
