@@ -19,6 +19,23 @@ def test_column_map_targets_canonical_names():
     assert JP_COLUMN_MAP["assets"] == "total_assets"
     assert JP_COLUMN_MAP["net_sales"] == "revenue"
     assert JP_COLUMN_MAP["basic_eps"] == "basic_eps"
+    assert JP_COLUMN_MAP["income_before_taxes"] == "profit_before_tax"
+
+def test_operating_income_is_not_mapped_to_profit_before_tax():
+    """operating_income (営業利益) excludes non-operating items and is not
+    pretax profit; income_before_taxes (税引前当期純利益) is the true
+    counterpart of canonical profit_before_tax."""
+    assert "operating_income" not in JP_COLUMN_MAP
+    assert JP_COLUMN_MAP.get("income_before_taxes") == "profit_before_tax"
+
+def test_profit_before_tax_comes_from_income_before_taxes_not_operating_income():
+    df = pd.DataFrame([
+        {"doc_id": "S1", "fiscal_year": 2016, "metric_period_end": "2016-03-31",
+         "company_name": "X", "stock_code": "7270",
+         "operating_income": 999.0, "income_before_taxes": 500.0},
+    ])
+    row = rows_from_jp_frame(df)[0]
+    assert row["profit_before_tax"] == 500.0
 
 def test_period_end_comes_from_metric_period_end_not_fiscal_year():
     """Japanese fiscal years commonly end 31 March; assuming 12-31 is wrong."""

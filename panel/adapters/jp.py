@@ -18,11 +18,40 @@ from panel.schema import (
 JP_COLUMN_MAP: Dict[str, str] = {
     "assets": "total_assets",
     "liabilities": "total_liabilities",
+    # net_assets (純資産) -> total_equity: CORRECT, not a name-match shortcut.
+    # Post-2006 JP GAAP 純資産 = shareholders' equity + AOCI + subscription
+    # rights + non-controlling interests -- i.e. it is exactly the
+    # balance-sheet-identity equity figure (total_assets - total_liabilities)
+    # that reconciles against `assets`/`liabilities` above. The narrower
+    # `shareholders_equity` column (株主資本, owners-of-parent only) would
+    # BREAK that identity if used instead. This does not contradict hk.py's
+    # refusal to alias its own net_assets column: HK's net_assets comes from
+    # a free-text extracted label with no guaranteed definition, whereas
+    # JP's comes from a structured EDINET XBRL tag with standardized
+    # semantics. Different provenance, different confidence -- not an
+    # inconsistency between the two adapters.
     "net_assets": "total_equity",
     "net_sales": "revenue",
-    "operating_income": "profit_before_tax",
+    # income_before_taxes (税引前当期純利益) -> profit_before_tax: CORRECT,
+    # the true pretax line. `operating_income` (営業利益) excludes
+    # non-operating items and `ordinary_income` (経常利益) adds some back but
+    # still isn't pretax profit -- only income_before_taxes is the direct
+    # counterpart of canonical profit_before_tax. Both operating_income and
+    # ordinary_income are deliberately left UNMAPPED: canonical
+    # METRIC_COLUMNS has no operating-income slot, and overloading
+    # profit_before_tax with operating profit is exactly the bug this
+    # mapping used to have (fixed 2026-08-17 review; see git history).
+    "income_before_taxes": "profit_before_tax",
     "profit_loss": "net_income",
     "basic_eps": "basic_eps",
+    # cash_and_deposits (現金及び預金) -> cash_and_equivalents: CORRECT even
+    # though the table ALSO has a literally-named `cash_and_equivalents`
+    # column. cash_and_deposits is the balance-sheet asset line; the
+    # identically-named column is the cash-flow statement's end-of-period
+    # figure, whose scope can differ from the BS line. Every other adapter
+    # sources this canonical field from a balance-sheet line (e.g. cn.py's
+    # A001101000), so taking the CFS column purely because its name matches
+    # would break cross-adapter consistency -- do not "fix" this by name.
     "cash_and_deposits": "cash_and_equivalents",
     "operating_cash_flow": "operating_cash_flow",
     "investing_cash_flow": "investing_cash_flow",
@@ -33,9 +62,7 @@ JP_COLUMN_MAP: Dict[str, str] = {
 # The live table has no equivalent column for any of these (no COGS/gross-profit
 # split, no tax-expense line, no current/non-current asset or liability split),
 # so they are simply absent from the panel for JP rather than mismapped onto a
-# wrong source column. `income_before_taxes` and `ordinary_income` also exist in
-# the live schema but are deliberately left unmapped here (out of scope for this
-# task) rather than silently reassigning `operating_income` -> profit_before_tax.
+# wrong source column.
 
 
 def read_jp_wide(duckdb_path, limit: int = 0) -> pd.DataFrame:
