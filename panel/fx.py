@@ -47,7 +47,7 @@ def fetch_rates(
     quotes = (fetcher or _yf_fetcher)(list(tickers))
     for ticker, value in (quotes or {}).items():
         currency = tickers.get(ticker)
-        if currency and value:
+        if currency and value and value > 0:
             rates[currency] = 1.0 / float(value)
     return rates
 

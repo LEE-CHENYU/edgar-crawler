@@ -32,3 +32,19 @@ def test_fetch_rates_skips_currencies_the_fetcher_cannot_price():
     rates = fetch_rates(["JPY", "XYZ"], fetcher=lambda t: {"JPY=X": 155.0})
     assert rates["JPY"] == pytest.approx(1 / 155.0)
     assert "XYZ" not in rates
+
+def test_fetch_rates_rejects_negative_quote():
+    rates = fetch_rates(["JPY"], fetcher=lambda t: {"JPY=X": -155.0})
+    assert "JPY" not in rates
+
+def test_fetch_rates_rejects_zero_quote():
+    rates = fetch_rates(["JPY"], fetcher=lambda t: {"JPY=X": 0.0})
+    assert "JPY" not in rates
+
+def test_to_usd_on_row_with_negative_quote_filtered_currency_is_clean_miss():
+    rates = fetch_rates(["JPY"], fetcher=lambda t: {"JPY=X": -155.0})
+    row = {"currency": "JPY", "total_assets": 1000.0, "revenue": 500.0}
+    out = to_usd(row, rates=rates, asof="x")
+    assert out["fx_rate"] is None
+    assert out["total_assets_usd"] is None
+    assert out["revenue_usd"] is None
