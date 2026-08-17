@@ -158,6 +158,54 @@ traceable.
 acceptable where the source genuinely has no period end, and then it should be
 marked as derived.
 
+### 2.5a The HK and JP defects are CLASSES, not incidents — audit every market
+
+The HK currency/scale bug and the JP period-end bug were each found by looking at
+one market. Both are systematic. Applying them across the pipeline on 2026-08-17
+found **two more markets already wrong and three unverified**:
+
+**Period end.** Filing-month clustering reveals the true fiscal year end:
+
+| Market | Filings cluster | True FY end | Pipeline assumes | Status |
+|---|---|---|---|---|
+| AU | Sep 9,274 · Aug 7,140 · Oct 5,941 | **30 June** | `{fy}-12-31` | ❌ wrong by 6 months |
+| IN | no usable `filing_date` at all | **31 March** | `{fy}-12-31` | ❌ wrong by 9 months |
+| HK | mixed; 37% of rows are CNY filers | mixed | `{fy}-12-31` | ❌ unverified |
+| JP | — | 31 March | read from `metric_period_end` | ✅ fixed |
+| TW | Jun 944 · May 349 | 31 December | `{fy}-12-31` | ✅ |
+| PH | Apr 271 · May 112 | 31 December | `{fy}-12-31` | ✅ |
+| CN | — | quarterly `Accper` | read from data | ✅ |
+
+**Unit scale.** India is the HK problem at 10,000× the magnitude. Indian annual
+reports report in **₹ lakh (10^5) or ₹ crore (10^7)** — scales with no Western
+equivalent. Evidence: Reliance (scrip 500325) shows `total_assets = 706,802`
+against a real figure near ₹17.5 trillion, i.e. the values are in crore. The
+panel's median `total_assets_usd` for in_bse was 1.14e3 against cn's 3.88e8 —
+the smoking gun, visible in the artifact before anyone looked at a filing.
+
+**Currency.** Only HK derives it per row; JP was verified by counting
+`unit_ref` (30,784,030 JPY vs 6,903 USD). CN and IN remain **hardcoded and
+unverified**.
+
+**The audit to run for any new market, before trusting a single figure:**
+
+1. **Period end** — cluster `filing_date` by month. Filings appear 2-4 months
+   after year end, so a September cluster means June, not December. If there is
+   no filing date (India), the fiscal year came from a directory name and the
+   period end is a guess.
+2. **Unit scale** — take three companies whose true size you can look up, and
+   compare orders of magnitude. Then check the market's local conventions: lakh
+   and crore (India), 千元/百萬 (Chinese), 千円/百万円 (Japanese).
+3. **Currency** — count the distinct currency labels in the source. Do not
+   accept "market X reports in currency Y" without the count.
+4. **Cross-market medians** — compute the median of one balance-sheet metric per
+   market in USD. Values differing by more than ~10× between comparable markets
+   indicate a scale error, not an economy.
+5. **Series continuity** — a ~1000× step between adjacent years for one company
+   is a scale change, never growth.
+
+Check 4 costs one query and would have caught HK and IN before either shipped.
+
 ### 2.6 Metric mapping is accounting, not string matching
 
 > **Incident.** `operating_income → profit_before_tax` conflated 営業利益 with
