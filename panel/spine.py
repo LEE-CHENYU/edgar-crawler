@@ -10,6 +10,13 @@ OPENFIGI_URL = "https://api.openfigi.com/v3/mapping"
 BATCH_SIZE = 100
 
 # OpenFIGI exchange codes per market.
+#
+# NOTE (verified against the live OpenFIGI API on 2026-08-17): "in_bse" is
+# known NOT to resolve via this path. OpenFIGI does not map BSE numeric scrip
+# codes (idValue="500325" misses under both exchCode "IB" and "IN") — only
+# ticker symbols like "RELIANCE" resolve, and the corpus stores only numeric
+# scrip codes (no ISIN, no symbol). Per human-partner ruling, v1 accepts
+# surrogate keys for in_bse rather than inventing a scrip->symbol crosswalk.
 EXCH_CODES = {
     "au": "AU", "tw": "TT", "ph": "PM", "kr": "KS",
     "cn": "CH", "in_bse": "IS", "hk": "HK", "jp": "JT",
@@ -22,10 +29,25 @@ def surrogate_key(exchange: str, local_id: str) -> str:
     return f"{str(exchange).strip().upper()}:{str(local_id).strip().upper()}"
 
 
+def normalize_identifier(market: str, local_id: str) -> str:
+    """Market-specific cleanup before OpenFIGI lookup.
+
+    HK codes are stored zero-padded (00700) but OpenFIGI only matches the
+    unpadded form (700); verified against the live API 2026-08-17. Other
+    markets (notably CN, which keeps significant leading zeros, e.g.
+    000001) are passed through unchanged.
+    """
+    local_id = str(local_id).strip()
+    if market == "hk":
+        stripped = local_id.lstrip("0")
+        return stripped or "0"
+    return local_id
+
+
 def figi_request(market: str, local_id: str) -> Dict[str, str]:
     return {
         "idType": "TICKER",
-        "idValue": str(local_id).strip(),
+        "idValue": normalize_identifier(market, local_id),
         "exchCode": EXCH_CODES.get(market, market.upper()),
     }
 
@@ -76,7 +98,7 @@ def resolve(
     todo: List[Key] = []
     for key in identifiers:
         if key in cache:
-            out[key] = cache[key]
+            out[key] = dict(cache[key])
         elif key not in todo:
             todo.append(key)
 

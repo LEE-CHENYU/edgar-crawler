@@ -1,5 +1,6 @@
 from panel.spine import (
-    EXCH_CODES, figi_request, parse_figi_response, resolve, surrogate_key,
+    EXCH_CODES, figi_request, normalize_identifier, parse_figi_response,
+    resolve, surrogate_key,
 )
 
 def test_surrogate_key_is_stable_and_namespaced():
@@ -82,3 +83,51 @@ def test_resolve_degrades_to_surrogate_when_fetcher_raises():
         raise RuntimeError("openfigi down")
     got = resolve([("au", "BHP")], fetcher=fetcher)
     assert got[("au", "BHP")]["resolution_source"] == "surrogate"
+
+
+# --- Fix round 1 ---
+
+def test_resolve_does_not_mutate_callers_cache_dict():
+    """A caller who loads a persisted cache and re-serializes it later must
+    not see resolve() silently mutate the entries it passed in."""
+    original_entry = {"figi": "BBG000D0D358", "resolution_source": "openfigi"}
+    cache = {("au", "BHP"): original_entry}
+
+    def fetcher(batch):
+        return [{"warning": "no"} for _ in batch]
+
+    resolve([("au", "BHP")], fetcher=fetcher, cache=cache)
+
+    assert "spine_key" not in original_entry
+    assert cache[("au", "BHP")] is original_entry
+    assert "spine_key" not in cache[("au", "BHP")]
+
+
+def test_normalize_identifier_strips_hk_zero_padding():
+    assert normalize_identifier("hk", "00700") == "700"
+    assert normalize_identifier("hk", "00158") == "158"
+
+
+def test_normalize_identifier_leaves_non_hk_untouched():
+    assert normalize_identifier("au", "BHP") == "BHP"
+
+
+def test_normalize_identifier_keeps_cn_leading_zeros():
+    assert normalize_identifier("cn", "000001") == "000001"
+
+
+def test_normalize_identifier_is_idempotent_for_hk():
+    assert normalize_identifier("hk", "700") == "700"
+
+
+def test_figi_request_normalizes_hk_identifier():
+    assert figi_request("hk", "00700")["idValue"] == "700"
+
+
+def test_resolve_surrogate_key_keeps_original_unpadded_hk_local_id():
+    """The surrogate key must match the corpus's original (padded) local_id,
+    even though the OpenFIGI request itself uses the normalized form."""
+    def fetcher(batch):
+        return [{"warning": "No identifier found."} for _ in batch]
+    got = resolve([("hk", "00700")], fetcher=fetcher)
+    assert got[("hk", "00700")]["spine_key"] == "HK:00700"
