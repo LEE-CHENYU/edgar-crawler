@@ -139,3 +139,39 @@ def test_attach_reporting_basis_jafco_regression_two_rows_get_different_basis():
     assert out[1]["reporting_basis"] == "parent"
     assert out[0]["reporting_basis"] != out[1]["reporting_basis"]
     assert len(out) == 2
+
+
+# --- Final fix wave FIX 1: resolution must be reported, never silently 0% ---
+
+
+def test_resolution_counts_split_by_market():
+    from panel.build import resolution_counts
+
+    resolved = {
+        ("au", "BHP"): {"figi": "BBG1"},
+        ("au", "MISS"): {"figi": None},
+        ("hk", "00700"): {"figi": "BBG2"},
+    }
+    counts = resolution_counts(resolved)
+    assert counts["au"] == {"resolved": 1, "surrogate": 1}
+    assert counts["hk"] == {"resolved": 1, "surrogate": 0}
+
+
+def test_report_resolution_warns_loudly_below_five_percent(capsys):
+    from panel.build import report_resolution
+
+    resolved = {("au", f"T{i}"): {"figi": None} for i in range(100)}
+    rate = report_resolution(resolved, {"batch_failures": 10, "oversize_batch_errors": 10})
+    out = capsys.readouterr().out
+    assert rate == 0.0
+    assert "WARNING" in out
+    assert "au: 0 resolved / 100" in out
+
+
+def test_report_resolution_is_quiet_when_resolution_is_healthy(capsys):
+    from panel.build import report_resolution
+
+    resolved = {("au", f"T{i}"): {"figi": f"BBG{i}"} for i in range(10)}
+    rate = report_resolution(resolved, {})
+    assert rate == 1.0
+    assert "WARNING" not in capsys.readouterr().out

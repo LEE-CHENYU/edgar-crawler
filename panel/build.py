@@ -24,7 +24,9 @@ import pandas as pd
 
 from panel.fx import fetch_rates, to_usd
 from panel.schema import PANEL_COLUMNS
-from panel.spine import EXCH_CODES, resolve, surrogate_key
+from panel.spine import (
+    EXCH_CODES, load_spine_cache, resolve, save_spine_cache, surrogate_key,
+)
 from panel.views import check_invariants
 
 DATA_ROOT = Path("/Volumes/OWC Express 1M2/datasets")
@@ -132,6 +134,63 @@ def attach_reporting_basis(rows: List[dict]) -> List[dict]:
     return out
 
 
+MIN_RESOLUTION_RATE = 0.05
+
+
+def resolution_counts(resolved: Dict[tuple, dict]) -> Dict[str, Dict[str, int]]:
+    """Per-market {resolved, surrogate} identifier counts."""
+    counts: Dict[str, Dict[str, int]] = {}
+    for (market, _local_id), entry in resolved.items():
+        bucket = counts.setdefault(market, {"resolved": 0, "surrogate": 0})
+        bucket["resolved" if entry.get("figi") else "surrogate"] += 1
+    return counts
+
+
+def report_resolution(resolved: Dict[tuple, dict], stats: Dict[str, int]) -> float:
+    """Log resolved-vs-surrogate per market; shout if the overall rate is floor-level.
+
+    v1 shipped a panel where this number was 0% and nothing said so (the only
+    log line reported identifiers SUBMITTED). A silent 0% must be impossible.
+    Returns the overall resolution rate.
+    """
+    counts = resolution_counts(resolved)
+    total_resolved = sum(c["resolved"] for c in counts.values())
+    total = sum(c["resolved"] + c["surrogate"] for c in counts.values())
+    rate = (total_resolved / total) if total else 0.0
+    print("spine resolution by market (resolved / total, rate):", flush=True)
+    for market in sorted(counts):
+        c = counts[market]
+        market_total = c["resolved"] + c["surrogate"]
+        pct = 100.0 * c["resolved"] / market_total if market_total else 0.0
+        print(
+            f"  {market}: {c['resolved']} resolved / {market_total} "
+            f"({pct:.1f}%), {c['surrogate']} surrogate",
+            flush=True,
+        )
+    print(
+        f"spine totals: {total_resolved}/{total} resolved ({100.0 * rate:.1f}%), "
+        f"batches={stats.get('batches', 0)} "
+        f"failures={stats.get('batch_failures', 0)} "
+        f"oversize_413={stats.get('oversize_batch_errors', 0)} "
+        f"rate_limited={stats.get('rate_limited', 0)} "
+        f"cache_hits={stats.get('cache_hits', 0)}",
+        flush=True,
+    )
+    if rate < MIN_RESOLUTION_RATE:
+        print(
+            "!" * 78 + "\n"
+            f"WARNING: spine resolution rate {100.0 * rate:.2f}% is below the "
+            f"{100.0 * MIN_RESOLUTION_RATE:.0f}% floor. Nearly every row will "
+            "carry a surrogate spine_key and figi=None, so cross-market "
+            "identity joins are NOT possible on this panel. Check OpenFIGI "
+            f"reachability and BATCH_SIZE (batch failures="
+            f"{stats.get('batch_failures', 0)}, 413s="
+            f"{stats.get('oversize_batch_errors', 0)}).\n" + "!" * 78,
+            flush=True,
+        )
+    return rate
+
+
 def write_panel(rows: List[dict], out_root) -> Optional[Path]:
     if not rows:
         return None
@@ -182,6 +241,8 @@ def main() -> int:
     parser.add_argument("--out-root", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--no-fx", action="store_true")
+    parser.add_argument("--no-spine-cache", action="store_true",
+                        help="ignore and do not update the persisted spine cache")
     args = parser.parse_args()
 
     rows: List[dict] = []
@@ -196,9 +257,20 @@ def main() -> int:
     rows = attach_reporting_basis(rows)
 
     identifiers = sorted({(r["market"], r["local_id"]) for r in rows})
-    print(f"resolving {len(identifiers)} identifiers", flush=True)
-    resolved = resolve(identifiers)
+    cache = {} if args.no_spine_cache else load_spine_cache(args.out_root)
+    print(
+        f"resolving {len(identifiers)} identifiers submitted "
+        f"({len(cache)} in spine cache)",
+        flush=True,
+    )
+    stats: Dict[str, int] = {}
+    resolved = resolve(identifiers, cache=cache, stats=stats)
     rows = attach_spine(rows, resolved)
+    report_resolution(resolved, stats)
+    if not args.no_spine_cache:
+        saved = save_spine_cache(args.out_root, resolved)
+        if saved:
+            print(f"spine cache: {saved}", flush=True)
 
     if not args.no_fx:
         asof = _utc_now()
