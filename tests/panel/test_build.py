@@ -92,3 +92,50 @@ def test_attach_reporting_basis_maps_jp_consolidated_flag():
 def test_attach_reporting_basis_defaults_single_basis_markets_to_consolidated():
     rows = [{"market": "au", "local_id": "BHP"}]
     assert attach_reporting_basis(rows)[0]["reporting_basis"] == "consolidated"
+
+
+# --- Fix round 2: the live edinet_xbrl duckdb stores has_consolidated_statements
+# as the *strings* "true"/"false" (verified 2026-08-17: 32,289 "true" / 5,308
+# "false" / 72 None), not Python bools -- 5,308 real rows were silently
+# mislabeled "consolidated" by the round-1 default before this fix. None must
+# map to "unknown", never silently default to "consolidated": that would hide
+# exactly the ambiguity the label exists to surface.
+
+def test_attach_reporting_basis_maps_jp_string_true_to_consolidated():
+    rows = [{"market": "jp", "jp_has_consolidated_statements": "true"}]
+    assert attach_reporting_basis(rows)[0]["reporting_basis"] == "consolidated"
+
+
+def test_attach_reporting_basis_maps_jp_string_false_to_parent():
+    rows = [{"market": "jp", "jp_has_consolidated_statements": "false"}]
+    assert attach_reporting_basis(rows)[0]["reporting_basis"] == "parent"
+
+
+def test_attach_reporting_basis_maps_jp_none_to_unknown_not_consolidated():
+    rows = [{"market": "jp", "jp_has_consolidated_statements": None}]
+    assert attach_reporting_basis(rows)[0]["reporting_basis"] == "unknown"
+
+
+def test_attach_reporting_basis_maps_jp_missing_key_to_unknown():
+    rows = [{"market": "jp"}]
+    assert attach_reporting_basis(rows)[0]["reporting_basis"] == "unknown"
+
+
+def test_attach_reporting_basis_jafco_regression_two_rows_get_different_basis():
+    """Real live case: stock_code 85950, period_end 2021-03-31, two doc_ids
+    differing only in has_consolidated_statements (assets 262.4B vs 435.3M --
+    consolidated group vs parent company alone). Both rows must survive with
+    DIFFERENT reporting_basis, never collapsed or defaulted to the same value."""
+    rows = [
+        {"market": "jp", "local_id": "85950", "period_end": "2021-03-31",
+         "source_doc_id": "S100LJ3Q", "jp_has_consolidated_statements": "true",
+         "total_assets": 262383000000.0},
+        {"market": "jp", "local_id": "85950", "period_end": "2021-03-31",
+         "source_doc_id": "S100LHTV", "jp_has_consolidated_statements": "false",
+         "total_assets": 435331000.0},
+    ]
+    out = attach_reporting_basis(rows)
+    assert out[0]["reporting_basis"] == "consolidated"
+    assert out[1]["reporting_basis"] == "parent"
+    assert out[0]["reporting_basis"] != out[1]["reporting_basis"]
+    assert len(out) == 2

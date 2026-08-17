@@ -84,13 +84,19 @@ def attach_spine(rows: List[dict], resolved: Dict[tuple, dict]) -> List[dict]:
 
 
 def _reporting_basis_for(row: dict) -> str:
-    """consolidated / parent / raw-passthrough, per market.
+    """consolidated / parent / unknown / raw-passthrough, per market.
 
     CN: cn_typrep 'A' -> consolidated, 'B' -> parent, anything else -> the
     raw value so nothing is silently lost.
-    JP: has_consolidated_statements True -> consolidated, False -> parent
+    JP: has_consolidated_statements -> consolidated / parent / unknown
     (verified live 2026-08-17: stock_code 85950 period 2021-03-31 carries
-    both for the same company-period, not an amendment).
+    both consolidated and parent-only filings for the same company-period,
+    not an amendment -- 600x difference in total_assets). The live
+    edinet_xbrl duckdb stores this column as the *strings* "true"/"false"
+    (32,289 / 5,308 rows), not Python bools, plus 72 rows of None -- handle
+    both representations, and map None/missing to "unknown" rather than
+    silently defaulting to "consolidated", which would mislabel real
+    parent-only rows as group financials with nothing to warn a consumer.
     Every other market has a single reporting basis and defaults to
     "consolidated".
     """
@@ -104,9 +110,16 @@ def _reporting_basis_for(row: dict) -> str:
         return "consolidated" if typrep in (None, "") else str(typrep)
     if market == "jp":
         flag = row.get("jp_has_consolidated_statements")
-        if flag is False:
-            return "parent"
-        return "consolidated"
+        if isinstance(flag, str):
+            low = flag.strip().lower()
+            if low in ("true", "t", "1", "yes"):
+                return "consolidated"
+            if low in ("false", "f", "0", "no"):
+                return "parent"
+            return "unknown"
+        if flag is None:
+            return "unknown"
+        return "consolidated" if bool(flag) else "parent"
     return "consolidated"
 
 
