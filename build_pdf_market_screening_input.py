@@ -17,6 +17,10 @@ MARKETS = {
            "parquet": "derived/TWSE_FINANCIALS/canonical_metrics_wide.parquet"},
     "ph": {"exchange": "PSE", "fx_ticker": "PHP=X", "fallback": 1 / 57.0, "invert": True,
            "parquet": "derived/PSE_FINANCIALS/canonical_metrics_wide.parquet"},
+    # India/BSE: stage-02 completed 2026-08-17 over 67,977 PDFs (61,830 with
+    # metrics). INR=X quotes INR per USD, so it inverts like TWD/PHP.
+    "in": {"exchange": "BSE", "fx_ticker": "INR=X", "fallback": 1 / 88.0, "invert": True,
+           "parquet": "derived/IN_BSE_FINANCIALS/canonical_metrics_wide.parquet"},
 }
 ROOT = Path("/Volumes/OWC Express 1M2/datasets/MARKET_FILINGS")
 
