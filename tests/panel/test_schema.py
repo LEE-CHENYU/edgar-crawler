@@ -1,4 +1,5 @@
 import pytest
+from asx_financials_extract import CANONICAL_METRICS
 from panel.schema import (
     METRIC_COLUMNS, PANEL_COLUMNS, is_plausible_fiscal_year,
     normalize_period_end, period_type_for, to_number,
@@ -8,6 +9,7 @@ def test_metric_columns_match_canonical_vocabulary():
     assert METRIC_COLUMNS[0] == "revenue"
     assert "operating_cash_flow" in METRIC_COLUMNS
     assert len(METRIC_COLUMNS) == 20
+    assert METRIC_COLUMNS == CANONICAL_METRICS
 
 def test_panel_columns_lead_with_identity_then_metrics():
     assert PANEL_COLUMNS[:6] == [
@@ -76,3 +78,9 @@ def test_to_number_returns_none_on_non_numeric_text():
 
 def test_to_number_returns_none_on_whitespace_only():
     assert to_number("  ") is None
+
+def test_to_number_returns_none_on_bool_true():
+    assert to_number(True) is None
+
+def test_to_number_returns_none_on_bool_false():
+    assert to_number(False) is None
