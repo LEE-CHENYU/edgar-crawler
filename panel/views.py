@@ -40,9 +40,17 @@ def quarterly_view(df: pd.DataFrame, forward_fill: bool = False) -> pd.DataFrame
             if lo <= f"{y}-{md}" <= hi
         )
         grid = pd.DataFrame({"spine_key": spine_key, "period_end": grid_ends})
-        merged = grid.merge(group, on=["spine_key", "period_end"], how="left")
-        other_cols = [c for c in merged.columns if c not in ("spine_key", "period_end")]
-        merged["is_filled"] = merged[other_cols].isna().any(axis=1) if other_cols else False
+        merged = grid.merge(
+            group, on=["spine_key", "period_end"], how="left", indicator=True
+        )
+        # is_filled means "this grid slot had no matching real row" — NOT
+        # "the matched real row has some null field". A real, filed row can
+        # legitimately have null metrics (e.g. JP's six permanently-null
+        # metrics) without being synthetic; conflating the two would mislabel
+        # real data as fabricated, which is the wrong direction for a
+        # research panel.
+        merged["is_filled"] = merged["_merge"] == "left_only"
+        merged = merged.drop(columns=["_merge"])
         merged = merged.sort_values("period_end").ffill()
         filled_groups.append(merged)
     return pd.concat(filled_groups, ignore_index=True) if filled_groups else out
