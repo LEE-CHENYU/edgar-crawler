@@ -5,7 +5,7 @@ from typing import List
 
 import pandas as pd
 
-from panel.schema import METRIC_COLUMNS, is_plausible_fiscal_year, period_type_for
+from panel.schema import METRIC_COLUMNS, is_plausible_fiscal_year, period_type_for, to_number
 
 
 def rows_from_canonical_metrics(df: pd.DataFrame, market: str, currency: str) -> List[dict]:
@@ -50,6 +50,6 @@ def rows_from_canonical_metrics(df: pd.DataFrame, market: str, currency: str) ->
         for metric in METRIC_COLUMNS:
             if metric in record:
                 value = record.get(metric)
-                row[metric] = None if pd.isna(value) else float(value)
+                row[metric] = None if pd.isna(value) else to_number(value)
         out.append(row)
     return out

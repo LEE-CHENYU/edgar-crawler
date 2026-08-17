@@ -50,3 +50,27 @@ def test_duplicate_doc_ids_raise():
 def test_missing_metric_columns_are_omitted_not_zeroed():
     rows = rows_from_canonical_metrics(_df(), market="in_bse", currency="INR")
     assert rows[0].get("inventories") is None
+
+
+def test_non_numeric_metric_value_becomes_none():
+    """Non-numeric strings like 'N/A' should degrade to None, not raise."""
+    df = pd.DataFrame([
+        {"ticker": "533089", "fiscal_year": 2013,
+         "doc_id": "5330890313", "revenue": "N/A", "total_assets": 500.0},
+    ])
+    rows = rows_from_canonical_metrics(df, market="in_bse", currency="INR")
+    assert len(rows) == 1
+    assert rows[0]["revenue"] is None
+    assert rows[0]["total_assets"] == 500.0
+
+
+def test_metric_with_thousands_separator_is_parsed():
+    """Thousands separators like '1,234.5' should parse correctly."""
+    df = pd.DataFrame([
+        {"ticker": "533089", "fiscal_year": 2013,
+         "doc_id": "5330890313", "revenue": "1,234.5", "total_assets": 500.0},
+    ])
+    rows = rows_from_canonical_metrics(df, market="in_bse", currency="INR")
+    assert len(rows) == 1
+    assert rows[0]["revenue"] == 1234.5
+    assert rows[0]["total_assets"] == 500.0
