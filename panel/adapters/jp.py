@@ -98,6 +98,14 @@ def rows_from_jp_frame(df: pd.DataFrame) -> List[dict]:
             "period_type": period_type_for(period_end, cadence="annual"),
             "jp_edinet_code": record.get("edinet_code"),
             "jp_accounting_standards": record.get("accounting_standards"),
+            # has_consolidated_statements distinguishes full consolidated
+            # filings from parent-company-only filings that can otherwise
+            # collide on (stock_code, metric_period_end) -- verified live
+            # 2026-08-17: stock_code 85950, period 2021-03-31 has two
+            # doc_ids, one True (assets=2.62e11) and one False
+            # (assets=4.35e8). Not an amendment; a genuine dual reporting
+            # basis, the same pattern as CN's Typrep A/B.
+            "jp_has_consolidated_statements": record.get("has_consolidated_statements"),
             "source_doc_id": record.get("doc_id"),
             "source_artifact": "markets/jp/02_structured/processed/edinet_xbrl",
         }

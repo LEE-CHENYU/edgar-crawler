@@ -61,6 +61,17 @@ def test_edinet_and_standards_are_recorded():
     assert r["jp_edinet_code"] == "E02144"
     assert r["jp_accounting_standards"] == "JPGAAP"
 
+
+def test_has_consolidated_statements_is_recorded():
+    """Live data has 2 rows (stock_code 85950, period 2021-03-31) sharing a
+    doc_id-less key: one filing with has_consolidated_statements=True (full
+    figures) and one with False (parent-company-only, much smaller figures).
+    Not an amendment -- a genuine dual reporting basis, same pattern as CN's
+    Typrep A/B. This field is what lets the panel distinguish them instead of
+    colliding as a duplicate key."""
+    r = rows_from_jp_frame(_df())[0]
+    assert r["jp_has_consolidated_statements"] is True
+
 def test_rows_with_unusable_period_end_are_dropped():
     rows = rows_from_jp_frame(_df())
     assert len(rows) == 1

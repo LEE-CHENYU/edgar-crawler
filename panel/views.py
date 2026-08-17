@@ -102,9 +102,24 @@ def check_invariants(df: pd.DataFrame) -> List[str]:
 
     keys = ["spine_key", "period_end", "period_type"]
     if all(k in df.columns for k in keys):
-        dupes = df.duplicated(subset=keys).sum()
+        # reporting_basis is part of the uniqueness key: CN (Typrep A/B) and
+        # JP (has_consolidated_statements) legitimately emit two rows for the
+        # same (spine_key, period_end, period_type) -- consolidated vs
+        # parent-company are not duplicates. Default missing/null
+        # reporting_basis to a single constant so panels built before this
+        # column existed (or markets that never set it) still dedupe
+        # correctly on the original three-column key.
+        basis = (
+            df["reporting_basis"] if "reporting_basis" in df.columns
+            else pd.Series(["consolidated"] * len(df), index=df.index)
+        )
+        subset = df[keys].copy()
+        subset["reporting_basis"] = basis.fillna("consolidated")
+        dupes = subset.duplicated().sum()
         if dupes:
-            violations.append(f"{dupes} duplicate (spine_key, period_end, period_type) rows")
+            violations.append(
+                f"{dupes} duplicate (spine_key, period_end, period_type, reporting_basis) rows"
+            )
 
     usd_cols = [c for c in df.columns if c.endswith("_usd")]
 

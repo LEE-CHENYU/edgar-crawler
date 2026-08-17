@@ -1,5 +1,5 @@
 import pandas as pd
-from panel.adapters.cn import CN_FIELD_MAP, rows_from_cn_frames
+from panel.adapters.cn import CN_FIELD_MAP, _merge, rows_from_cn_frames
 
 def _bs():
     return pd.DataFrame([
@@ -98,3 +98,31 @@ def test_duplicate_metric_column_across_frames_is_not_swallowed_by_dup_suffix():
     row = [r for r in rows if r["period_end"] == "2024-12-31"][0]
     assert row["total_assets"] is not None
     assert not any(str(k).endswith("_dup") for k in row.keys())
+
+
+def test_shared_non_key_columns_across_three_frames_do_not_produce_duplicate_labels():
+    """bs/inc/cf all carry ShortName/IfCorrect/DeclareDate. Live data merges
+    all three sequentially with suffixes=('', '_dup'): the second merge tries
+    to create '<col>_dup' again, colliding with the first merge's output and
+    producing duplicate column labels that to_dict('records') silently drops
+    data from (observed live: UserWarning 'DataFrame columns are not unique,
+    some columns will be omitted'). No metric is lost today only because the
+    A*/B*/C* codes happen to be unique per statement -- fragile, not a fix."""
+    bs = pd.DataFrame([
+        {"Stkcd": "000001", "ShortName": "X", "Accper": "2024-12-31", "Typrep": "A",
+         "DeclareDate": "2025-01-01", "IfCorrect": "1", "A001000000": 100.0},
+    ])
+    inc = pd.DataFrame([
+        {"Stkcd": "000001", "ShortName": "X", "Accper": "2024-12-31", "Typrep": "A",
+         "DeclareDate": "2025-01-02", "IfCorrect": "1", "B001100000": 500.0},
+    ])
+    cf = pd.DataFrame([
+        {"Stkcd": "000001", "ShortName": "X", "Accper": "2024-12-31", "Typrep": "A",
+         "DeclareDate": "2025-01-03", "IfCorrect": "1", "C001000000": 40.0},
+    ])
+    merged = _merge([bs, inc, cf])
+    assert merged.columns.is_unique
+    record = merged.to_dict("records")[0]
+    assert record["A001000000"] == 100.0
+    assert record["B001100000"] == 500.0
+    assert record["C001000000"] == 40.0

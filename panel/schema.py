@@ -16,6 +16,11 @@ METRIC_COLUMNS = [
 
 PANEL_COLUMNS = [
     "spine_key", "market", "local_id", "period_end", "period_type", "fiscal_year",
+    # reporting_basis distinguishes consolidated vs parent-company rows that
+    # otherwise share the same (spine_key, period_end, period_type) key --
+    # CN's Typrep A/B and JP's has_consolidated_statements both legitimately
+    # emit both. It is part of the panel's uniqueness key (see views.py).
+    "reporting_basis",
     "company_name", "currency", "fx_rate", "fx_asof", "source_artifact",
 ] + METRIC_COLUMNS
 

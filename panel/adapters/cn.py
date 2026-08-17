@@ -45,13 +45,32 @@ CN_FIELD_MAP = {
 
 
 def _merge(frames: List[Optional[pd.DataFrame]]) -> pd.DataFrame:
+    """Outer-join the balance sheet / income statement / cash flow frames on
+    (Stkcd, Accper, Typrep).
+
+    bs/inc/cf all carry the same three metadata columns (ShortName,
+    IfCorrect, DeclareDate). Merging sequentially with pandas' default
+    suffixes=("", "_dup") only survives ONE collision: the first merge
+    creates "<col>_dup", but the second merge tries to create "<col>_dup"
+    again and collides with itself, producing duplicate column labels that
+    `to_dict("records")` silently drops data from (pandas emits "DataFrame
+    columns are not unique, some columns will be omitted"). No financial
+    metric is lost today only because every A*/B*/C* code happens to be
+    unique per statement -- that's luck, not a guarantee, so drop each right
+    frame's already-present non-key columns before merging instead of
+    relying on suffixes. The left (first) frame's value always wins, which
+    matches the existing dup-metric-code precedence.
+    """
     present = [f for f in frames if f is not None and len(f)]
     if not present:
         return pd.DataFrame()
     merged = present[0]
     for extra in present[1:]:
         keys = [k for k in ("Stkcd", "Accper", "Typrep") if k in extra.columns]
-        merged = merged.merge(extra, on=keys, how="outer", suffixes=("", "_dup"))
+        overlap = [c for c in extra.columns if c in merged.columns and c not in keys]
+        if overlap:
+            extra = extra.drop(columns=overlap)
+        merged = merged.merge(extra, on=keys, how="outer")
     return merged
 
 

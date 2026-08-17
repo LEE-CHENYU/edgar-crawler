@@ -107,3 +107,20 @@ def test_balance_identity_zero_total_assets_is_not_flagged_and_does_not_raise():
 def test_balance_identity_none_total_assets_is_not_flagged_and_does_not_raise():
     df = _balance_row(total_assets=None, total_liabilities=600, total_equity=300)
     assert check_invariants(df) == []
+
+
+# --- reporting_basis in the uniqueness key ---
+# CN (Typrep A/B) and JP (has_consolidated_statements) legitimately emit two
+# rows for the same (spine_key, period_end, period_type): consolidated vs
+# parent-company. Those are not duplicates.
+
+def test_duplicate_rows_differing_only_in_reporting_basis_is_not_flagged():
+    df = pd.concat([_ok(), _ok()], ignore_index=True)
+    df["reporting_basis"] = ["consolidated", "parent"]
+    assert check_invariants(df) == []
+
+
+def test_duplicate_rows_identical_including_reporting_basis_is_flagged():
+    df = pd.concat([_ok(), _ok()], ignore_index=True)
+    df["reporting_basis"] = ["consolidated", "consolidated"]
+    assert any("duplicate" in v for v in check_invariants(df))

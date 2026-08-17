@@ -20,6 +20,14 @@ def test_panel_columns_lead_with_identity_then_metrics():
     for c in ("currency", "fx_rate", "fx_asof", "source_artifact"):
         assert c in PANEL_COLUMNS
 
+
+def test_panel_columns_include_reporting_basis():
+    """CN (Typrep A/B) and JP (has_consolidated_statements) legitimately emit
+    two rows for the same (spine_key, period_end, period_type) — consolidated
+    vs parent-company. reporting_basis is what makes those two rows distinct
+    keys instead of colliding as duplicates."""
+    assert "reporting_basis" in PANEL_COLUMNS
+
 def test_period_type_annual_for_december_year_end():
     assert period_type_for("2024-12-31", cadence="annual") == "A"
 

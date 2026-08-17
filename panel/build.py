@@ -1,4 +1,17 @@
-"""Assemble the panel from every v1 market adapter."""
+"""Assemble the panel from every v1 market adapter.
+
+Currency note (found 2026-08-17 full-build review): AU/TW/PH/KR rows carry
+currency="USD" with fx_rate=1.0 on this panel's own FX step, but that is NOT
+"no conversion needed from a local currency" -- their upstream
+*_screening_input.csv builders already convert AUD/TWD/PHP/KRW to USD at
+build time, at an FX rate and as-of date this panel never sees or records.
+CN/JP/IN_BSE/HK stay in local currency (HK is a genuine three-currency mix:
+HKD/CNY/USD, since ~40% of HKEX filers report in RMB) and get FX applied
+here, with fx_rate/fx_asof captured per row. Comparing a raw `revenue`
+across markets therefore mixes units -- USD for the four upstream-converted
+markets, local currency for the rest -- until every row's own currency
+column is checked.
+"""
 from __future__ import annotations
 
 import argparse
@@ -18,6 +31,13 @@ DATA_ROOT = Path("/Volumes/OWC Express 1M2/datasets")
 DEFAULT_OUT = Path("/Users/lichenyu/datasets/panel")
 
 MARKET_SOURCES: Dict[str, dict] = {
+    # au/tw/ph/kr "currency" is declared as the local currency, but the
+    # *_screening_input.csv these adapters read is ALREADY USD-converted by
+    # its upstream builder -- verified in the 2026-08-17 full build, every
+    # row from these four markets lands with currency="USD". The FX rate and
+    # as-of date used for that upstream conversion are not recorded anywhere
+    # in this panel; this panel's own fx_rate=1.0 on those rows means
+    # "already USD", not "no conversion was needed from a local currency".
     "au": {"kind": "screening", "currency": "AUD",
            "path": DATA_ROOT / "MARKET_FILINGS/derived/ASX_FINANCIALS/au_screening_input.csv"},
     "tw": {"kind": "screening", "currency": "TWD",
@@ -59,6 +79,42 @@ def attach_spine(rows: List[dict], resolved: Dict[tuple, dict]) -> List[dict]:
             )
             merged["figi"] = None
             merged["resolution_source"] = "unresolved"
+        out.append(merged)
+    return out
+
+
+def _reporting_basis_for(row: dict) -> str:
+    """consolidated / parent / raw-passthrough, per market.
+
+    CN: cn_typrep 'A' -> consolidated, 'B' -> parent, anything else -> the
+    raw value so nothing is silently lost.
+    JP: has_consolidated_statements True -> consolidated, False -> parent
+    (verified live 2026-08-17: stock_code 85950 period 2021-03-31 carries
+    both for the same company-period, not an amendment).
+    Every other market has a single reporting basis and defaults to
+    "consolidated".
+    """
+    market = row.get("market")
+    if market == "cn":
+        typrep = row.get("cn_typrep")
+        if typrep == "A":
+            return "consolidated"
+        if typrep == "B":
+            return "parent"
+        return "consolidated" if typrep in (None, "") else str(typrep)
+    if market == "jp":
+        flag = row.get("jp_has_consolidated_statements")
+        if flag is False:
+            return "parent"
+        return "consolidated"
+    return "consolidated"
+
+
+def attach_reporting_basis(rows: List[dict]) -> List[dict]:
+    out = []
+    for row in rows:
+        merged = dict(row)
+        merged["reporting_basis"] = _reporting_basis_for(row)
         out.append(merged)
     return out
 
@@ -123,6 +179,8 @@ def main() -> int:
             rows.extend(got)
         except Exception as exc:
             print(f"{market}: FAILED ({type(exc).__name__}: {exc})", flush=True)
+
+    rows = attach_reporting_basis(rows)
 
     identifiers = sorted({(r["market"], r["local_id"]) for r in rows})
     print(f"resolving {len(identifiers)} identifiers", flush=True)

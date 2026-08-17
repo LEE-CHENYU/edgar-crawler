@@ -1,5 +1,5 @@
 import pandas as pd
-from panel.build import MARKET_SOURCES, attach_spine, write_panel
+from panel.build import MARKET_SOURCES, attach_reporting_basis, attach_spine, write_panel
 
 
 def test_market_sources_cover_v1_adapters_and_exclude_us():
@@ -52,3 +52,43 @@ def test_write_panel_is_atomic_leaving_no_tmp_file(tmp_path):
 
 def test_write_panel_on_empty_rows_returns_none(tmp_path):
     assert write_panel([], tmp_path) is None
+
+
+# --- reporting_basis (Fix round 1: 308,321 CN duplicate-key groups were the
+# consolidated-vs-parent Typrep A/B pair for the same company-period; 2 JP
+# duplicates turned out to be the same pattern via has_consolidated_statements,
+# not an amendment) ---
+
+def test_attach_reporting_basis_maps_cn_typrep_a_to_consolidated():
+    rows = [{"market": "cn", "cn_typrep": "A"}]
+    assert attach_reporting_basis(rows)[0]["reporting_basis"] == "consolidated"
+
+
+def test_attach_reporting_basis_maps_cn_typrep_b_to_parent():
+    rows = [{"market": "cn", "cn_typrep": "B"}]
+    assert attach_reporting_basis(rows)[0]["reporting_basis"] == "parent"
+
+
+def test_attach_reporting_basis_keeps_unknown_cn_typrep_raw_so_nothing_is_lost():
+    rows = [{"market": "cn", "cn_typrep": "C"}]
+    assert attach_reporting_basis(rows)[0]["reporting_basis"] == "C"
+
+
+def test_attach_reporting_basis_does_not_drop_cn_typrep():
+    rows = [{"market": "cn", "cn_typrep": "A"}]
+    assert attach_reporting_basis(rows)[0]["cn_typrep"] == "A"
+
+
+def test_attach_reporting_basis_maps_jp_consolidated_flag():
+    rows = [
+        {"market": "jp", "jp_has_consolidated_statements": True},
+        {"market": "jp", "jp_has_consolidated_statements": False},
+    ]
+    out = attach_reporting_basis(rows)
+    assert out[0]["reporting_basis"] == "consolidated"
+    assert out[1]["reporting_basis"] == "parent"
+
+
+def test_attach_reporting_basis_defaults_single_basis_markets_to_consolidated():
+    rows = [{"market": "au", "local_id": "BHP"}]
+    assert attach_reporting_basis(rows)[0]["reporting_basis"] == "consolidated"
