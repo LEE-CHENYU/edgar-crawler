@@ -144,9 +144,55 @@ metadata rows by filing key, download only the missing package zips into
 15,875 already use — on the boot volume. Cursor + per-country counters in
 `backfill_state_xbrl_org.json`.
 
-Sizing: 258 GB for 15,875 filings measured on disk (~16 MB/filing; UK alone is 44 GB
-across 2,794 zips). The ~9,800 missing are therefore **~160 GB**. This is the single
-largest item in the program and the reason the boot volume is required.
+### CORRECTION 2026-08-17: the gap was ~200 filings, not ~9,800
+
+The original sizing below was wrong, and the error is worth recording because it
+was an inference presented as a measurement.
+
+**What was claimed:** the catalogue holds 25,675 filings and metadata holds
+15,875, therefore ~9,800 (38%) were never pulled, at ~16 MB each = ~160 GB,
+"the single largest item in the program".
+
+**What the worker's own catalogue walk found:** pages 1-124 contained **zero**
+genuinely missing filings. Per-page breakdown (200 filings each):
+
+| Page | Already in metadata | No package | Genuinely missing |
+|---|---|---|---|
+| 79 | 166 | 34 | 0 |
+| 90 | 124 | 76 | 0 |
+| 100 | 80 | 120 | 0 |
+| 110 | 0 | 200 | 0 |
+| 124 | 184 | 16 | 0 |
+
+The ~9,800 delta is almost entirely catalogue entries whose `package_url` is
+`"None"` — viewer-only or JSON-only filings that can never be downloaded. The
+no-package rate is ~16% early in the catalogue and reaches **100% by page 110**.
+Pagination was verified as non-repeating (zero fxo_id overlap between pages 1,
+50 and 120), so this is not a scanning artifact.
+
+**Final tally from the completed run (2026-08-17):**
+
+```
+done: 127 downloaded, 0 failed, 16378 already had, 9770 no package
+```
+
+**9,770 entries have no downloadable package** — almost exactly the "~9,800
+missing" that was claimed. The entire supposed gap was undownloadable catalogue
+entries. Actual outstanding work was 127 filings in the recent tail (pages
+125-129), all fetched with zero failures.
+
+**Root cause of the error:** a catalogue count was compared against a metadata
+count without checking whether the catalogue entries were *fetchable*. The 16%
+no-package rate was measured early and then not re-checked deeper in the
+catalogue, where it rises steeply.
+
+**Consequences for the program:** D1 is not the largest item and does not
+require ~160 GB. UK and Poland were never missing. Germany's zero rows are real
+but Germany does not file to this collector at all, so only D2 can address it.
+
+Historical sizing (retained to show what was superseded): 258 GB for 15,875
+filings measured on disk (~16 MB/filing; UK alone is 44 GB across 2,794 zips),
+with the ~9,800 assumed missing therefore estimated at ~160 GB.
 
 Coverage ceiling: ESEF was mandated from FY2020, so this source cannot yield pre-2020
 history for any country. That is the entire motivation for D2.
