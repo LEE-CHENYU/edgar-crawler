@@ -162,3 +162,53 @@ def test_registry_routes_each_market_to_its_own_builder():
     assert MARKETS["no_oslo"]["builder"] == "oslo"
     assert MARKETS["nordic"]["builder"] == "nordic"
     assert MARKETS["in_bse"]["builder"] == "in_bse"
+
+
+# --- TWSE ---------------------------------------------------------------
+
+
+def _twse_tree(tmp_path):
+    """{filing_date}/{filing_id}/{fiscal}_{ticker}_{date}F04.pdf -- a fourth
+    layout, distinct from in_bse, asx, oslo and nordic."""
+    d = tmp_path / "20220602" / "TWSE_REPORT_F_1717_2022_2021_1717_20220623F04"
+    d.mkdir(parents=True)
+    (d / "2021_1717_20220623F04.pdf").write_bytes(b"%PDF-1.4")
+    d2 = tmp_path / "20180521" / "TWSE_REPORT_F_2916_2018_2017_2916_20180608F04"
+    d2.mkdir(parents=True)
+    (d2 / "2017_2916_20180608F04.pdf").write_bytes(b"%PDF-1.4")
+    return tmp_path
+
+
+def test_twse_targets_read_ticker_and_fiscal_year_from_the_filename(tmp_path):
+    from scripts.pdf_market_sweep import build_targets_twse
+    targets = build_targets_twse(_twse_tree(tmp_path), None)
+    by_ticker = {t["ticker"]: t for t in targets}
+    assert set(by_ticker) == {"1717", "2916"}
+    assert by_ticker["1717"]["fiscal_year"] == 2021
+    assert by_ticker["2916"]["fiscal_year"] == 2017
+
+
+def test_twse_doc_ids_are_unique(tmp_path):
+    from scripts.pdf_market_sweep import build_targets_twse
+    targets = build_targets_twse(_twse_tree(tmp_path), None)
+    assert len({t["doc_id"] for t in targets}) == len(targets)
+
+
+def test_twse_targets_filter_by_year(tmp_path):
+    from scripts.pdf_market_sweep import build_targets_twse
+    targets = build_targets_twse(_twse_tree(tmp_path), {"2017"})
+    assert [t["ticker"] for t in targets] == ["2916"]
+
+
+def test_twse_is_registered_against_its_own_builder():
+    """The Oslo incident: a market pointed at another market's builder finds
+    zero targets and reports success having swept nothing."""
+    from scripts.pdf_market_sweep import MARKETS
+    assert MARKETS["twse"]["builder"] == "twse"
+    assert MARKETS["twse"]["out_dir"] != MARKETS["in_bse"]["out_dir"]
+
+
+def test_every_market_has_a_distinct_builder_and_out_dir():
+    from scripts.pdf_market_sweep import MARKETS
+    builders = [m["builder"] for m in MARKETS.values()]
+    assert len(builders) == len(set(builders))

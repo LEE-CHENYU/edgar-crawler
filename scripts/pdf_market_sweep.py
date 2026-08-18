@@ -53,6 +53,11 @@ MARKETS: Dict[str, Dict[str, str]] = {
         "out_dir": str(DATASETS / "derived" / "NO_OSLO_FINANCIALS"),
         "builder": "oslo",
     },
+    "twse": {
+        "raw_root": str(DATASETS / "raw" / "TWSE_REPORTS"),
+        "out_dir": str(DATASETS / "derived" / "TWSE_FINANCIALS"),
+        "builder": "twse",
+    },
     "nordic": {
         # Folded out of the orphaned NASDAQ_NORDIC_BALTIC_NEWS tree; lives on the
         # boot volume across seven country dirs, so raw_root is set per run.
@@ -64,6 +69,7 @@ MARKETS: Dict[str, Dict[str, str]] = {
 
 _ASX_FNAME = re.compile(r"^([A-Z0-9]+)-(\d{8})-(\d+)\.pdf$", re.IGNORECASE)
 _YEAR = re.compile(r"^(19|20)\d{2}$")
+_DATE8 = re.compile(r"^\d{8}$")
 _lock = threading.Lock()
 
 
@@ -140,6 +146,45 @@ def build_targets_nordic(raw_root: Path, years: Optional[Set[str]]) -> List[dict
     return out
 
 
+_TWSE_FNAME = re.compile(r"^(\d{4})_(\w+?)_(\d{8}F\d+)$")
+
+
+def build_targets_twse(raw_root: Path, years: Optional[Set[str]]) -> List[dict]:
+    """TWSE layout: {filing_date}/{filing_id}/{fiscal}_{ticker}_{date}F04.pdf.
+
+    A fifth distinct layout. The identity is in the FILENAME, not the path --
+    the directory above is the long filing_id
+    ("TWSE_REPORT_F_1717_2022_2021_1717_20220623F04"), and the date directory is
+    the filing date, not the fiscal year. 14,940 TWSE PDFs sat unswept because
+    the sweeper had no builder for this shape (only 1,304 rows existed in
+    stage 02, from an older path).
+
+    `years` filters on FISCAL year, matching the other builders.
+    """
+    out: List[dict] = []
+    raw_root = Path(raw_root)
+    for pdf in raw_root.rglob("*.pdf"):
+        m = _TWSE_FNAME.match(pdf.stem)
+        if not m:
+            continue
+        fiscal, ticker, _stamp = m.groups()
+        if years and fiscal not in years:
+            continue
+        try:
+            parts = pdf.relative_to(raw_root).parts
+        except ValueError:
+            continue
+        filing_date = parts[0] if parts and _DATE8.match(parts[0]) else ""
+        out.append({
+            "ticker": ticker,
+            "filing_date": filing_date,
+            "doc_id": pdf.stem,
+            "fiscal_year": int(fiscal),
+            "pdf_path": str(pdf),
+        })
+    return out
+
+
 def build_targets_oslo(raw_root: Path, years: Optional[Set[str]]) -> List[dict]:
     """Oslo Newsweb layout: {year}/{month}/{disclosure_id}.pdf."""
     out: List[dict] = []
@@ -186,6 +231,7 @@ def build_targets_asx(raw_root: Path, years: Optional[Set[str]]) -> List[dict]:
 
 
 _BUILDERS = {
+    "twse": build_targets_twse,
     "in_bse": build_targets_in_bse,
     "asx": build_targets_asx,
     "nordic": build_targets_nordic,
