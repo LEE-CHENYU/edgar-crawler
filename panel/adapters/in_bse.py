@@ -27,7 +27,13 @@ from typing import List, Optional
 
 import pandas as pd
 
+from panel.conventions import period_end_and_source
 from panel.schema import METRIC_COLUMNS, is_plausible_fiscal_year, period_type_for, to_number
+
+# Above this share of duplicated (ticker, doc_id) rows, the frame is treated as
+# systemically broken rather than carrying stray artifacts. One duplicated pair
+# in 67,993 IN_BSE rows is 0.003%.
+DUPLICATE_IDENTITY_LIMIT = 0.05
 
 # KR's DART parquet names the same concepts differently. Aliases are applied
 # only when the canonical name is absent, so a frame carrying both is unchanged.
@@ -78,8 +84,10 @@ def rows_from_canonical_metrics(
         source_artifact: provenance string recorded on every row.
 
     Raises:
-        ValueError: if (ticker, doc_id) is not unique -- that would mean two
-            rows for the same company from the same document.
+        ValueError: only if MORE than DUPLICATE_IDENTITY_LIMIT of rows share a
+            (ticker, doc_id) -- systemic identity collapse upstream. Stray
+            duplicates are dropped and counted as drops["duplicate_identity"],
+            because raising on one bad pair previously cost the whole market.
 
     Fiscal-year rescue (spec Sec 5.1): a row whose fiscal_year is implausible
     but whose filing_date yields a plausible year keeps the derived year and is
@@ -96,13 +104,29 @@ def rows_from_canonical_metrics(
     # doc_id 02969892 covers HDN/HCW/DGT/HMC, doc_id 01203318 covers INV/ARC;
     # 12 rows across 4 doc_ids). The row identity is (ticker, doc_id), so guard
     # that instead; a bare-doc_id guard would raise and drop the whole market.
+    #
+    # A duplicate is dropped and counted, not fatal. The live IN_BSE parquet
+    # holds exactly ONE duplicated pair in 67,993 rows -- document 5238460310
+    # filed under both FY2009 and FY2010 with the same value, a stage-02
+    # artifact of one PDF sitting in two year directories. Raising on it cost
+    # the panel the entire Indian market (16 rows on disk against 67,993
+    # available). Above DUPLICATE_IDENTITY_LIMIT the balance flips: that is
+    # identity collapse upstream, where a silent mass drop would be worse than
+    # a failure.
+    duplicate_keys = set()
     if "doc_id" in df.columns and "ticker" in df.columns:
         pairs = df[["ticker", "doc_id"]].dropna()
-        if pairs.duplicated().any():
-            dupes = sorted(
-                set(map(tuple, pairs[pairs.duplicated()].to_numpy()))
-            )[:5]
-            raise ValueError(f"duplicate (ticker, doc_id) in {market}: {dupes}")
+        marked = pairs.duplicated(keep=False)
+        if marked.any():
+            duplicate_keys = set(map(tuple, pairs[marked].to_numpy()))
+            share = int(marked.sum()) / max(len(df), 1)
+            if share > DUPLICATE_IDENTITY_LIMIT:
+                sample = sorted(duplicate_keys)[:5]
+                raise ValueError(
+                    f"duplicate (ticker, doc_id) in {market}: {share:.1%} of rows "
+                    f"({int(marked.sum())} of {len(df)}) -- identity collapse, "
+                    f"not stray rows. Sample: {sample}"
+                )
 
     artifact = source_artifact or (
         f"derived/{market.upper()}_FINANCIALS/canonical_metrics_wide.parquet"
@@ -112,6 +136,9 @@ def rows_from_canonical_metrics(
         ticker = str(record.get("ticker") or "").strip()
         if not ticker or ticker.lower() == "nan":
             drops["missing_ticker"] += 1
+            continue
+        if duplicate_keys and (ticker, record.get("doc_id")) in duplicate_keys:
+            drops["duplicate_identity"] += 1
             continue
         year = record.get("fiscal_year")
         fiscal_year_source = "reported"
@@ -124,7 +151,10 @@ def rows_from_canonical_metrics(
             fiscal_year_source = "derived:filing_date"
             drops["fiscal_year_derived_from_filing_date"] += 1
         fiscal_year = int(year)
-        period_end = f"{fiscal_year}-12-31"
+        # Not `{fiscal_year}-12-31`: AU closes 30 June and IN 31 March, so a
+        # calendar year end misdated every row in those markets by 6 and 9
+        # months. See panel/conventions.py.
+        period_end, period_end_source = period_end_and_source(market, fiscal_year)
         company_name = record.get("company_name")
         if company_name is None or pd.isna(company_name):
             company_name = None
@@ -141,6 +171,7 @@ def rows_from_canonical_metrics(
             "fiscal_year": fiscal_year,
             "fiscal_year_source": fiscal_year_source,
             "period_end": period_end,
+            "period_end_source": period_end_source,
             "period_type": period_type_for(period_end, cadence="annual"),
             "source_doc_id": doc_id,
             "source_artifact": artifact,

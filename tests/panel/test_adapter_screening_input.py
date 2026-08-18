@@ -27,7 +27,10 @@ def test_rows_carry_identity_and_metrics(tmp_path):
     assert r["company_name"] == "BHP GROUP"
     assert r["currency"] == "USD"
     assert r["fiscal_year"] == 2024
-    assert r["period_end"] == "2024-12-31"
+    # 06-30, not 12-31: Australian companies close 30 June. This assertion
+    # previously pinned the 6-month misdating it was meant to catch.
+    assert r["period_end"] == "2024-06-30"
+    assert r["period_end_source"] == "convention:au"
     assert r["period_type"] == "A"
     assert r["total_assets"] == 100.0
     assert r["cash_and_equivalents"] == 10.0

@@ -17,6 +17,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Dict, List, Optional
 
+from panel.conventions import period_end_and_source
 from panel.schema import is_plausible_fiscal_year, period_type_for, to_number
 
 SCREENING_COLUMN_MAP: Dict[str, str] = {
@@ -50,7 +51,9 @@ def rows_from_screening_csv(path, market: str, cadence: str = "annual",
                 drops["implausible_fiscal_year"] += 1
                 continue
             fiscal_year = int(year)
-            period_end = f"{fiscal_year}-12-31"
+            # Market fiscal calendar, not a calendar year -- see
+            # panel/conventions.py for why this was wrong for au/in_bse.
+            period_end, period_end_source = period_end_and_source(market, fiscal_year)
             row = {
                 "market": market,
                 "local_id": ticker,
@@ -58,6 +61,7 @@ def rows_from_screening_csv(path, market: str, cadence: str = "annual",
                 "currency": str(raw.get("Currency") or "").strip() or None,
                 "fiscal_year": fiscal_year,
                 "period_end": period_end,
+                "period_end_source": period_end_source,
                 "period_type": period_type_for(period_end, cadence=cadence),
                 "source_artifact": str(Path(path)),
             }

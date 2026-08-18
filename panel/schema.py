@@ -29,13 +29,19 @@ PANEL_COLUMNS = [
     # filing. unit_scale is the multiplier a consumer must apply to the metric
     # values (1 unless the source declares a scale like "HK$Million"); values
     # are NEVER pre-multiplied here -- see panel/adapters/hk.py.
-    "fiscal_year_source", "source_doc_id", "unit_scale",
+    # period_end_source separates a date READ from the filing from one this
+    # code inferred from a fiscal-year label: "convention:<market>" for a
+    # verified fiscal calendar, "assumed:calendar-year-end" where none is
+    # known. Australia carried a fabricated 12-31 for months because the
+    # output could not express that difference.
+    "fiscal_year_source", "period_end_source", "source_doc_id", "unit_scale",
     "source_artifact",
 ] + METRIC_COLUMNS
 
 # write_panel fills these with a default rather than None when an adapter did
 # not set them, so a consumer never has to distinguish "no scale" from "unknown".
-PANEL_COLUMN_DEFAULTS = {"unit_scale": 1, "fiscal_year_source": "reported"}
+PANEL_COLUMN_DEFAULTS = {"unit_scale": 1, "fiscal_year_source": "reported",
+                         "period_end_source": "reported"}
 
 CADENCES = ("annual", "semiannual", "quarterly")
 _QUARTER_ENDS = {"03-31", "06-30", "09-30"}

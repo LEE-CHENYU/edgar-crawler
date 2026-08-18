@@ -26,7 +26,10 @@ def test_rows_map_identity_and_metrics():
     assert r["market"] == "in_bse" and r["local_id"] == "533089"
     assert r["currency"] == "INR"
     assert r["fiscal_year"] == 2013
-    assert r["period_end"] == "2013-12-31"
+    # 03-31, not 12-31: the Indian fiscal year ends 31 March. This assertion
+    # previously pinned the 9-month misdating it was meant to catch.
+    assert r["period_end"] == "2013-03-31"
+    assert r["period_end_source"] == "convention:in_bse"
     assert r["period_type"] == "A"
     assert r["revenue"] == 100.0 and r["total_assets"] == 500.0
 
