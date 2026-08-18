@@ -43,6 +43,9 @@ SUPPORTED_MARKETS = ("TWSE_REPORTS", "DART")
 class RescueState:
     market: str
     cursor: int = 0
+    # Size of the missing-documents queue this cursor indexes. The queue is
+    # rebuilt every run, so a cursor without its queue size cannot be trusted.
+    queue_size: Optional[int] = None
     recovered: int = 0
     failed: int = 0
     calls_used: int = 0
@@ -117,6 +120,29 @@ def breaker_action(
     if unproductive >= max_cooldowns:
         return "stop"
     return "cooldown"
+
+
+def cursor_for_queue(saved_cursor: int, saved_queue_size: Optional[int],
+                     current_queue_size: int) -> int:
+    """A saved cursor, or 0 when it no longer refers to the same rows.
+
+    The cursor indexes the missing-documents queue, which is REBUILT from
+    current metadata on every run. Acquired rows leave that queue, so it
+    shrinks -- and index 5,000 of a 12,497-row queue is not index 5,000 of an
+    11,038-row one. A cursor past the end is worse still: the run reports
+    "done" instantly and silently skips every remaining document, which is
+    exactly what stranded 11,038 TWSE rows on 2026-08-18.
+
+    Resetting costs nothing, because rows already acquired are no longer in the
+    queue to be retried.
+    """
+    if current_queue_size <= 0:
+        return 0
+    if saved_queue_size is not None and saved_queue_size != current_queue_size:
+        return 0
+    if saved_cursor >= current_queue_size:
+        return 0
+    return saved_cursor
 
 
 def resume_cursor(last_index: int, first_failure_index: Optional[int]) -> int:
@@ -342,6 +368,8 @@ def load_state(path: Path, market: str) -> RescueState:
     return RescueState(
         market=payload.get("market", market),
         cursor=int(payload.get("cursor", 0) or 0),
+        queue_size=(int(payload["queue_size"])
+                    if payload.get("queue_size") is not None else None),
         recovered=int(payload.get("recovered", 0) or 0),
         failed=int(payload.get("failed", 0) or 0),
         calls_used=int(payload.get("calls_used", 0) or 0),
@@ -468,6 +496,13 @@ def main() -> int:
     rows = read_metadata(metadata_path)
     missing = select_missing_rows(rows, market=args.market)
     state = load_state(state_path, market=args.market)
+    validated = cursor_for_queue(state.cursor, state.queue_size, len(missing))
+    if validated != state.cursor:
+        log(f"{args.market}: cursor {state.cursor} does not index the current "
+            f"{len(missing)}-row queue (was built for "
+            f"{state.queue_size}); restarting from 0 so no row is skipped.")
+    state.cursor = validated
+    state.queue_size = len(missing)
     log(f"{args.market}: {len(missing)} rows missing documents; cursor={state.cursor}")
 
     job_id = args.job_id or f"rescue_{args.market.lower()}"
