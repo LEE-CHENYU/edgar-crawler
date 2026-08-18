@@ -281,6 +281,29 @@ unmeasured.
 
 This is the same class as §2.5a: a convention assumed rather than looked up.
 
+### 2.5d A low yield is a question, not an answer -- and sometimes the corpus is the answer
+
+Nordic and Oslo both swept at ~2-23% yield. The causes were opposite, and only
+measurement separated them:
+
+| Corpus | Yield | Cause | Fix |
+|---|---|---|---|
+| Nordic | 23% -> **71%** | extractor spoke only English (2.5c) | vocabulary |
+| Oslo | **2.2%** | the documents are not filings | re-acquire |
+
+Oslo Newsweb's 8,139 PDFs are announcement COVER SHEETS -- `Innsendt dato`,
+`UtstederID`, `MeldingsID` -- not financial statements. The size distribution
+settles it beyond argument: **median 7 KB, max 0.1 MB, 100% under 50 KB**. No
+annual report is 7 KB. The actual reports are attachments the crawler never
+followed, so `NO_OSLO_NEWSWEB` is an index of disclosures, not a corpus of
+filings, and no extractor improvement will raise its yield.
+
+**Practice:** when yield is low, check the DOCUMENTS before blaming the parser.
+File-size distribution is the cheapest discriminator available -- one command,
+and it distinguishes "we cannot read these" from "these are not the documents
+we wanted". Both were live here on the same day, and the wrong diagnosis on
+either would have cost days.
+
 ### 2.6 Metric mapping is accounting, not string matching
 
 > **Incident.** `operating_income → profit_before_tax` conflated 営業利益 with
@@ -446,7 +469,10 @@ CLAUDE.md for the incident that produced this rule).
   consumes it yet; the panel's Indian figures remain up to 10^7 too small.
 - Australian, Taiwanese and Philippine unit scales are still unmeasured. The
   detector covers them; the run has not been made.
-- Nordic stage 02 is 23% yield (822 of 3,584) because the extractor's labels are
+- NO_OSLO_NEWSWEB holds disclosure cover sheets (median 7 KB), not filings.
+  Norwegian annual reports must be re-acquired from the announcement
+  attachments before Oslo contributes anything to the panel. See 2.5d.
+- Nordic stage 02 WAS 23% yield (822 of 3,584) because the extractor's labels are
   English-only; ~1,093 Swedish annual reports are recoverable by adding Swedish
   captions and re-running. Norwegian/Danish/Finnish are unmeasured behind the
   same extractor. See §2.5c.
