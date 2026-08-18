@@ -68,6 +68,67 @@ MARKETS: Dict[str, Dict[str, str]] = {
 }
 
 
+# Consecutive unreadable files that mean "the filesystem is gone", not "these
+# PDFs are corrupt". 4 of 30 sampled Indian reports are legitimately unreadable,
+# but they are scattered; 25 in a row is an outage.
+UNREADABLE_ABORT_LIMIT = 25
+
+
+def storage_action(consecutive_unreadable: int, limit: int) -> str:
+    """"continue" or "abort" -- the disk equivalent of the HTTP breaker.
+
+    An outage recorded as a per-file result is worse than a crash: it writes
+    rows that falsely claim "no scale found", which nothing downstream can
+    distinguish from a filing that genuinely has no scale word.
+    """
+    if limit <= 0:
+        return "continue"
+    return "abort" if consecutive_unreadable >= limit else "continue"
+
+
+def load_done(out: Path) -> set:
+    """PDF paths already processed SUCCESSFULLY, for resume.
+
+    Rows marked unreadable are deliberately excluded: during an outage every
+    file is unreadable, and a resume must retry those rather than inherit the
+    outage's verdict. A checkpoint truncated by the same outage reads as empty
+    rather than blocking the restart.
+    """
+    try:
+        import pandas as pd
+        df = pd.read_parquet(out)
+    except Exception:
+        return set()
+    if "pdf" not in df.columns:
+        return set()
+    if "evidence" in df.columns:
+        df = df[df["evidence"].astype(str) != "unreadable"]
+    return set(df["pdf"].astype(str))
+
+
+def keep_done_rows(out: Path) -> List[dict]:
+    """Previously completed rows, minus any recorded during an outage."""
+    try:
+        import pandas as pd
+        df = pd.read_parquet(out)
+    except Exception:
+        return []
+    if "evidence" in df.columns:
+        df = df[df["evidence"].astype(str) != "unreadable"]
+    return df.to_dict("records")
+
+
+def write_table(rows: List[dict], out: Path) -> None:
+    """Atomic write, so a checkpoint interrupted mid-write cannot destroy the
+    previous one."""
+    import pandas as pd
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_suffix(out.suffix + ".tmp")
+    pd.DataFrame(rows).to_parquet(tmp, index=False)
+    tmp.replace(out)
+
+
 def identify(pdf: Path, raw_root: Path, layout: str) -> Tuple[str, str]:
     """(entity, period_label) from the path, per the market's layout."""
     try:
@@ -100,6 +161,14 @@ def main() -> int:
     parser.add_argument("--workers", type=int, default=3)
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--log-every", type=int, default=250)
+    parser.add_argument("--checkpoint-every", type=int, default=2000,
+                        help="write the parquet every N filings so a crash costs "
+                             "minutes, not hours")
+    parser.add_argument("--unreadable-abort", type=int, default=UNREADABLE_ABORT_LIMIT,
+                        help="abort after this many CONSECUTIVE unreadable files "
+                             "(0 disables); a vanished volume is not a result")
+    parser.add_argument("--resume", action="store_true",
+                        help="skip filings already recorded in the output parquet")
     args = parser.parse_args()
 
     cfg = MARKETS[args.market]
@@ -114,8 +183,20 @@ def main() -> int:
     print(f"{args.market}: {len(pdfs)} PDFs under {raw_root}", flush=True)
 
     rows: List[dict] = []
+    if args.resume:
+        done = load_done(out)
+        if done:
+            before = len(pdfs)
+            pdfs = [p for p in pdfs if str(p) not in done]
+            # Carry the completed rows forward so the next checkpoint holds
+            # the whole table, not just this session's slice.
+            rows = keep_done_rows(out)
+            print(f"  resume: {before - len(pdfs)} already done, "
+                  f"{len(pdfs)} to go", flush=True)
+
     tally: Counter = Counter()
     evidence: Counter = Counter()
+    consecutive_unreadable = 0
     start = time.time()
 
     def work(pdf: Path) -> Optional[dict]:
@@ -139,6 +220,24 @@ def main() -> int:
             rows.append(row)
             tally[row["unit_scale"]] += 1
             evidence[str(row["evidence"]).split(":")[0]] += 1
+
+            if row.get("evidence") == "unreadable":
+                consecutive_unreadable += 1
+            else:
+                consecutive_unreadable = 0
+            if storage_action(consecutive_unreadable, args.unreadable_abort) == "abort":
+                write_table(rows, out)
+                print(f"\nABORT after {consecutive_unreadable} consecutive unreadable "
+                      f"files -- the volume is gone, not the PDFs. Checkpointed "
+                      f"{len(rows)} rows to {out}. Re-run with --resume once the "
+                      f"volume is back.", flush=True)
+                for f in futures:
+                    f.cancel()
+                pool.shutdown(wait=False, cancel_futures=True)
+                return 2
+
+            if args.checkpoint_every and i % args.checkpoint_every == 0:
+                write_table(rows, out)
             if i % args.log_every == 0:
                 rate = i / max(time.time() - start, 1e-9)
                 left = (len(pdfs) - i) / max(rate, 1e-9) / 60
@@ -148,18 +247,22 @@ def main() -> int:
                     f"recovered={got}/{i} ({got/max(i,1)*100:.0f}%)", flush=True
                 )
 
-    got = sum(v for k, v in tally.items() if k)
-    print(f"\n{args.market}: {len(rows)} filings scanned")
-    print(f"  scale recovered : {got} ({got / max(len(rows),1) * 100:.1f}%)")
-    print(f"  distribution    : {dict(tally)}")
-    print(f"  evidence        : {dict(evidence)}")
+    # Report from the WHOLE table, not the session tally. On a --resume run the
+    # tally counts only this session's filings while len(rows) spans every
+    # session, so mixing them understates recovery -- the denominator error from
+    # practices 1.2, which has already produced two false numbers in this
+    # program ("17,801 resolved", "99.7% scale recovery").
+    table_tally = Counter(r.get("unit_scale") for r in rows)
+    table_evidence = Counter(str(r.get("evidence")).split(":")[0] for r in rows)
+    got = sum(v for k, v in table_tally.items() if k)
+    print(f"\n{args.market}: {len(rows)} filings in table "
+          f"({len(tally.values()) and sum(tally.values())} scanned this session)")
+    print(f"  scale recovered : {got} of {len(rows)} "
+          f"({got / max(len(rows),1) * 100:.1f}%)")
+    print(f"  distribution    : {dict(table_tally)}")
+    print(f"  evidence        : {dict(table_evidence)}")
 
-    import pandas as pd
-
-    out.parent.mkdir(parents=True, exist_ok=True)
-    tmp = out.with_suffix(out.suffix + ".tmp")
-    pd.DataFrame(rows).to_parquet(tmp, index=False)
-    tmp.replace(out)
+    write_table(rows, out)
     print(f"wrote {out}")
     return 0
 
