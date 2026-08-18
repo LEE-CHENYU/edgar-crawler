@@ -22,27 +22,55 @@ CANONICAL_METRICS = [
 ]
 
 # Ordered literal label prefixes (line.startswith, lowercased). Specific first.
+#
+# LANGUAGES. Written for ASX (English) and then reused verbatim on the Nordic
+# corpus, where it failed on 98% of Swedish annual reports -- an arsredovisning
+# holds the statements by definition, so the empties were a vocabulary gap, not
+# a document-population fact. Swedish, Norwegian, Danish and Finnish terms are
+# folded in below; Oslo (Norwegian) and the Danish/Finnish remainder go through
+# the same extractor.
+#
+# Ordering matters more with several languages present: a shorter prefix listed
+# first shadows a longer one ("summa" would swallow "summa eget kapital"), so
+# every multi-word term precedes its shorter relatives.
 _LABELS: list[tuple[str, list[str]]] = [
-    ("cost_of_revenue", ["cost of sales", "cost of goods sold"]),
-    ("gross_profit", ["gross profit"]),
+    ("cost_of_revenue", ["cost of sales", "cost of goods sold",
+                     "kostnader for salgsvarer", "kostnad salda varor", "vareforbrug"]),
+    ("gross_profit", ["gross profit",
+                     "bruttofortjeneste", "bruttoresultat", "bruttovinst", "myyntikate"]),
     ("profit_before_tax", ["profit before income tax", "profit before tax",
-                            "profit/(loss) before income tax", "loss before income tax"]),
-    ("income_tax_expense", ["income tax expense", "income tax benefit"]),
+                            "profit/(loss) before income tax", "loss before income tax",
+                     "resultat fore skattemassiga", "resultat for skattekostnad", "resultat fore skatt", "resultat for skatt", "tulos ennen veroja"]),
+    ("income_tax_expense", ["income tax expense", "income tax benefit",
+                     "skatt pa arets resultat", "skattekostnad", "tuloverot"]),
     ("net_income", ["profit for the year", "profit for the period", "loss for the year",
-                     "profit/(loss) for the year", "profit after income tax", "net profit"]),
-    ("basic_eps", ["basic earnings per share", "basic loss per share"]),
-    ("revenue", ["revenue from contracts", "total revenue", "sales revenue", "revenue"]),
-    ("cash_and_equivalents", ["cash and cash equivalents"]),
-    ("accounts_receivable", ["trade and other receivables", "trade receivables"]),
-    ("inventories", ["inventories"]),
-    ("current_assets", ["total current assets"]),
-    ("non_current_assets", ["total non-current assets", "total non current assets"]),
-    ("total_assets", ["total assets"]),
-    ("current_liabilities", ["total current liabilities"]),
-    ("non_current_liabilities", ["total non-current liabilities", "total non current liabilities"]),
-    ("total_liabilities", ["total liabilities"]),
+                     "profit/(loss) for the year", "profit after income tax", "net profit",
+                     "periodens resultat", "tilikauden tulos", "aarets resultat", "arets resultat", "arsresultat"]),
+    ("basic_eps", ["basic earnings per share", "basic loss per share",
+                     "resultat per aktie", "resultat pr aksje", "tulos per osake"]),
+    ("revenue", ["revenue from contracts", "total revenue", "sales revenue", "revenue",
+                     "sum driftsinntekter", "nettoomsattning", "driftsinntekter", "nettoomsetning", "summa intakter", "liikevaihto", "omsaetning"]),
+    ("cash_and_equivalents", ["cash and cash equivalents",
+                     "kontanter og kontantekvivalenter", "likvida medel", "bankinnskudd", "rahavarat"]),
+    ("accounts_receivable", ["trade and other receivables", "trade receivables",
+                     "kundefordringer", "kundfordringar", "myyntisaamiset"]),
+    ("inventories", ["inventories",
+                     "vaihto-omaisuus", "varulager", "varelager"]),
+    ("current_assets", ["total current assets",
+                     "summa omsattningstillgangar", "omsattningstillgangar", "lyhytaikaiset varat", "sum omlopsmidler"]),
+    ("non_current_assets", ["total non-current assets", "total non current assets",
+                     "summa anlaggningstillgangar", "anlaggningstillgangar", "pitkaaikaiset varat", "sum anleggsmidler"]),
+    ("total_assets", ["total assets",
+                     "vastaavaa yhteensa", "balanseomslutning", "summa tillgangar", "tillgangar i alt", "sum eiendeler", "aktiver i alt"]),
+    ("current_liabilities", ["total current liabilities",
+                     "summa kortfristiga skulder", "sum kortsiktig gjeld", "lyhytaikaiset velat", "kortfristige gjeld"]),
+    ("non_current_liabilities", ["total non-current liabilities", "total non current liabilities",
+                     "summa langfristiga skulder", "sum langsiktig gjeld", "pitkaaikaiset velat"]),
+    ("total_liabilities", ["total liabilities",
+                     "vieras paaoma yhteensa", "summa skulder", "gjeld i alt", "sum gjeld"]),
     ("total_equity", ["total equity", "net assets", "total shareholders' equity",
-                       "total shareholders equity"]),
+                       "total shareholders equity",
+                     "oma paaoma yhteensa", "summa eget kapital", "eget kapital i alt", "egenkapital i alt", "sum egenkapital"]),
 ]
 # Cash-flow lines vary in the middle ("from"/"used in"/"provided by") -> match by pair.
 _CF = [
@@ -52,7 +80,12 @@ _CF = [
 ]
 
 _NOTE_REF = re.compile(r"\(?\s*notes?\s+[\d,\s&]+\)?", re.IGNORECASE)
-_NUM = re.compile(r"\(?-?\$?\s?[\d,]+(?:\.\d+)?\)?")
+# Nordic statements write "1 234 567" (space thousands) and "1,50" (decimal
+# comma); English writes "1,234,567". Splitting a space-grouped number would
+# read the first group as the value -- 1 instead of 1,234,567.
+_NUM = re.compile(r"\(?-?\$?\s?\d{1,3}(?:[ \u00a0]\d{3})+(?:[.,]\d+)?\)?"
+                  r"|\(?-?\$?\s?[\d,]+(?:\.\d+)?\)?"
+                  r"|\(?-?\$?\s?\d+,\d{1,2}\)?")
 
 
 def parse_amount(s: Optional[str]) -> Optional[float]:
@@ -62,7 +95,16 @@ def parse_amount(s: Optional[str]) -> Optional[float]:
     if s in ("", "-"):
         return None
     neg = s.startswith("(") and s.endswith(")")
-    s = s.strip("()").replace(",", "").replace("$", "").strip()
+    s = s.strip("()").replace("$", "").strip()
+    # Nordic statements group thousands with spaces ("1 234 567") and mark
+    # decimals with a comma ("1,50"); English groups with commas ("1,234,567").
+    # Strip the spaces, then read a comma as a decimal point ONLY when it is the
+    # single comma with one or two digits after it -- "1,234" stays 1234.
+    s = s.replace("\u00a0", "").replace(" ", "")
+    if re.fullmatch(r"-?\d+,\d{1,2}", s):
+        s = s.replace(",", ".")
+    else:
+        s = s.replace(",", "")
     if s.startswith("-"):
         neg = True
         s = s[1:]
