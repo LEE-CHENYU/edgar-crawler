@@ -23,7 +23,13 @@ CANONICAL_METRICS = [
 
 # Ordered literal label prefixes (line.startswith, lowercased). Specific first.
 #
-# LANGUAGES. Written for ASX (English) and then reused verbatim on the Nordic
+# LANGUAGES. Traditional/Simplified Chinese added for TWSE, which swept at
+# 0.8% yield (2 of 250) before it had any: the documents are fine (median
+# 3.1 MB, ~500K chars) and 16 of 25 sampled filings carry recoverable CJK
+# statement terms. Note 非流動資產合計 CONTAINS 流動資產合計, so the
+# non-current forms must precede the current ones -- startswith saves us here,
+# but the ordering is load-bearing if that ever becomes a contains-match.
+# Written for ASX (English) and then reused verbatim on the Nordic
 # corpus, where it failed on 98% of Swedish annual reports -- an arsredovisning
 # holds the statements by definition, so the empties were a vocabulary gap, not
 # a document-population fact. Swedish, Norwegian, Danish and Finnish terms are
@@ -34,43 +40,69 @@ CANONICAL_METRICS = [
 # first shadows a longer one ("summa" would swallow "summa eget kapital"), so
 # every multi-word term precedes its shorter relatives.
 _LABELS: list[tuple[str, list[str]]] = [
+    # Cash-flow captions in Chinese carry no "net cash" marker, so the _CF pair
+    # rule below cannot see them; they are ordinary prefixes here.
+    ("operating_cash_flow", ["營業活動之淨現金流入", "營業活動之淨現金流出",
+                     "營業活動之現金流量", "经营活动产生的现金流量净额",
+                     "营业活动之现金流量"]),
+    ("investing_cash_flow", ["投資活動之淨現金流入", "投資活動之淨現金流出",
+                     "投資活動之現金流量", "投资活动产生的现金流量净额"]),
+    ("financing_cash_flow", ["籌資活動之淨現金流入", "籌資活動之淨現金流出",
+                     "籌資活動之現金流量", "筹资活动产生的现金流量净额"]),
     ("cost_of_revenue", ["cost of sales", "cost of goods sold",
-                     "kostnader for salgsvarer", "kostnad salda varor", "vareforbrug"]),
+                     "kostnader for salgsvarer", "kostnad salda varor", "vareforbrug",
+                     "營業成本", "营业成本"]),
     ("gross_profit", ["gross profit",
-                     "bruttofortjeneste", "bruttoresultat", "bruttovinst", "myyntikate"]),
+                     "bruttofortjeneste", "bruttoresultat", "bruttovinst", "myyntikate",
+                     "營業毛利（毛損）", "營業毛利", "营业毛利"]),
     ("profit_before_tax", ["profit before income tax", "profit before tax",
                             "profit/(loss) before income tax", "loss before income tax",
-                     "resultat fore skattemassiga", "resultat for skattekostnad", "resultat fore skatt", "resultat for skatt", "tulos ennen veroja"]),
+                     "resultat fore skattemassiga", "resultat for skattekostnad", "resultat fore skatt", "resultat for skatt", "tulos ennen veroja",
+                     "繼續營業單位稅前淨利", "稅前淨利（淨損）", "税前利润总额", "稅前淨利", "稅前純益", "利润总额"]),
     ("income_tax_expense", ["income tax expense", "income tax benefit",
-                     "skatt pa arets resultat", "skattekostnad", "tuloverot"]),
+                     "skatt pa arets resultat", "skattekostnad", "tuloverot",
+                     "所得稅費用", "所得税费用"]),
     ("net_income", ["profit for the year", "profit for the period", "loss for the year",
                      "profit/(loss) for the year", "profit after income tax", "net profit",
-                     "periodens resultat", "tilikauden tulos", "aarets resultat", "arets resultat", "arsresultat"]),
+                     "periodens resultat", "tilikauden tulos", "aarets resultat", "arets resultat", "arsresultat",
+                     "本期淨利（淨損）", "本年度淨利", "本期净利润", "本年度純益", "本期淨利", "净利润"]),
     ("basic_eps", ["basic earnings per share", "basic loss per share",
-                     "resultat per aktie", "resultat pr aksje", "tulos per osake"]),
+                     "resultat per aktie", "resultat pr aksje", "tulos per osake",
+                     "基本每股盈餘", "基本每股收益"]),
     ("revenue", ["revenue from contracts", "total revenue", "sales revenue", "revenue",
-                     "sum driftsinntekter", "nettoomsattning", "driftsinntekter", "nettoomsetning", "summa intakter", "liikevaihto", "omsaetning"]),
+                     "sum driftsinntekter", "nettoomsattning", "driftsinntekter", "nettoomsetning", "summa intakter", "liikevaihto", "omsaetning",
+                     "營業收入合計", "淨營業收入", "營業收入", "营业收入"]),
     ("cash_and_equivalents", ["cash and cash equivalents",
-                     "kontanter og kontantekvivalenter", "likvida medel", "bankinnskudd", "rahavarat"]),
+                     "kontanter og kontantekvivalenter", "likvida medel", "bankinnskudd", "rahavarat",
+                     "現金及約當現金", "現金及等價物", "货币资金"]),
     ("accounts_receivable", ["trade and other receivables", "trade receivables",
-                     "kundefordringer", "kundfordringar", "myyntisaamiset"]),
+                     "kundefordringer", "kundfordringar", "myyntisaamiset",
+                     "應收票據及帳款", "應收帳款", "应收账款"]),
     ("inventories", ["inventories",
-                     "vaihto-omaisuus", "varulager", "varelager"]),
+                     "vaihto-omaisuus", "varulager", "varelager",
+                     "存貨", "存货"]),
     ("current_assets", ["total current assets",
-                     "summa omsattningstillgangar", "omsattningstillgangar", "lyhytaikaiset varat", "sum omlopsmidler"]),
+                     "summa omsattningstillgangar", "omsattningstillgangar", "lyhytaikaiset varat", "sum omlopsmidler",
+                     "流動資產合計", "流动资产合计", "流動資產總計"]),
     ("non_current_assets", ["total non-current assets", "total non current assets",
-                     "summa anlaggningstillgangar", "anlaggningstillgangar", "pitkaaikaiset varat", "sum anleggsmidler"]),
+                     "summa anlaggningstillgangar", "anlaggningstillgangar", "pitkaaikaiset varat", "sum anleggsmidler",
+                     "非流動資產合計", "非流动资产合计", "非流動資產總計"]),
     ("total_assets", ["total assets",
-                     "vastaavaa yhteensa", "balanseomslutning", "summa tillgangar", "tillgangar i alt", "sum eiendeler", "aktiver i alt"]),
+                     "vastaavaa yhteensa", "balanseomslutning", "summa tillgangar", "tillgangar i alt", "sum eiendeler", "aktiver i alt",
+                     "資產總計", "資產總額", "资产总计", "资产总额"]),
     ("current_liabilities", ["total current liabilities",
-                     "summa kortfristiga skulder", "sum kortsiktig gjeld", "lyhytaikaiset velat", "kortfristige gjeld"]),
+                     "summa kortfristiga skulder", "sum kortsiktig gjeld", "lyhytaikaiset velat", "kortfristige gjeld",
+                     "流動負債合計", "流动负债合计", "流動負債總計"]),
     ("non_current_liabilities", ["total non-current liabilities", "total non current liabilities",
-                     "summa langfristiga skulder", "sum langsiktig gjeld", "pitkaaikaiset velat"]),
+                     "summa langfristiga skulder", "sum langsiktig gjeld", "pitkaaikaiset velat",
+                     "非流動負債合計", "非流动负债合计", "非流動負債總計"]),
     ("total_liabilities", ["total liabilities",
-                     "vieras paaoma yhteensa", "summa skulder", "gjeld i alt", "sum gjeld"]),
+                     "vieras paaoma yhteensa", "summa skulder", "gjeld i alt", "sum gjeld",
+                     "負債總計", "負債總額", "负债合计", "负债总计"]),
     ("total_equity", ["total equity", "net assets", "total shareholders' equity",
                        "total shareholders equity",
-                     "oma paaoma yhteensa", "summa eget kapital", "eget kapital i alt", "egenkapital i alt", "sum egenkapital"]),
+                     "oma paaoma yhteensa", "summa eget kapital", "eget kapital i alt", "egenkapital i alt", "sum egenkapital",
+                     "所有者权益合计", "股東權益總計", "股东权益合计", "權益總計", "權益總額"]),
 ]
 # Cash-flow lines vary in the middle ("from"/"used in"/"provided by") -> match by pair.
 _CF = [
