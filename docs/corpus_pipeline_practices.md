@@ -255,6 +255,32 @@ The failure mode to fear is not the crash — it is the *quiet* version, where t
 other repo happens to have a same-named module and the import succeeds against
 the wrong code.
 
+### 2.5c An extractor's label vocabulary is a convention too — check the language
+
+> **Incident.** Nordic stage 02 finished and reported "consolidated 3584 rows".
+> Only 822 carried any metric. Classifying the zero-yield documents by name
+> settled why: Swedish `årsredovisning` (the statutory annual report) yielded
+> **1,093 zero against 22 extracted — a 98% failure rate**, while English
+> "annual report" yielded 384 extracted against 212 zero. The extractor is
+> `asx_financials_extract`, written for the Australian corpus, whose `_LABELS`
+> are English-only ("total assets", "cost of sales", "revenue"). It was reused
+> verbatim on a majority-Swedish corpus.
+
+An årsredovisning contains the statements by definition, so "these documents
+have no financials" was never the explanation. The failure was silent in both
+directions: the run reported success, and the parquet carried a row per
+document — 3,584 rows, 77% of them empty.
+
+**Practice:** before reusing an extractor across a language boundary, check its
+label vocabulary against the target language, and report yield by document
+*kind*, not just row count. A row count includes the rows that found nothing.
+Swedish captions needed: `Balansräkning`, `Resultaträkning`,
+`Kassaflödesanalys`, `Nettoomsättning`, `Summa tillgångar`, `Årets resultat`.
+Norwegian, Danish and Finnish corpora sit behind the same extractor and are
+unmeasured.
+
+This is the same class as §2.5a: a convention assumed rather than looked up.
+
 ### 2.6 Metric mapping is accounting, not string matching
 
 > **Incident.** `operating_income → profit_before_tax` conflated 営業利益 with
@@ -420,3 +446,7 @@ CLAUDE.md for the incident that produced this rule).
   consumes it yet; the panel's Indian figures remain up to 10^7 too small.
 - Australian, Taiwanese and Philippine unit scales are still unmeasured. The
   detector covers them; the run has not been made.
+- Nordic stage 02 is 23% yield (822 of 3,584) because the extractor's labels are
+  English-only; ~1,093 Swedish annual reports are recoverable by adding Swedish
+  captions and re-running. Norwegian/Danish/Finnish are unmeasured behind the
+  same extractor. See §2.5c.
