@@ -35,13 +35,19 @@ PANEL_COLUMNS = [
     # known. Australia carried a fabricated 12-31 for months because the
     # output could not express that difference.
     "fiscal_year_source", "period_end_source", "source_doc_id", "unit_scale",
+    # How unit_scale was obtained: "detected:anchored" (caption beside a
+    # statement heading), "detected:document-head" (weaker -- only the opening
+    # pages), or "unknown". Unknown means the figure's magnitude is NOT
+    # established; it must not be read as scale 1.
+    "unit_scale_source",
     "source_artifact",
 ] + METRIC_COLUMNS
 
 # write_panel fills these with a default rather than None when an adapter did
 # not set them, so a consumer never has to distinguish "no scale" from "unknown".
 PANEL_COLUMN_DEFAULTS = {"unit_scale": 1, "fiscal_year_source": "reported",
-                         "period_end_source": "reported"}
+                         "period_end_source": "reported",
+                         "unit_scale_source": "unknown"}
 
 CADENCES = ("annual", "semiannual", "quarterly")
 _QUARTER_ENDS = {"03-31", "06-30", "09-30"}

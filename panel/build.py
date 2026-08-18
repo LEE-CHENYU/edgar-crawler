@@ -32,6 +32,8 @@ from typing import Dict, List, Optional
 import pandas as pd
 
 from panel.fx import fetch_rates, to_usd
+from panel.unit_scale import (attach_unit_scale, load_scale_fallback,
+                              load_scale_table)
 from panel.schema import PANEL_COLUMN_DEFAULTS, PANEL_COLUMNS
 from panel.spine import (
     EXCH_CODES, load_spine_cache, resolve, save_spine_cache, surrogate_key,
@@ -40,6 +42,14 @@ from panel.views import check_invariants
 
 DATA_ROOT = Path("/Volumes/OWC Express 1M2/datasets")
 DEFAULT_OUT = Path("/Users/lichenyu/datasets/panel")
+
+# Per-market unit-scale lookup tables, produced by scripts/hk_scale_recovery.py
+# and scripts/market_scale_detect.py. Keyed on the document id, matched against
+# each row's source_doc_id.
+SCALE_TABLES = {
+    "hk": "hk_unit_scale.parquet",
+    "in_bse": "in_bse_unit_scale.parquet",
+}
 
 MARKET_SOURCES: Dict[str, dict] = {
     # au/tw/ph/kr read the PERIOD-LEVEL canonical_metrics_wide.parquet named in
@@ -345,6 +355,27 @@ def main() -> int:
             print(f"{market}: FAILED ({type(exc).__name__}: {exc})", flush=True)
 
     rows = attach_reporting_basis(rows)
+
+    # Unit scale, recovered per market into a lookup table (see
+    # panel/unit_scale.py). Values are NOT multiplied; an unmatched row gets
+    # unit_scale=None rather than 1, because a lakh figure defaulted to 1 is
+    # the original defect.
+    for market, table_name in SCALE_TABLES.items():
+        subject = [r for r in rows if r.get("market") == market]
+        if not subject:
+            continue
+        table_path = Path(args.out_root) / table_name
+        table = load_scale_table(table_path)
+        fallback = load_scale_fallback(table_path)
+        if not table:
+            print(f"{market}: no unit-scale table at {table_name} -- rows keep "
+                  f"unit_scale unknown", flush=True)
+            continue
+        stats_scale = attach_unit_scale(subject, table, fallback=fallback)
+        total = stats_scale["matched"] + stats_scale["unknown"]
+        print(f"{market}: unit_scale matched {stats_scale['matched']}/{total} "
+              f"({stats_scale['matched']/max(total,1)*100:.1f}%) from "
+              f"{len(table)} table entries", flush=True)
 
     identifiers = sorted({(r["market"], r["local_id"]) for r in rows})
     cache = {} if args.no_spine_cache else load_spine_cache(args.out_root)
