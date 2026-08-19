@@ -87,11 +87,27 @@ def stage02_state(derived_name: Optional[str]) -> Dict[str, object]:
     if not derived_name:
         return {"present": False, "rows": 0, "note": "no stage-02 path known"}
     d = DERIVED / derived_name
+    # The wide parquet is not always at the top level: DART writes it under
+    # three_statement_parquet/, which this reported as 1,045 rows against a real
+    # 9,193 -- a finished market shown as barely started. Search one level down.
     parquet = d / "canonical_metrics_wide.parquet"
+    if not parquet.exists():
+        nested = sorted(d.glob("*/canonical_metrics_wide.parquet"))
+        if nested:
+            parquet = nested[0]
     jsonl = d / "sweep_results.jsonl"
     facts = d / "facts"
     rows = 0
-    if jsonl.exists():
+    if parquet.exists() and not jsonl.exists():
+        try:
+            # Row count from the parquet footer -- no column data is read.
+            # pd.read_parquet(columns=[]) returns an EMPTY frame, which reported
+            # a 9,193-row market as 0.
+            import pyarrow.parquet as pq
+            rows = pq.ParquetFile(parquet).metadata.num_rows
+        except Exception:
+            rows = 0
+    elif jsonl.exists():
         try:
             rows = sum(1 for _ in open(jsonl, "rb"))
         except OSError:
@@ -103,8 +119,31 @@ def stage02_state(derived_name: Optional[str]) -> Dict[str, object]:
         "rows": rows,
         "parquet": parquet.exists(),
         "screening": any(d.glob("*_screening_input.csv")) if d.is_dir() else False,
-        "gates": any(d.glob("*_gates")) if d.is_dir() else False,
+        "gates": gates_state(d),
     }
+
+
+def gates_state(derived_dir: Path) -> str:
+    """Gate outputs by ROW COUNT and AGE, never by directory existence.
+
+    A gates directory can exist while the step no longer reproduces it. Measured
+    2026-08-17: the durability ranker grades 0 rows for every market, yet
+    ASX/TWSE/PSE/DART all carry gate CSVs dated 2026-07-03 with real rows. An
+    existence check reports those as healthy. See practices §2.5a / §3.2.
+    """
+    if not derived_dir.is_dir():
+        return "no"
+    csvs = [c for g in derived_dir.glob("*_gates") for c in g.rglob("*.csv")]
+    if not csvs:
+        return "no"
+    newest = max(csvs, key=lambda c: c.stat().st_mtime)
+    try:
+        rows = max(sum(1 for _ in open(newest, "rb")) - 1, 0)
+    except OSError:
+        rows = 0
+    from datetime import datetime
+    age_d = (datetime.now() - datetime.fromtimestamp(newest.stat().st_mtime)).days
+    return f"{rows}r/{age_d}d"
 
 
 def tracker_jobs() -> List[dict]:
@@ -165,7 +204,7 @@ def cmd_status(_args) -> int:
 
 
 def cmd_stages(_args) -> int:
-    print(f"  {'market':30} {'01_raw':>10} {'02':>10} {'screening':>10} {'gates':>7}")
+    print(f"  {'market':30} {'01_raw':>10} {'02':>10} {'screening':>10} {'gates(rows/age)':>16}")
     for market, (derived, _sweep) in STAGE_MAP.items():
         cov = next((r for r in acquisition_coverage() if r["market"] == market), None)
         raw = _fmt(cov["acquired"]) if cov else "-"
@@ -173,7 +212,7 @@ def cmd_stages(_args) -> int:
         print(f"  {market[:30]:30} {raw:>10} "
               f"{(_fmt(s2['rows']) if s2['present'] else 'none'):>10} "
               f"{('yes' if s2.get('screening') else 'no'):>10} "
-              f"{('yes' if s2.get('gates') else 'no'):>7}")
+              f"{str(s2.get('gates')):>16}")
     return 0
 
 
