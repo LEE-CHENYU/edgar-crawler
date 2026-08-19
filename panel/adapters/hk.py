@@ -119,6 +119,43 @@ def iter_hk_fact_records(facts_root, limit: int = 0) -> Iterator[dict]:
             continue
 
 
+# HKEX Main Board rules give issuers 4 months after year end to publish an
+# annual report, so the filing MONTH identifies the year end. Measured over
+# 2,912 sampled HK filings:
+#
+#     Apr 1,728 + Mar 320  -> 31 December  (~70%)
+#     Jul   424 + Jun 151  -> 31 March     (~20%)
+#
+# The March cohort was previously misdated by a full quarter. Months outside
+# both cohorts (~10%: Aug-Feb) are left alone rather than guessed -- trading a
+# known error for an invented one is not an improvement.
+DEC_FILING_MONTHS = {3, 4, 5}      # published Mar-May  -> FY ended 31 Dec
+MAR_FILING_MONTHS = {6, 7}         # published Jun-Jul  -> FY ended 31 Mar
+
+
+def period_end_from_filing_month(fiscal_year, filing_date):
+    """(period_end, provenance) inferred from when the report was published.
+
+    This is INFERENCE, not a reading, so the provenance is always
+    "derived:filing-month" -- distinct from "reported" (read from the filing)
+    and from "assumed:calendar-year-end" (no evidence at all). The HK facts
+    carry no period-end column, so without this every row claimed 31 December.
+    """
+    year = int(fiscal_year)
+    december = (f"{year}-12-31", "assumed:calendar-year-end")
+    text = str(filing_date or "")
+    if len(text) < 7 or not text[:4].isdigit() or not text[5:7].isdigit():
+        return december
+    month = int(text[5:7])
+    if month in DEC_FILING_MONTHS:
+        return f"{year}-12-31", "derived:filing-month"
+    if month in MAR_FILING_MONTHS:
+        # A fiscal year LABELLED 2023 that ends 31 March closes in calendar
+        # 2024, so the year end is the year after the label.
+        return f"{year + 1}-03-31", "derived:filing-month"
+    return december
+
+
 def rows_from_hk_facts(records, drops: "Counter | None" = None) -> List[dict]:
     """Pivot tidy long HK fact records into one wide row per
     (filing_id, stock_code, fiscal_year).
@@ -169,7 +206,8 @@ def rows_from_hk_facts(records, drops: "Counter | None" = None) -> List[dict]:
             # Jul 424 + Jun 151 (~20%) imply 31 March. Those rows are misdated
             # by a quarter. Labelling it honestly is the prerequisite for
             # anyone noticing; see docs/corpus_pipeline_practices.md 2.5a.
-            period_end = f"{fiscal_year}-12-31"
+            period_end, period_end_source = period_end_from_filing_month(
+                fiscal_year, rec.get("filing_date"))
             currency, currency_source = _resolve_currency(rec.get("unit_text"))
             row = {
                 "market": "hk",
@@ -179,7 +217,7 @@ def rows_from_hk_facts(records, drops: "Counter | None" = None) -> List[dict]:
                 "currency_source": currency_source,
                 "fiscal_year": fiscal_year,
                 "period_end": period_end,
-                "period_end_source": "assumed:calendar-year-end",
+                "period_end_source": period_end_source,
                 "period_type": period_type_for(period_end, cadence="annual"),
                 "unit_scale": _resolve_unit_scale(rec) or DEFAULT_UNIT_SCALE,
                 "source_doc_id": filing_id,

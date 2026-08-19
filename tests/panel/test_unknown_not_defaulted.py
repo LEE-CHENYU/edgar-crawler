@@ -36,13 +36,15 @@ def test_write_panel_keeps_unknown_scale_null(tmp_path):
     assert set(df.unit_scale.dropna()) == {100000.0}
 
 
-def test_hk_period_end_is_labelled_assumed_not_reported():
-    """HK carries no period end; calling the fabricated date "reported" is the
-    claim that hid this for months."""
+def test_hk_period_end_is_never_labelled_reported():
+    """HK carries no period end, so the date is inferred from the filing month
+    (Apr -> 31 Dec, Jul -> 31 Mar). Calling any of it "reported" is the claim
+    that hid the quarter-misdating of ~20% of the market for months."""
     from panel.adapters.hk import rows_from_hk_facts
     recs = [{"stock_code": "00700", "filing_id": "f1", "fiscal_year": "2023",
              "metric": "total_assets", "value": "100", "unit_text": "RMB",
              "filing_date": "2024-04-02"}]
     rows = rows_from_hk_facts(recs)
     assert rows[0]["period_end"] == "2023-12-31"
-    assert rows[0]["period_end_source"] == "assumed:calendar-year-end"
+    assert rows[0]["period_end_source"] == "derived:filing-month"
+    assert rows[0]["period_end_source"] != "reported"
