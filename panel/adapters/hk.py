@@ -162,6 +162,13 @@ def rows_from_hk_facts(records, drops: "Counter | None" = None) -> List[dict]:
         key = (filing_id, code, fiscal_year)
         row = grouped.get(key)
         if row is None:
+            # The HK facts carry filing_date and fiscal_year only -- no period
+            # end -- so this date is ASSUMED, and it is wrong for a meaningful
+            # slice of the market. HKEX allows 4 months to file: of 2,912
+            # sampled filings, Apr 1,728 + Mar 320 imply 31 December, but
+            # Jul 424 + Jun 151 (~20%) imply 31 March. Those rows are misdated
+            # by a quarter. Labelling it honestly is the prerequisite for
+            # anyone noticing; see docs/corpus_pipeline_practices.md 2.5a.
             period_end = f"{fiscal_year}-12-31"
             currency, currency_source = _resolve_currency(rec.get("unit_text"))
             row = {
@@ -172,6 +179,7 @@ def rows_from_hk_facts(records, drops: "Counter | None" = None) -> List[dict]:
                 "currency_source": currency_source,
                 "fiscal_year": fiscal_year,
                 "period_end": period_end,
+                "period_end_source": "assumed:calendar-year-end",
                 "period_type": period_type_for(period_end, cadence="annual"),
                 "unit_scale": _resolve_unit_scale(rec) or DEFAULT_UNIT_SCALE,
                 "source_doc_id": filing_id,

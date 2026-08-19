@@ -45,7 +45,11 @@ PANEL_COLUMNS = [
 
 # write_panel fills these with a default rather than None when an adapter did
 # not set them, so a consumer never has to distinguish "no scale" from "unknown".
-PANEL_COLUMN_DEFAULTS = {"unit_scale": 1, "fiscal_year_source": "reported",
+# unit_scale is deliberately ABSENT: an unrecovered scale must stay null to the
+# parquet. Defaulting it to 1 shipped 10,446 Indian and 3,389 HK rows claiming
+# scale 1 -- lakh figures presented as units -- while unit_scale.py's own tests
+# passed, because the fillna happened two layers downstream in write_panel.
+PANEL_COLUMN_DEFAULTS = {"fiscal_year_source": "reported",
                          "period_end_source": "reported",
                          "unit_scale_source": "unknown"}
 

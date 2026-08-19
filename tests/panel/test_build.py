@@ -247,11 +247,16 @@ def test_reconcile_market_counts_flags_empty_panel_with_emitted_rows():
     assert reconcile_market_counts(pd.DataFrame(), {"au": 5})
 
 
-def test_write_panel_defaults_unit_scale_to_one(tmp_path):
+def test_write_panel_leaves_an_unstated_unit_scale_null(tmp_path):
+    """This test previously asserted the default was 1, pinning the defect it
+    was meant to guard: a row whose scale nobody established is NOT a row in
+    units. That default shipped 10,446 Indian rows presenting lakh figures as
+    units. fiscal_year_source still defaults, because "reported" is the truth
+    when an adapter says nothing."""
     rows = [{"spine_key": "B1", "market": "au", "local_id": "X",
              "period_end": "2024-12-31", "period_type": "A", "fiscal_year": 2024}]
     df = pd.read_parquet(write_panel(rows, tmp_path))
-    assert df["unit_scale"].iloc[0] == 1
+    assert pd.isna(df["unit_scale"].iloc[0])
     assert df["fiscal_year_source"].iloc[0] == "reported"
 
 
