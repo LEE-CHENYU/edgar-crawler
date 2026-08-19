@@ -49,6 +49,7 @@ DEFAULT_OUT = Path("/Users/lichenyu/datasets/panel")
 SCALE_TABLES = {
     "hk": "hk_unit_scale.parquet",
     "in_bse": "in_bse_unit_scale.parquet",
+    "au": "asx_unit_scale.parquet",
 }
 
 MARKET_SOURCES: Dict[str, dict] = {

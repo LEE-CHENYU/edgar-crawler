@@ -152,3 +152,43 @@ def test_load_fallback_skips_company_years_with_conflicting_scales(tmp_path):
     fb = load_scale_fallback(p)
     assert ("A", "2020") not in fb
     assert fb[("B", "2020")][0] == 100000.0
+
+
+# --- ASX: table keyed by filename, panel keyed by the bare document id ----
+
+
+def test_a_trailing_document_id_segment_is_registered_as_an_alias(tmp_path):
+    """ASX scale-table stems are "SM1_20190709_02121819" while the panel's
+    source_doc_id is "02121819" -- zero direct overlap across 27,665 rows."""
+    import pandas as pd
+    p = tmp_path / "asx.parquet"
+    pd.DataFrame([{"doc_stem": "SM1_20190709_02121819", "unit_scale": 1000.0,
+                   "evidence": "anchored:4votes"}]).to_parquet(p, index=False)
+    table = load_scale_table(p)
+    assert table["02121819"] == (1000.0, "anchored:4votes")
+    assert table["SM1_20190709_02121819"] == (1000.0, "anchored:4votes")
+
+
+def test_an_ambiguous_alias_is_not_registered(tmp_path):
+    """Two filings whose trailing segment collides cannot be told apart, so
+    neither may claim the alias -- guessing would attach one filing's scale to
+    another's figures."""
+    import pandas as pd
+    p = tmp_path / "asx.parquet"
+    pd.DataFrame([
+        {"doc_stem": "AAA_20190709_999", "unit_scale": 1000.0, "evidence": "anchored:2votes"},
+        {"doc_stem": "BBB_20200101_999", "unit_scale": 1_000_000.0, "evidence": "anchored:2votes"},
+    ]).to_parquet(p, index=False)
+    table = load_scale_table(p)
+    assert "999" not in table
+    assert table["AAA_20190709_999"][0] == 1000.0
+
+
+def test_an_alias_never_overwrites_a_real_key(tmp_path):
+    import pandas as pd
+    p = tmp_path / "x.parquet"
+    pd.DataFrame([
+        {"doc_stem": "123", "unit_scale": 1000.0, "evidence": "anchored:2votes"},
+        {"doc_stem": "XYZ_20200101_123", "unit_scale": 1_000_000.0, "evidence": "anchored:2votes"},
+    ]).to_parquet(p, index=False)
+    assert load_scale_table(p)["123"][0] == 1000.0

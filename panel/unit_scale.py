@@ -51,6 +51,20 @@ def load_scale_table(path) -> Dict[str, Tuple[float, str]]:
     for rec in df.to_dict("records"):
         out[str(rec[key])] = (float(rec["unit_scale"]),
                               str(rec.get("evidence") or ""))
+
+    # Trailing-segment aliases. The ASX table is keyed by PDF stem
+    # ("SM1_20190709_02121819") while the panel's source_doc_id is the bare
+    # document id ("02121819") -- zero direct overlap across 27,665 rows. An
+    # alias is registered only when exactly one entry claims it: a collision
+    # would attach one filing's scale to another filing's figures, and a real
+    # key always wins over an alias.
+    candidates: Dict[str, list] = {}
+    for full in out:
+        if "_" in full:
+            candidates.setdefault(full.rsplit("_", 1)[1], []).append(full)
+    for alias, owners in candidates.items():
+        if len(owners) == 1 and alias not in out:
+            out[alias] = out[owners[0]]
     return out
 
 
