@@ -25,16 +25,50 @@ MARKETS = {
 ROOT = Path("/Volumes/OWC Express 1M2/datasets/MARKET_FILINGS")
 
 
-def live_fx(cfg: dict) -> float:
-    """USD per 1 local unit. AUDUSD=X is already USD/AUD; TWD=X/PHP=X are local/USD -> invert."""
-    try:
+def fx_with_source(cfg: dict, ticker_factory=None) -> tuple:
+    """(USD per 1 local unit, source label).
+
+    yfinance's fast_info["last_price"] returns None for every FX ticker as of
+    2026-08-18, so this fell through to hardcoded fallbacks WITHOUT SAYING SO.
+    The errors are material -- INR 1/88 against a live 95.67 is 8.7%, AUD 0.66
+    against 0.7076 is 7.2% -- and they propagate into every USD figure in the
+    screening input. history() still works, so it is tried before giving up.
+
+    The source label exists so a fallback can never again look like a live rate
+    in the output. Inversion applies on BOTH live paths: TWD=X/INR=X/PHP=X quote
+    local-per-USD, AUDUSD=X already quotes USD-per-local.
+    """
+    if ticker_factory is None:
         import yfinance as yf
-        r = yf.Ticker(cfg["fx_ticker"]).fast_info.get("last_price")
-        if r and r > 0:
-            return 1.0 / float(r) if cfg.get("invert") else float(r)
+        ticker_factory = yf.Ticker
+
+    def _convert(raw):
+        value = float(raw)
+        if value <= 0:
+            return None
+        return 1.0 / value if cfg.get("invert") else value
+
+    try:
+        raw = ticker_factory(cfg["fx_ticker"]).fast_info.get("last_price")
+        if raw:
+            rate = _convert(raw)
+            if rate:
+                return rate, "live:fast_info"
     except Exception:
         pass
-    return cfg["fallback"]
+    try:
+        hist = ticker_factory(cfg["fx_ticker"]).history(period="5d")
+        if len(hist):
+            rate = _convert(hist["Close"].iloc[-1])
+            if rate:
+                return rate, "live:history"
+    except Exception:
+        pass
+    return cfg["fallback"], "FALLBACK"
+
+
+def live_fx(cfg: dict) -> float:
+    return fx_with_source(cfg)[0]
 
 
 def build(market: str) -> int:
@@ -43,7 +77,7 @@ def build(market: str) -> int:
     df = pd.read_parquet(ROOT / cfg["parquet"])
     df = df[df["n_metrics"] > 0].copy()
     df = df.sort_values("fiscal_year").groupby("ticker", as_index=False).last()
-    fx = live_fx(cfg)
+    fx, fx_source = fx_with_source(cfg)
     rows = []
     for rec in df.to_dict("records"):
         # adapt the PDF-market record shape into build_row's expected keys
@@ -55,7 +89,9 @@ def build(market: str) -> int:
     out = pd.DataFrame(rows)
     out_path = ROOT / cfg["parquet"].rsplit("/", 1)[0] / f"{market}_screening_input.csv"
     out.to_csv(out_path, index=False)
-    print(f"{market}: {len(out)} rows -> {out_path} (fx={fx:.5f})")
+    flag = "  <-- STALE, USD FIGURES UNRELIABLE" if fx_source == "FALLBACK" else ""
+    print(f"{market}: {len(out)} rows -> {out_path} "
+          f"(fx={fx:.5f} {fx_source}){flag}")
     return len(out)
 
 
