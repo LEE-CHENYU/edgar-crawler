@@ -378,7 +378,12 @@ def consolidate(results_jsonl: Path, parquet_out: Path, ax) -> int:
         if l.strip()
     ]
     df = pd.DataFrame(recs)
-    id_cols = ["ticker", "filing_date", "fiscal_year", "doc_id", "n_metrics"]
+    # country/currency/currency_source are recorded per row by the sweep and
+    # were being dropped here -- the parquet lost exactly the provenance the
+    # sweep was rewritten to capture. They survived in sweep_results.jsonl,
+    # which is why recovering them needed a re-consolidate, not a re-sweep.
+    id_cols = ["ticker", "filing_date", "fiscal_year", "doc_id", "n_metrics",
+               "country", "currency", "currency_source"]
     metric_cols = [c for c in ax.CANONICAL_METRICS if c in df.columns]
     df = df[[c for c in id_cols if c in df.columns] + metric_cols]
     df.to_parquet(parquet_out, index=False)

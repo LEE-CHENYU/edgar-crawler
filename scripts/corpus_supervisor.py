@@ -57,16 +57,59 @@ class Job:
     # A shell predicate that must succeed for the job to be considered ready.
     # Used for conditions the tracker cannot express, e.g. "the input exists".
     guard: Optional[str] = None
+    # The artifact this job produces, and the row count that means it finished.
+    # Completion is defined on the ARTIFACT, never on a status flag: Oslo
+    # stage-02 wrote 15,972 rows while its tracker entry still read `running`
+    # because the sweep has no finish hook, and the whole chain stalled behind
+    # that stale flag.
+    produces: Optional[str] = None
+    min_rows: int = 1
 
 
-def is_satisfied(job: Job, state: Dict[str, str]) -> bool:
-    """True when every named predecessor has completed.
+def artifact_satisfied(path: Optional[str], min_rows: int = 1) -> bool:
+    """True when the named artifact exists and carries at least min_rows.
+
+    Row count comes from the parquet footer, so this is cheap enough to run on
+    every supervisor cycle.
+    """
+    if not path:
+        return False
+    target = Path(path)
+    if not target.exists():
+        return False
+    try:
+        import pyarrow.parquet as pq
+        return pq.ParquetFile(target).metadata.num_rows >= min_rows
+    except Exception:
+        return target.stat().st_size > 0 and min_rows <= 1
+
+
+def is_satisfied(job: Job, state: Dict[str, str],
+                 jobs: Optional[Sequence["Job"]] = None) -> bool:
+    """True when every named predecessor has finished.
+
+    A predecessor counts as finished if the tracker says `done`, OR if it
+    declares an artifact and that artifact is present with enough rows. The
+    second path exists because a tracker flag is not evidence: Oslo stage-02
+    completed 10,889 filings and wrote 15,972 rows while its entry still read
+    `running`, and without an artifact check the chain waits forever.
 
     A FAILED predecessor blocks rather than releases: running a sweep over a
     corpus whose acquisition failed produces confident output from missing
     documents, which is worse than not running at all.
     """
-    return all(state.get(dep) == "done" for dep in job.needs)
+    by_id = {j.id: j for j in (jobs or [])}
+    for dep in job.needs:
+        if state.get(dep) == "done":
+            continue
+        if state.get(dep) == "failed":
+            return False
+        upstream = by_id.get(dep)
+        if upstream is not None and artifact_satisfied(upstream.produces,
+                                                       upstream.min_rows):
+            continue
+        return False
+    return True
 
 
 def decide(jobs: Sequence[Job], state: Dict[str, str], running: Set[str],
@@ -79,7 +122,7 @@ def decide(jobs: Sequence[Job], state: Dict[str, str], running: Set[str],
             break
         if job.id in running or state.get(job.id) in ("done", "running"):
             continue
-        if not is_satisfied(job, state):
+        if not is_satisfied(job, state, jobs):
             continue
         out.append(job.id)
         slots -= 1
@@ -152,6 +195,13 @@ def launch(job: Job) -> Optional[int]:
 def build_jobs() -> List[Job]:
     D = "/Volumes/OWC Express 1M2/datasets/MARKET_FILINGS/derived"
     return [
+        Job(id="oslo_stage02_attachments", title="Oslo stage-02 (real annual reports)",
+            purpose="Stage 02 over the re-acquired Oslo attachments.",
+            command=[PY, "scripts/pdf_market_sweep.py", "--market", "nordic",
+                     "--raw-root", "/Users/lichenyu/datasets/markets/no/01_raw/oslo_attachments",
+                     "--workers", "2", "--log-every", "250"],
+            produces=f"{D}/NORDIC_FINANCIALS/canonical_metrics_wide.parquet",
+            min_rows=10000, total=10889, unit="filings"),
         Job(id="panel_rebuild_auto", title="Panel rebuild",
             purpose="Rebuild the panel once its inputs settle: TWSE stage-02 (15,300 rows), "
                     "HK derived period ends, AU/HK/IN unit-scale tables.",

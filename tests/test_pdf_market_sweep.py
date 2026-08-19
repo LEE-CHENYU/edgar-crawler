@@ -236,3 +236,32 @@ def test_nordic_country_is_none_when_the_path_does_not_name_one(tmp_path):
     (root / "2019" / "1234").mkdir(parents=True)
     (root / "2019" / "1234" / "rap.pdf").write_bytes(b"%PDF-1.4")
     assert build_targets_nordic(root, None)[0]["country"] is None
+
+
+def test_consolidate_keeps_country_and_currency(tmp_path):
+    """The sweep records country/currency/currency_source per row, but
+    consolidate() kept only 5 id columns and silently dropped them -- so the
+    parquet lost the provenance the sweep was rewritten to capture. The data
+    survived in sweep_results.jsonl, which is the only reason a re-sweep was
+    not needed."""
+    import json
+    import importlib.util
+    from pathlib import Path
+    spec = importlib.util.spec_from_file_location("sw", "scripts/pdf_market_sweep.py")
+    sw = importlib.util.module_from_spec(spec); spec.loader.exec_module(spec and sw)
+    import asx_financials_extract as ax
+
+    results = tmp_path / "sweep_results.jsonl"
+    results.write_text(json.dumps({
+        "ticker": "ABC", "filing_date": "2020", "fiscal_year": 2020,
+        "doc_id": "d1", "n_metrics": 1, "country": "se", "currency": "EUR",
+        "currency_source": "declared", "total_assets": 5.0,
+    }) + "\n")
+    out = tmp_path / "wide.parquet"
+    sw.consolidate(results, out, ax)
+
+    import pandas as pd
+    df = pd.read_parquet(out)
+    assert df["country"].iloc[0] == "se"
+    assert df["currency"].iloc[0] == "EUR"
+    assert df["currency_source"].iloc[0] == "declared"
