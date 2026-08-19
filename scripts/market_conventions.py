@@ -132,3 +132,52 @@ def detect_scale(text: str) -> Tuple[Optional[int], str]:
     if fallback:
         return fallback, "document-head"
     return None, "none"
+
+
+# --- reporting currency -------------------------------------------------
+
+# Country default, used ONLY when a filing declares nothing. Country must never
+# override a declaration: the HK adapter hardcoded HKD and the live tally was
+# HK$ 15,318 / RMB 11,141 / US$ 1,806 -- ~40% wrong. Nordic carries the same
+# trap, since Finnish and Baltic issuers report in EUR and some Swedish large
+# caps do too.
+COUNTRY_DEFAULT_CURRENCY: Dict[str, str] = {
+    "se": "SEK", "dk": "DKK", "no": "NOK", "is": "ISK",
+    "fi": "EUR",                       # euro since 1999
+    "ee": "EUR", "lv": "EUR", "lt": "EUR",  # 2011 / 2014 / 2015
+}
+
+# Ordered most specific first. "kronor"/"kroner"/"krónur" name FOUR different
+# currencies, so a bare krona word resolves nothing and is deliberately absent.
+CURRENCY_PATTERNS: List[Tuple[str, str]] = [
+    (r"\bT?SEK\b|\bsvenska\s+kronor\b|\bMSEK\b|\bKSEK\b", "SEK"),
+    (r"\bT?DKK\b|\bdanske\s+kroner\b|\bmio\.?\s*DKK\b", "DKK"),
+    (r"\bT?NOK\b|\bnorske\s+kroner\b|\bMNOK\b", "NOK"),
+    (r"\bISK\b|\bíslenskar\s+krónur\b|krónum?\s*\(ISK\)", "ISK"),
+    (r"\bT?EUR\b|\beuroa?\b|\beuron?\b|\beuro\b|\bMEUR\b|€", "EUR"),
+    (r"\bT?USD\b|\bU\.?S\.?\s*dollars?\b|\$\s*(?:thousand|million)", "USD"),
+    (r"\bGBP\b|\bpounds?\s+sterling\b|£", "GBP"),
+    (r"\bPLN\b|\bz[łl]oty", "PLN"),
+]
+_CURRENCY_COMPILED = [(re.compile(p, re.IGNORECASE | re.UNICODE), c)
+                      for p, c in CURRENCY_PATTERNS]
+
+
+def detect_currency(text: str, country: Optional[str] = None) -> Tuple[Optional[str], str]:
+    """(currency, provenance) for a filing.
+
+    Reads the earliest explicit declaration in the text. Falls back to the
+    country default ONLY when nothing is declared, and labels which happened, so
+    a fallback can never be mistaken for a reading -- the same discipline the HK
+    currency defect taught.
+    """
+    best: Optional[Tuple[int, str]] = None
+    for pattern, code in _CURRENCY_COMPILED:
+        m = pattern.search(text or "")
+        if m and (best is None or m.start() < best[0]):
+            best = (m.start(), code)
+    if best:
+        return best[1], "declared"
+    if country and country in COUNTRY_DEFAULT_CURRENCY:
+        return COUNTRY_DEFAULT_CURRENCY[country], f"country-default:{country}"
+    return None, "none"

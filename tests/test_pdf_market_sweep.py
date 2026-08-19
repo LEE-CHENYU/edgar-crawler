@@ -212,3 +212,27 @@ def test_every_market_has_a_distinct_builder_and_out_dir():
     from scripts.pdf_market_sweep import MARKETS
     builders = [m["builder"] for m in MARKETS.values()]
     assert len(builders) == len(set(builders))
+
+
+# --- Nordic: country and currency must survive the sweep ----------------
+
+
+def test_nordic_targets_carry_the_country_from_the_raw_root(tmp_path):
+    """Six countries were swept into ONE output directory and the country became
+    unrecoverable -- neither the parquet nor sweep_results.jsonl kept the path.
+    The country is in the raw root, so capture it at target-build time."""
+    from scripts.pdf_market_sweep import build_targets_nordic
+    root = tmp_path / "markets" / "dk" / "01_raw" / "nasdaq_nordic_baltic"
+    (root / "2019" / "1234").mkdir(parents=True)
+    (root / "2019" / "1234" / "rap.pdf").write_bytes(b"%PDF-1.4")
+    targets = build_targets_nordic(root, None)
+    assert targets[0]["country"] == "dk"
+
+
+def test_nordic_country_is_none_when_the_path_does_not_name_one(tmp_path):
+    """Better an explicit None than a wrong country silently attached."""
+    from scripts.pdf_market_sweep import build_targets_nordic
+    root = tmp_path / "somewhere" / "else"
+    (root / "2019" / "1234").mkdir(parents=True)
+    (root / "2019" / "1234" / "rap.pdf").write_bytes(b"%PDF-1.4")
+    assert build_targets_nordic(root, None)[0]["country"] is None

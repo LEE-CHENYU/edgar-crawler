@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import importlib.util
 import re
 import sys
 import threading
@@ -66,6 +67,11 @@ MARKETS: Dict[str, Dict[str, str]] = {
         "builder": "nordic",
     },
 }
+
+_conv_spec = importlib.util.spec_from_file_location(
+    "_sweep_conventions", Path(__file__).resolve().parent / "market_conventions.py")
+_conventions = importlib.util.module_from_spec(_conv_spec)
+_conv_spec.loader.exec_module(_conventions)
 
 _ASX_FNAME = re.compile(r"^([A-Z0-9]+)-(\d{8})-(\d+)\.pdf$", re.IGNORECASE)
 _YEAR = re.compile(r"^(19|20)\d{2}$")
@@ -116,6 +122,21 @@ def build_targets_in_bse(raw_root: Path, years: Optional[Set[str]]) -> List[dict
     return out
 
 
+_NORDIC_COUNTRY = re.compile(r"/markets/([a-z]{2})/01_raw/")
+
+
+def country_from_raw_root(raw_root: Path) -> Optional[str]:
+    """Country code from the corpus path, or None.
+
+    The Nordic corpus spans seven country roots that all feed ONE output
+    directory. Nothing downstream recorded which country a row came from, so the
+    first sweep lost it entirely -- and country is what selects the FX rate and
+    the fallback currency.
+    """
+    m = _NORDIC_COUNTRY.search(str(raw_root).replace("\\", "/") + "/")
+    return m.group(1) if m else None
+
+
 def build_targets_nordic(raw_root: Path, years: Optional[Set[str]]) -> List[dict]:
     """Nordic/Baltic layout: {year}/{company_id}/{file}.pdf.
 
@@ -124,6 +145,7 @@ def build_targets_nordic(raw_root: Path, years: Optional[Set[str]]) -> List[dict
     """
     out: List[dict] = []
     raw_root = Path(raw_root)
+    country = country_from_raw_root(raw_root)
     for pdf in raw_root.rglob("*.pdf"):
         try:
             parts = pdf.relative_to(raw_root).parts
@@ -141,6 +163,7 @@ def build_targets_nordic(raw_root: Path, years: Optional[Set[str]]) -> List[dict
             "filing_date": year_dir,
             "doc_id": f"{company}_{year_dir}_{pdf.stem}",
             "fiscal_year": int(year_dir),
+            "country": country,
             "pdf_path": str(pdf),
         })
     return out
@@ -302,10 +325,22 @@ def main() -> int:
                 "doc_id": t["doc_id"], "fiscal_year": t["fiscal_year"],
                 "n_metrics": len(metrics), **metrics,
             }
+            if t.get("country") is not None:
+                # Currency is READ from the filing, with country as a labelled
+                # last resort. Assigning currency by country would repeat the HK
+                # defect (hardcoded HKD, ~40% of filers report RMB): Finnish and
+                # Baltic issuers report in EUR, and so do some Swedish ones.
+                text = ax.pdf_to_text(t["pdf_path"])
+                currency, currency_source = _conventions.detect_currency(
+                    text[:40000], country=t["country"])
+                rec["country"] = t["country"]
+                rec["currency"] = currency
+                rec["currency_source"] = currency_source
         except Exception as exc:  # a single bad PDF must not kill the sweep
             rec = {
                 "ticker": t["ticker"], "doc_id": t["doc_id"],
                 "fiscal_year": t["fiscal_year"], "n_metrics": 0,
+                "country": t.get("country"),
                 "status": f"error:{type(exc).__name__}",
             }
         append(rec)
