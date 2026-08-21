@@ -156,3 +156,90 @@ def test_a_finished_child_is_recorded_with_its_exit_code():
     assert outcome_for(0) == "done"
     assert outcome_for(1) == "failed"
     assert outcome_for(-9) == "failed"
+
+
+# --- local resource gating ----------------------------------------------
+
+
+def test_a_saturated_machine_defers_new_work():
+    """8 cores and 8 GB of RAM. Text extraction already runs at 8 workers; a
+    second job launched on top makes both slower, and the earlier sweeps were
+    throttled to 2-3 workers for exactly this reason."""
+    from scripts.corpus_supervisor import resources_ok
+    # Load is only a RUNAWAY backstop (cores*8). macOS counts I/O-blocked
+    # threads, and the live extraction sat at load 46 on 8 cores while healthy
+    # -- memory is the real gate on this box.
+    assert resources_ok(load1=1.5, cores=8, free_gb=4.0) is True
+    assert resources_ok(load1=100.0, cores=8, free_gb=4.0) is False
+
+
+def test_low_memory_defers_even_at_low_load():
+    """pdftotext on a 55 MB PDF can take hundreds of MB; 8 GB total is the real
+    constraint on this machine, not the core count."""
+    from scripts.corpus_supervisor import resources_ok
+    assert resources_ok(load1=0.5, cores=8, free_gb=0.3) is False
+
+
+def test_the_load_threshold_scales_with_cores():
+    from scripts.corpus_supervisor import resources_ok
+    assert resources_ok(load1=40.0, cores=16, free_gb=4.0) is True
+    assert resources_ok(load1=40.0, cores=4, free_gb=4.0) is False
+
+
+# --- rented GPU accounting ----------------------------------------------
+
+
+def test_an_idle_rented_pod_is_flagged():
+    """A pod left running is money. The HK runbook logged $0.40 of wasted stub
+    instances, and the standing rule is to archive before destroying."""
+    from scripts.corpus_supervisor import pod_alerts
+    pods = [{"id": "p1", "status": "ACTIVE", "gpu_type": "A6000_48GB",
+             "price_hr": 0.54, "age_hours": 6.0}]
+    alerts = pod_alerts(pods, wallet_usd=18.65, idle_hours=4.0)
+    assert any("p1" in a for a in alerts)
+
+
+def test_a_young_active_pod_is_not_flagged():
+    from scripts.corpus_supervisor import pod_alerts
+    pods = [{"id": "p1", "status": "ACTIVE", "gpu_type": "A6000_48GB",
+             "price_hr": 0.54, "age_hours": 0.5}]
+    assert pod_alerts(pods, wallet_usd=18.65, idle_hours=4.0) == []
+
+
+def test_a_wallet_that_cannot_fund_the_running_pods_is_flagged():
+    """Credits running out mid-run loses the work, not just the money."""
+    from scripts.corpus_supervisor import pod_alerts
+    pods = [{"id": "p1", "status": "ACTIVE", "gpu_type": "A6000_48GB",
+             "price_hr": 0.54, "age_hours": 1.0}]
+    alerts = pod_alerts(pods, wallet_usd=0.50, idle_hours=99)
+    assert any("balance" in a.lower() for a in alerts)
+
+
+def test_no_pods_means_no_alerts():
+    from scripts.corpus_supervisor import pod_alerts
+    assert pod_alerts([], wallet_usd=18.65, idle_hours=4.0) == []
+
+
+def test_page_size_is_read_not_assumed(monkeypatch):
+    """vm_stat on Apple Silicon reports 16384-byte pages, not 4096. Hardcoding
+    4096 under-reported free memory by 4x -- 0.5 GB against a true 2.1 GB --
+    which would have deferred every job forever."""
+    import scripts.corpus_supervisor as sup
+
+    class _Res:
+        stdout = ("Mach Virtual Memory Statistics: (page size of 16384 bytes)\n"
+                  "Pages free:                    65536.\n"
+                  "Pages inactive:                65536.\n")
+
+    monkeypatch.setattr(sup.subprocess, "run", lambda *a, **k: _Res())
+    got = sup.local_resources()["free_gb"]
+    assert 1.9 < got < 2.1, got
+
+
+def test_load_threshold_tolerates_io_wait():
+    """macOS load average counts threads blocked on I/O, so a disk-heavy job
+    shows load 46 on 8 cores while still delivering 12 files/sec with 55% of
+    memory free. A cores*0.9 gate reads that as saturation and never launches."""
+    from scripts.corpus_supervisor import resources_ok
+    assert resources_ok(load1=46.0, cores=8, free_gb=4.0) is True
+    assert resources_ok(load1=200.0, cores=8, free_gb=4.0) is False

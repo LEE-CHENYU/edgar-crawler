@@ -31,6 +31,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -173,6 +174,123 @@ def close_out(job_id: str, returncode: int) -> None:
     subprocess.run(args, capture_output=True)
 
 
+# --- local resources -----------------------------------------------------
+
+# This machine is 8 cores / 8 GB. Text extraction alone runs 8 pdftotext
+# workers, and a large PDF can take hundreds of MB, so memory is the binding
+# constraint rather than cores.
+# MEMORY is the gate; load average is only a runaway backstop.
+#
+# macOS load average counts threads blocked on I/O, not just runnable ones. The
+# live text extraction sat at load 46 on 8 cores while delivering a steady 12
+# files/sec with 55% of memory free -- perfectly healthy. Successive attempts at
+# cores*0.9 and cores*4 both read that as saturation and deferred forever, which
+# would have made the supervisor useless exactly when work was flowing. Load is
+# therefore kept only to catch a genuine runaway (fork bomb, thrash), and the
+# real constraint on this 8 GB box is free memory.
+LOAD_PER_CORE = 8.0
+MIN_FREE_GB = 1.0
+
+
+def resources_ok(load1: float, cores: int, free_gb: float,
+                 load_per_core: float = LOAD_PER_CORE,
+                 min_free_gb: float = MIN_FREE_GB) -> bool:
+    """Whether the machine has room for another supervised job.
+
+    Launching onto a saturated box makes BOTH jobs slower. Every sweep this week
+    was hand-throttled to 2-3 workers for want of this check.
+    """
+    if free_gb < min_free_gb:
+        return False
+    return load1 < cores * load_per_core
+
+
+def local_resources() -> Dict[str, float]:
+    cores = os.cpu_count() or 1
+    try:
+        load1 = os.getloadavg()[0]
+    except (OSError, AttributeError):
+        load1 = 0.0
+    free_gb = 0.0
+    try:
+        vm = subprocess.run(["vm_stat"], capture_output=True, text=True).stdout
+        # Read the page size from vm_stat itself: Apple Silicon uses 16384, and
+        # assuming 4096 under-reports free memory by 4x.
+        match = re.search(r"page size of (\d+) bytes", vm)
+        page = int(match.group(1)) if match else 4096
+        free_pages = 0
+        for line in vm.splitlines():
+            if line.startswith(("Pages free", "Pages inactive", "Pages speculative")):
+                free_pages += int(line.split(":")[1].strip().rstrip("."))
+        free_gb = free_pages * page / (1024 ** 3)
+    except Exception:
+        free_gb = float("inf")   # unknown: do not block on it
+    return {"cores": cores, "load1": load1, "free_gb": free_gb}
+
+
+# --- rented GPU ----------------------------------------------------------
+
+
+def pod_alerts(pods: Sequence[dict], wallet_usd: float,
+               idle_hours: float = 4.0) -> List[str]:
+    """Warnings about rented GPU pods. A pod left running is money.
+
+    The HK embedding runbook logged $0.40 of wasted stub instances, and the
+    standing rule is to archive results BEFORE destroying an instance -- so a
+    long-lived pod is surfaced, never auto-killed.
+    """
+    out: List[str] = []
+    burn = 0.0
+    for pod in pods or []:
+        if str(pod.get("status", "")).upper() not in ("ACTIVE", "RUNNING"):
+            continue
+        price = float(pod.get("price_hr") or 0)
+        burn += price
+        age = float(pod.get("age_hours") or 0)
+        if age >= idle_hours:
+            out.append(f"pod {pod.get('id')} ({pod.get('gpu_type')}) has run "
+                       f"{age:.1f}h at ${price:.2f}/hr = ${age*price:.2f} -- "
+                       f"still needed?")
+    if burn and wallet_usd / burn < 2.0:
+        out.append(f"wallet balance ${wallet_usd:.2f} funds only "
+                   f"{wallet_usd/burn:.1f}h at the current ${burn:.2f}/hr burn")
+    return out
+
+
+def prime_pods() -> List[dict]:
+    """Running pods from the Prime Intellect CLI, or [] if unavailable."""
+    prime = Path.home() / ".local" / "bin" / "prime"
+    if not prime.exists():
+        return []
+    try:
+        res = subprocess.run([str(prime), "--plain", "pods", "list",
+                              "--output", "json"],
+                             capture_output=True, text=True, timeout=60)
+        data = json.loads(res.stdout or "{}")
+    except Exception:
+        return []
+    out = []
+    for pod in data.get("pods", []) or []:
+        out.append({"id": pod.get("id"), "status": pod.get("status"),
+                    "gpu_type": pod.get("gpu_type") or pod.get("gpuType"),
+                    "price_hr": pod.get("price_hr") or pod.get("priceHr") or 0,
+                    "age_hours": pod.get("age_hours") or 0})
+    return out
+
+
+def prime_wallet() -> float:
+    prime = Path.home() / ".local" / "bin" / "prime"
+    if not prime.exists():
+        return float("inf")
+    try:
+        res = subprocess.run([str(prime), "--plain", "wallet"],
+                             capture_output=True, text=True, timeout=60)
+        m = re.search(r"Balance:\s*\$([0-9.]+)", res.stdout or "")
+        return float(m.group(1)) if m else float("inf")
+    except Exception:
+        return float("inf")
+
+
 def tracker_state() -> Dict[str, str]:
     out: Dict[str, str] = {}
     if not TRACKER_STATE.exists():
@@ -258,11 +376,15 @@ def main() -> int:
                     help="max concurrent supervised jobs (one external drive)")
     ap.add_argument("--once", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--watch-gpu", action="store_true", default=True,
+                    help="report rented Prime Intellect pods and wallet burn")
+    ap.add_argument("--no-watch-gpu", dest="watch_gpu", action="store_false")
     args = ap.parse_args()
 
     jobs = build_jobs()
     last_report = ""
     children: Dict[str, subprocess.Popen] = {}
+    seen_alerts: Set[str] = set()
     while True:
         # Reap first: a finished child must be recorded before the next
         # decision, or it counts as running for another whole cycle.
@@ -274,6 +396,28 @@ def main() -> int:
                 children.pop(job_id, None)
 
         state, running = tracker_state(), live_jobs()
+
+        # Rented GPU accounting: surfaced every cycle, never auto-terminated --
+        # results must be archived before an instance is destroyed.
+        if args.watch_gpu:
+            alerts = pod_alerts(prime_pods(), prime_wallet())
+            for alert in alerts:
+                if alert not in seen_alerts:
+                    print(f"{time.strftime('%Y-%m-%dT%H:%M:%S')} GPU: {alert}", flush=True)
+                    seen_alerts.add(alert)
+
+        res = local_resources()
+        if not resources_ok(res["load1"], int(res["cores"]), res["free_gb"]):
+            msg = (f"deferring: load {res['load1']:.1f} on {int(res['cores'])} cores, "
+                   f"{res['free_gb']:.1f} GB free")
+            if msg != last_report:
+                print(f"{time.strftime('%Y-%m-%dT%H:%M:%S')} {msg}", flush=True)
+                last_report = msg
+            if args.once:
+                return 0
+            time.sleep(args.interval)
+            continue
+
         ready = [j for j in jobs if j.id in decide(jobs, state, running, args.cap)]
         ready = [j for j in ready if guard_passes(j)]
 
