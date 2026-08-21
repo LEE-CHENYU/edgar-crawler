@@ -132,6 +132,47 @@ def decide(jobs: Sequence[Job], state: Dict[str, str], running: Set[str],
 # --- tracker integration -------------------------------------------------
 
 
+def _pid_state(pid: int) -> str:
+    """Single-letter process state from ps: R/S/I running-ish, Z zombie."""
+    res = subprocess.run(["ps", "-o", "state=", "-p", str(pid)],
+                         capture_output=True, text=True)
+    return (res.stdout or "").strip()[:1]
+
+
+def pid_is_live(pid) -> bool:
+    """True only for a process that is actually still working.
+
+    A ZOMBIE is not live. os.kill(pid, 0) succeeds on one, which is how the
+    panel build -- finished, exit 0, <defunct> because this supervisor never
+    reaped it -- held its tracker entry at `running` for 42 hours and stalled
+    everything behind it.
+    """
+    if pid in (None, "", 0):
+        return False
+    try:
+        state = _pid_state(int(pid))
+    except (TypeError, ValueError):
+        return False
+    if not state:
+        return False
+    return state != "Z"
+
+
+def outcome_for(returncode: int) -> str:
+    """Tracker status for a finished child."""
+    return "done" if returncode == 0 else "failed"
+
+
+def close_out(job_id: str, returncode: int) -> None:
+    """Mark a supervised job finished. The supervisor must close what it opens;
+    otherwise every launch leaks a zombie AND a permanently-open entry."""
+    status = outcome_for(returncode)
+    args = [PY, str(TRACKER_CLI), status, "--id", job_id]
+    if status == "failed":
+        args += ["--reason", f"exited with code {returncode}"]
+    subprocess.run(args, capture_output=True)
+
+
 def tracker_state() -> Dict[str, str]:
     out: Dict[str, str] = {}
     if not TRACKER_STATE.exists():
@@ -156,13 +197,7 @@ def live_jobs() -> Set[str]:
             continue
         if job.get("status") != "running":
             continue
-        pid = job.get("pid")
-        try:
-            os.kill(int(pid), 0)
-            alive.add(str(job.get("id")))
-        except (TypeError, ValueError, ProcessLookupError):
-            continue
-        except PermissionError:
+        if pid_is_live(job.get("pid")):
             alive.add(str(job.get("id")))
     return alive
 
@@ -174,7 +209,7 @@ def guard_passes(job: Job) -> bool:
                           capture_output=True).returncode == 0
 
 
-def launch(job: Job) -> Optional[int]:
+def launch(job: Job) -> subprocess.Popen:
     LOGS.mkdir(parents=True, exist_ok=True)
     log = LOGS / f"{job.id}.log"
     with open(log, "ab") as fout:
@@ -187,7 +222,7 @@ def launch(job: Job) -> Optional[int]:
                     "--log", str(log), "--progress-total", str(job.total or 0),
                     "--progress-unit", job.unit, "--tags", "corpus"],
                    capture_output=True)
-    return proc.pid
+    return proc
 
 
 # --- the pipeline --------------------------------------------------------
@@ -227,7 +262,17 @@ def main() -> int:
 
     jobs = build_jobs()
     last_report = ""
+    children: Dict[str, subprocess.Popen] = {}
     while True:
+        # Reap first: a finished child must be recorded before the next
+        # decision, or it counts as running for another whole cycle.
+        for job_id, proc in list(children.items()):
+            rc = proc.poll()
+            if rc is not None:
+                close_out(job_id, rc)
+                print(f"{time.strftime('%Y-%m-%dT%H:%M:%S')} FINISHED {job_id} rc={rc}", flush=True)
+                children.pop(job_id, None)
+
         state, running = tracker_state(), live_jobs()
         ready = [j for j in jobs if j.id in decide(jobs, state, running, args.cap)]
         ready = [j for j in ready if guard_passes(j)]
@@ -237,8 +282,9 @@ def main() -> int:
                 if args.dry_run:
                     print(f"[dry-run] would launch {job.id}: {' '.join(job.command)}", flush=True)
                 else:
-                    pid = launch(job)
-                    print(f"{time.strftime('%Y-%m-%dT%H:%M:%S')} LAUNCHED {job.id} pid={pid}", flush=True)
+                    proc = launch(job)
+                    children[job.id] = proc
+                    print(f"{time.strftime('%Y-%m-%dT%H:%M:%S')} LAUNCHED {job.id} pid={proc.pid}", flush=True)
         else:
             # Log only when the picture CHANGES. The supervisor this replaces
             # printed every cycle and became unreadable.

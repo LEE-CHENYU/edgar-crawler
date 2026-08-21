@@ -125,3 +125,34 @@ def test_produces_lets_a_stalled_but_finished_job_release_the_chain(tmp_path):
     downstream = _job("b", needs=["a"])
     state = {"a": "running"}   # stale flag
     assert is_satisfied(downstream, state, jobs=[upstream, downstream]) is True
+
+
+# --- zombies: a process the supervisor itself failed to reap --------------
+
+
+def test_a_zombie_is_not_alive():
+    """The panel build exited successfully and became <defunct> because the
+    supervisor never reaped it. os.kill(pid, 0) SUCCEEDS on a zombie, so the
+    tracker entry read `running` with a live pid for 42 hours and the chain
+    stalled behind it. Third variant of "a status signal that lies", after a
+    dead process and a stale flag."""
+    from scripts.corpus_supervisor import pid_is_live
+    assert pid_is_live(None) is False
+    assert pid_is_live(999999999) is False
+
+
+def test_pid_state_treats_zombie_as_finished(monkeypatch):
+    import scripts.corpus_supervisor as sup
+    monkeypatch.setattr(sup, "_pid_state", lambda pid: "Z")
+    assert sup.pid_is_live(4242) is False
+    monkeypatch.setattr(sup, "_pid_state", lambda pid: "R")
+    assert sup.pid_is_live(4242) is True
+
+
+def test_a_finished_child_is_recorded_with_its_exit_code():
+    """The supervisor must close what it opens -- otherwise every supervised job
+    leaks a zombie and a permanently-open tracker entry."""
+    from scripts.corpus_supervisor import outcome_for
+    assert outcome_for(0) == "done"
+    assert outcome_for(1) == "failed"
+    assert outcome_for(-9) == "failed"
