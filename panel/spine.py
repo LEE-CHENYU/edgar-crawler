@@ -51,6 +51,17 @@ CHECKPOINT_BATCHES = 100
 EXCH_CODES = {
     "au": "AU", "tw": "TT", "ph": "PM", "kr": "KS",
     "cn": "CH", "in_bse": "IS", "hk": "HK", "jp": "JT",
+    # Nordic/Baltic. Without these, market.upper() is submitted as the exchange
+    # code ("NO", "SE"), which OpenFIGI does not know, and all 11,267 rows would
+    # resolve to surrogates.
+    "no": "NO",   # Oslo Bors
+    "se": "SS",   # Nasdaq Stockholm
+    "dk": "DC",   # Nasdaq Copenhagen
+    "fi": "FH",   # Nasdaq Helsinki
+    "is": "IR",   # Nasdaq Iceland
+    "ee": "ET",   # Nasdaq Tallinn
+    "lv": "LR",   # Nasdaq Riga
+    "lt": "LH",   # Nasdaq Vilnius
 }
 
 Key = Tuple[str, str]

@@ -3,7 +3,10 @@ from panel.build import MARKET_SOURCES, attach_reporting_basis, attach_spine, wr
 
 
 def test_market_sources_cover_v1_adapters_and_exclude_us():
-    assert set(MARKET_SOURCES) == {"au", "tw", "ph", "kr", "cn", "in_bse", "hk", "jp"}
+    # "nordic" is one corpus key that fans out into 8 per-country markets
+    # (no/se/dk/fi/is/ee/lv/lt) inside the adapter.
+    assert set(MARKET_SOURCES) == {"au", "tw", "ph", "kr", "cn", "in_bse", "hk",
+                                   "jp", "nordic"}
     assert "us" not in MARKET_SOURCES
 
 

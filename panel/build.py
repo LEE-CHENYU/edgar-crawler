@@ -72,6 +72,10 @@ MARKET_SOURCES: Dict[str, dict] = {
            "path": DATA_ROOT / "MARKET_FILINGS/derived/DART_FINANCIALS/three_statement_parquet/canonical_metrics_wide.parquet"},
     "cn": {"kind": "cn", "currency": "CNY",
            "path": DATA_ROOT / "markets/cn/02_structured"},
+    # One swept corpus, EIGHT markets -- each country keeps its own identity,
+    # currency and (eventually) universe hash. See panel/adapters/nordic.py.
+    "nordic": {"kind": "nordic", "currency": None,
+               "path": DATA_ROOT / "MARKET_FILINGS/derived/NORDIC_FINANCIALS/canonical_metrics_wide.parquet"},
     "in_bse": {"kind": "canonical", "currency": "INR",
                "path": DATA_ROOT / "MARKET_FILINGS/derived/IN_BSE_FINANCIALS/canonical_metrics_wide.parquet"},
     "hk": {"kind": "hk", "currency": "HKD",
@@ -299,6 +303,11 @@ def load_market(market: str, limit: int = 0,
         return rows_from_canonical_metrics(
             df, market, currency, drops=drops, source_artifact=str(path),
         )
+    if kind == "nordic":
+        from panel.adapters.nordic import rows_from_nordic
+        df = pd.read_parquet(path)
+        meta["source_rows"] = len(df)
+        return rows_from_nordic(df, drops=drops, source_artifact=str(path))
     if kind == "cn":
         from panel.adapters.cn import rows_from_cn_frames
         bs = pd.read_parquet(Path(path) / "balance_sheet.parquet")

@@ -321,3 +321,22 @@ def test_jp_surrogate_key_keeps_the_corpus_local_id():
         return [{"warning": "No identifier found."} for _ in batch]
     got = resolve([("jp", "85950")], fetcher=fetcher, sleep=lambda _s: None)
     assert got[("jp", "85950")]["spine_key"] == "JT:85950"
+
+
+def test_nordic_markets_have_their_own_exchange_codes():
+    """8 Nordic/Baltic markets joined the panel. Without codes they fall through
+    to market.upper() -- "NO"/"SE" are not OpenFIGI exchange codes, so every row
+    would resolve to a surrogate."""
+    from panel.spine import EXCH_CODES
+    for market, code in (("no", "NO"), ("se", "SS"), ("dk", "DC"), ("fi", "FH"),
+                         ("is", "IR"), ("ee", "ET"), ("lv", "LR"), ("lt", "LH")):
+        assert EXCH_CODES[market] == code, market
+
+
+def test_every_panel_market_has_an_exchange_code():
+    from panel.build import MARKET_SOURCES
+    from panel.spine import EXCH_CODES
+    # nordic is a corpus key that fans out into per-country markets
+    expected = {m for m in MARKET_SOURCES if m != "nordic"}
+    expected |= {"no", "se", "dk", "fi", "is", "ee", "lv", "lt"}
+    assert expected <= set(EXCH_CODES), sorted(expected - set(EXCH_CODES))
