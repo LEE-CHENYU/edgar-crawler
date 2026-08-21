@@ -62,6 +62,23 @@ MARKETS: Dict[str, Dict[str, str]] = {
              "out": str(DERIVED / "NORDIC_FINANCIALS" / "text_no")},
     "nordic_se": {"raw": "/Users/lichenyu/datasets/markets/se/01_raw/nasdaq_nordic_baltic",
                   "out": str(DERIVED / "NORDIC_FINANCIALS" / "text_se")},
+    # The other six Nordic/Baltic roots. Easy to miss because they are small
+    # (1,499 PDFs combined against Sweden's 3,584) and live on the boot volume,
+    # but they are 6 of the 8 markets the Nordic adapter emits.
+    "nordic_dk": {"raw": "/Users/lichenyu/datasets/markets/dk/01_raw/nasdaq_nordic_baltic",
+                  "out": str(DERIVED / "NORDIC_FINANCIALS" / "text_dk")},
+    "nordic_fi": {"raw": "/Users/lichenyu/datasets/markets/fi/01_raw/nasdaq_nordic_baltic",
+                  "out": str(DERIVED / "NORDIC_FINANCIALS" / "text_fi")},
+    "nordic_is": {"raw": "/Users/lichenyu/datasets/markets/is/01_raw/nasdaq_nordic_baltic",
+                  "out": str(DERIVED / "NORDIC_FINANCIALS" / "text_is")},
+    "nordic_lt": {"raw": "/Users/lichenyu/datasets/markets/lt/01_raw/nasdaq_nordic_baltic",
+                  "out": str(DERIVED / "NORDIC_FINANCIALS" / "text_lt")},
+    "nordic_lv": {"raw": "/Users/lichenyu/datasets/markets/lv/01_raw/nasdaq_nordic_baltic",
+                  "out": str(DERIVED / "NORDIC_FINANCIALS" / "text_lv")},
+    "nordic_ee": {"raw": "/Users/lichenyu/datasets/markets/ee/01_raw/nasdaq_nordic_baltic",
+                  "out": str(DERIVED / "NORDIC_FINANCIALS" / "text_ee")},
+    # HK raw lives outside MARKET_FILINGS; its text corpus is already complete
+    # (25,565 files) under markets/hk/02_structured, so it is absent by design.
 }
 
 
