@@ -73,7 +73,12 @@ _conv_spec = importlib.util.spec_from_file_location(
 _conventions = importlib.util.module_from_spec(_conv_spec)
 _conv_spec.loader.exec_module(_conventions)
 
-_ASX_FNAME = re.compile(r"^([A-Z0-9]+)-(\d{8})-(\d+)\.pdf$", re.IGNORECASE)
+# Accepts BOTH separators. Every one of the 28,202 files on disk uses
+# underscores (GNC_20080122_00804731.pdf); the hyphen-only pattern returned 0
+# targets while the sweep still reported "consolidated 27,665 rows" -- success
+# on zero work. ASX's existing stage-02 came from the legacy
+# asx_financials_sweep.py, so this path went unexercised until 2026-08-22.
+_ASX_FNAME = re.compile(r"^([A-Z0-9]+)[-_](\d{8})[-_](\d+)\.pdf$", re.IGNORECASE)
 _YEAR = re.compile(r"^(19|20)\d{2}$")
 _DATE8 = re.compile(r"^\d{8}$")
 _lock = threading.Lock()

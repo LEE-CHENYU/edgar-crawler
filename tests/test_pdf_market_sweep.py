@@ -265,3 +265,32 @@ def test_consolidate_keeps_country_and_currency(tmp_path):
     assert df["country"].iloc[0] == "se"
     assert df["currency"].iloc[0] == "EUR"
     assert df["currency_source"].iloc[0] == "declared"
+
+
+def test_asx_builder_matches_the_real_underscore_filenames(tmp_path):
+    """The regex expected TICKER-YYYYMMDD-docid.pdf with HYPHENS; every one of
+    the 28,202 files on disk uses UNDERSCORES (GNC_20080122_00804731.pdf). The
+    builder returned 0 targets while the sweep reported "consolidated 27,665
+    rows" -- success on zero work, the §2.1 defect in a new form. ASX's existing
+    stage-02 rows came from the legacy asx_financials_sweep.py, so this path was
+    never exercised until the supervisor ran it."""
+    from scripts.pdf_market_sweep import build_targets_asx
+    d = tmp_path / "20080122" / "GNC"
+    d.mkdir(parents=True)
+    (d / "GNC_20080122_00804731.pdf").write_bytes(b"%PDF-1.4")
+    targets = build_targets_asx(tmp_path, None)
+    assert len(targets) == 1, "underscore filenames must match"
+    assert targets[0]["ticker"] == "GNC"
+    # January filing -> FY2007: Australian fiscal years end 30 June, so a filing
+    # before July reports the PRIOR year. My first assertion said 2008; the
+    # builder was right and the test was wrong.
+    assert targets[0]["fiscal_year"] == 2007
+
+
+def test_asx_builder_still_accepts_hyphen_filenames(tmp_path):
+    """Older exports used hyphens; both shapes must work."""
+    from scripts.pdf_market_sweep import build_targets_asx
+    d = tmp_path / "20080122" / "GNC"
+    d.mkdir(parents=True)
+    (d / "GNC-20080122-00804731.pdf").write_bytes(b"%PDF-1.4")
+    assert len(build_targets_asx(tmp_path, None)) == 1
