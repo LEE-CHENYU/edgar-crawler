@@ -41,6 +41,11 @@ from typing import Dict, List, Optional, Sequence, Set
 
 REPO = Path(__file__).resolve().parents[1]
 TRACKER_STATE = Path.home() / "job_tracker" / "state"
+# The supervisor registers its own tracker entry; counting that entry against
+# its own concurrency cap permanently consumed a slot. With cap=2 and one other
+# corpus job alive, slots hit 0 and nothing could launch -- the ASX stage-02
+# refresh sat ready for 10 hours behind exactly this.
+SUPERVISOR_JOB_ID = "corpus_supervisor"
 TRACKER_CLI = Path.home() / "job_tracker" / "cli.py"
 PY = str(Path.home() / "miniconda3" / "envs" / "python310" / "bin" / "python")
 LOGS = REPO / "logs"
@@ -330,9 +335,21 @@ def live_jobs() -> Set[str]:
             continue
         if job.get("status") != "running":
             continue
+        if str(job.get("id")) == SUPERVISOR_JOB_ID:
+            continue
         if pid_is_live(job.get("pid")):
             alive.add(str(job.get("id")))
     return alive
+
+
+def managed_running(jobs: Sequence["Job"], alive: Set[str]) -> Set[str]:
+    """Live ids this supervisor actually manages.
+
+    The cap must count only jobs it can start and finish. A hand-launched
+    rescue under an unrelated tracker id would otherwise consume a slot the
+    supervisor can never free.
+    """
+    return {j.id for j in jobs if j.id in alive}
 
 
 def guard_passes(job: Job) -> bool:
@@ -454,7 +471,7 @@ def main() -> int:
                 print(f"{time.strftime('%Y-%m-%dT%H:%M:%S')} FINISHED {job_id} rc={rc}", flush=True)
                 children.pop(job_id, None)
 
-        state, running = tracker_state(), live_jobs()
+        state, running = tracker_state(), managed_running(jobs, live_jobs())
 
         # Rented GPU accounting: surfaced every cycle, never auto-terminated --
         # results must be archived before an instance is destroyed.

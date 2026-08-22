@@ -267,3 +267,29 @@ def test_a_job_with_no_pattern_is_unaffected():
     from scripts.corpus_supervisor import pattern_is_running
     assert pattern_is_running(None) is False
     assert pattern_is_running("") is False
+
+
+# --- the supervisor must not count itself ---------------------------------
+
+
+def test_live_jobs_excludes_the_supervisor_itself():
+    """The supervisor registers its own tracker entry. Counting it against its
+    own concurrency cap consumed a slot permanently: with cap=2 and one other
+    corpus job alive, slots dropped to 0 and NOTHING could launch. The ASX
+    stage-02 refresh sat ready for 10 hours behind this."""
+    from scripts.corpus_supervisor import SUPERVISOR_JOB_ID, live_jobs
+    assert SUPERVISOR_JOB_ID not in live_jobs()
+
+
+def test_the_cap_counts_only_jobs_this_supervisor_manages():
+    """A rescue launched by hand under an unrelated tracker id must not consume
+    a slot -- the supervisor does not manage it and cannot free it."""
+    from scripts.corpus_supervisor import managed_running
+    jobs = [_job("a"), _job("b")]
+    alive = {"corpus_supervisor", "rescue_twse_reports", "a"}
+    assert managed_running(jobs, alive) == {"a"}
+
+
+def test_an_unmanaged_id_never_blocks_the_queue():
+    from scripts.corpus_supervisor import managed_running
+    assert managed_running([_job("a")], {"something_else"}) == set()
