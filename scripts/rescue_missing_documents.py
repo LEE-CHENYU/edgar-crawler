@@ -36,7 +36,10 @@ from typing import Callable, Dict, List, Optional
 DEFAULT_DATA_ROOT = Path("/Volumes/OWC Express 1M2/datasets/MARKET_FILINGS")
 DAILY_CALL_CAP_DART = 20_000
 DART_DOCUMENT_ENDPOINT = "https://opendart.fss.or.kr/api/document.xml"
-SUPPORTED_MARKETS = ("TWSE_REPORTS", "DART")
+# HKEX and ASX record a stable document_url, so they use the direct resolver.
+# TWSE links are timestamped one-shots and DART needs an API key + daily cap.
+DIRECT_URL_MARKETS = ("HKEX", "ASX", "EDGAR_IE", "EDGAR_DE")
+SUPPORTED_MARKETS = ("TWSE_REPORTS", "DART") + DIRECT_URL_MARKETS
 
 
 @dataclass
@@ -205,6 +208,64 @@ def build_twse_local_path(raw_dir: str, row: Dict[str, str]) -> str:
         safe_filename(str(row.get("filing_id") or "")),
         safe_filename(filename, max_length=180),
     )
+
+
+def build_direct_local_path(raw_dir: str, row: Dict[str, str]) -> str:
+    """Destination for a market whose metadata carries a direct document URL.
+
+    Mirrors each corpus's EXISTING layout -- 25,658 HKEX and 27,665 ASX
+    documents already sit in these shapes, and a rescue that invented a second
+    one would split the corpus in exactly the way that has cost this program
+    repeatedly (Nordic's lost country, DART's nested parquet, HK's text living
+    outside the derived tree).
+
+        HKEX  {raw}/HKEX/{yyyymmdd}/{filing_id}/{name}.pdf
+        ASX   {raw}/ASX/{yyyymmdd}/{TICKER}/{name}.pdf
+    """
+    import os
+    import re
+    from urllib.parse import urlparse
+
+    market = str(row.get("market") or "").strip()
+    date = re.sub(r"\D", "", str(row.get("filing_date") or ""))[:8] or "unknown"
+    url = str(row.get("document_url") or "")
+    name = os.path.basename(urlparse(url).path) or ""
+    if not name.lower().endswith(".pdf"):
+        # ASX serves via a query-string endpoint with no filename in the path.
+        name = f"{safe_filename(str(row.get('filing_id') or 'document'))}.pdf"
+    if market == "HKEX":
+        bucket = safe_filename(str(row.get("filing_id") or "unknown"))
+    else:
+        bucket = safe_filename(str(row.get("stock_code") or "unknown"))
+    return os.path.join(raw_dir, market, date, bucket, safe_filename(name))
+
+
+def rescue_direct_url_row(
+    row: Dict[str, str],
+    raw_dir: str,
+    session,
+    downloader: Callable,
+    timeout: int,
+) -> RescueResult:
+    """Fetch a row whose `document_url` is already stable.
+
+    Unlike TWSE -- whose links are timestamped one-shots that must be
+    re-resolved on every attempt -- HKEX and ASX record a durable URL, so the
+    recorded value is used directly.
+    """
+    url = str(row.get("document_url") or "").strip()
+    if not url:
+        return RescueResult(ok=False, error="row carries no document_url")
+
+    local_path = build_direct_local_path(raw_dir, row)
+    if already_acquired(local_path):
+        return RescueResult(ok=True, local_path=local_path, skipped=True)
+
+    # Keyword args are required: try_download_binary's 5th positional
+    # parameter is `params`, not `timeout`.
+    if not downloader(session=session, url=url, path=local_path, timeout=timeout):
+        return RescueResult(ok=False, error=f"download failed: {url[:90]}")
+    return RescueResult(ok=True, local_path=local_path)
 
 
 def rescue_twse_row(
@@ -551,7 +612,12 @@ def main() -> int:
             break
 
         row = missing[index]
-        if args.market == "TWSE_REPORTS":
+        if args.market in DIRECT_URL_MARKETS:
+            result = rescue_direct_url_row(
+                row=row, raw_dir=raw_dir, session=session,
+                downloader=try_download_binary, timeout=args.timeout,
+            )
+        elif args.market == "TWSE_REPORTS":
             result = rescue_twse_row(
                 row=row, raw_dir=raw_dir, session=session,
                 resolver=fetch_twse_report_pdf_url, downloader=try_download_binary,
