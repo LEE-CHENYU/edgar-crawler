@@ -243,3 +243,27 @@ def test_load_threshold_tolerates_io_wait():
     from scripts.corpus_supervisor import resources_ok
     assert resources_ok(load1=46.0, cores=8, free_gb=4.0) is True
     assert resources_ok(load1=200.0, cores=8, free_gb=4.0) is False
+
+
+# --- jobs launched outside the supervisor --------------------------------
+
+
+def test_a_job_already_running_outside_the_supervisor_is_not_relaunched():
+    """The HKEX/ASX/TWSE rescues were started by hand. If the supervisor cannot
+    see them it will launch duplicates -- two downloaders against one
+    rate-limited host, which is how a cooldown becomes a ban."""
+    jobs = [_job("rescue_asx", running_pattern="rescue_missing_documents.*ASX")]
+    assert decide(jobs, state={}, running={"rescue_asx"}, cap=2) == []
+
+
+def test_process_pattern_detection_reports_live_processes():
+    from scripts.corpus_supervisor import pattern_is_running
+    # this python process itself matches
+    assert pattern_is_running("python") is True
+    assert pattern_is_running("nonexistent-process-xyzzy-42") is False
+
+
+def test_a_job_with_no_pattern_is_unaffected():
+    from scripts.corpus_supervisor import pattern_is_running
+    assert pattern_is_running(None) is False
+    assert pattern_is_running("") is False

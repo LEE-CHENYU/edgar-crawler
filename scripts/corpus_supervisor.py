@@ -65,6 +65,19 @@ class Job:
     # that stale flag.
     produces: Optional[str] = None
     min_rows: int = 1
+    # A pgrep pattern matching this job when it was started OUTSIDE the
+    # supervisor. Without it the supervisor cannot see hand-launched work and
+    # will start a duplicate -- two downloaders against one rate-limited host is
+    # how a cooldown becomes a ban.
+    running_pattern: Optional[str] = None
+
+
+def pattern_is_running(pattern: Optional[str]) -> bool:
+    """True when a process matching this pattern is alive."""
+    if not pattern:
+        return False
+    res = subprocess.run(["pgrep", "-f", pattern], capture_output=True, text=True)
+    return res.returncode == 0 and bool((res.stdout or "").strip())
 
 
 def artifact_satisfied(path: Optional[str], min_rows: int = 1) -> bool:
@@ -122,6 +135,8 @@ def decide(jobs: Sequence[Job], state: Dict[str, str], running: Set[str],
         if slots <= 0:
             break
         if job.id in running or state.get(job.id) in ("done", "running"):
+            continue
+        if pattern_is_running(job.running_pattern):
             continue
         if not is_satisfied(job, state, jobs):
             continue
@@ -346,25 +361,69 @@ def launch(job: Job) -> subprocess.Popen:
 # --- the pipeline --------------------------------------------------------
 
 def build_jobs() -> List[Job]:
+    """The live pipeline: acquire -> stage 02 -> screening input -> panel.
+
+    The rescues are declared so the supervisor can SEE them (via
+    running_pattern) and gate downstream work on their completion -- it never
+    launches them, because they were started by hand and a second downloader
+    against a rate-limited host turns a cooldown into a ban.
+
+    Each observer carries a GUARD that greps its log for the driver's own
+    "done:" line. Without it the observer would seal as complete the moment its
+    process stopped matching -- including when a rescue was KILLED, as the TWSE
+    one was twice today by the volume disconnecting. Downstream would then run
+    against a half-acquired corpus and report confident numbers from missing
+    documents.
+    """
+    L = str(REPO / "logs")
     D = "/Volumes/OWC Express 1M2/datasets/MARKET_FILINGS/derived"
+    PY_ = PY
     return [
-        Job(id="oslo_stage02_attachments", title="Oslo stage-02 (real annual reports)",
-            purpose="Stage 02 over the re-acquired Oslo attachments.",
-            command=[PY, "scripts/pdf_market_sweep.py", "--market", "nordic",
-                     "--raw-root", "/Users/lichenyu/datasets/markets/no/01_raw/oslo_attachments",
-                     "--workers", "2", "--log-every", "250"],
-            produces=f"{D}/NORDIC_FINANCIALS/canonical_metrics_wide.parquet",
-            min_rows=10000, total=10889, unit="filings"),
-        Job(id="panel_rebuild_auto", title="Panel rebuild",
-            purpose="Rebuild the panel once its inputs settle: TWSE stage-02 (15,300 rows), "
-                    "HK derived period ends, AU/HK/IN unit-scale tables.",
-            command=[PY, "-m", "panel.build"],
-            needs=["oslo_stage02_attachments"], total=8, unit="markets"),
+        # --- acquisition, running externally; observed, never launched -------
+        Job(id="rescue_twse", title="TWSE rescue (external)",
+            command=["true"], running_pattern="rescue_missing_documents.*TWSE_REPORTS",
+            guard=f'grep -q "TWSE_REPORTS done:" {L}/rescue_twse_reports.log',
+            purpose="Observed only.", total=3228, unit="documents"),
+        Job(id="rescue_hkex", title="HKEX rescue (external)",
+            command=["true"], running_pattern="rescue_missing_documents.*HKEX",
+            guard=f'grep -q "HKEX done:" {L}/rescue_hkex.log',
+            purpose="Observed only.", total=913, unit="documents"),
+        Job(id="rescue_asx", title="ASX rescue (external)",
+            command=["true"], running_pattern="rescue_missing_documents.*ASX",
+            guard=f'grep -q "ASX done:" {L}/rescue_asx.log',
+            purpose="Observed only.", total=537, unit="documents"),
+        Job(id="jse_sens", title="JSE SENS crawl (external)",
+            command=["true"], running_pattern="jse_sens_crawl",
+            guard=f'grep -q "JSE SENS: .* announcements," {L}/jse_sens2.log',
+            purpose="Observed only.", total=143, unit="windows"),
+
+        # --- stage 02, re-swept once the new documents land -----------------
+        Job(id="asx_stage02_refresh", title="ASX stage-02 refresh",
+            purpose="Re-sweep ASX after the rescue adds 537 documents.",
+            command=[PY_, "scripts/pdf_market_sweep.py", "--market", "asx",
+                     "--workers", "6", "--log-every", "500"],
+            needs=["rescue_asx"],
+            produces=f"{D}/ASX_FINANCIALS/canonical_metrics_wide.parquet",
+            min_rows=27000, total=28202, unit="filings"),
+        Job(id="twse_stage02_refresh", title="TWSE stage-02 refresh",
+            purpose="Re-sweep TWSE after the rescue adds up to 3,228 documents.",
+            command=[PY_, "scripts/pdf_market_sweep.py", "--market", "twse",
+                     "--workers", "6", "--log-every", "500"],
+            needs=["rescue_twse"],
+            produces=f"{D}/TWSE_FINANCIALS/canonical_metrics_wide.parquet",
+            min_rows=15000, total=25978, unit="filings"),
+
+        # --- downstream -----------------------------------------------------
         Job(id="screening_inputs_auto", title="Screening inputs (live FX)",
-            purpose="Rebuild au/tw/ph/in screening inputs on live FX after stage-02 changes.",
-            command=[PY, "build_pdf_market_screening_input.py", "au", "tw", "ph", "in"],
-            needs=["panel_rebuild_auto"], total=4, unit="markets",
-            guard=f'test -f "{D}/TWSE_FINANCIALS/canonical_metrics_wide.parquet"'),
+            purpose="Rebuild au/tw/ph/in screening inputs on live FX once both "
+                    "stage-02 refreshes land.",
+            command=[PY_, "build_pdf_market_screening_input.py", "au", "tw", "ph", "in"],
+            needs=["asx_stage02_refresh", "twse_stage02_refresh"],
+            total=4, unit="markets"),
+        Job(id="panel_rebuild_auto", title="Panel rebuild",
+            purpose="Rebuild the panel once screening inputs are refreshed.",
+            command=[PY_, "-m", "panel.build"],
+            needs=["screening_inputs_auto"], total=9, unit="markets"),
     ]
 
 
