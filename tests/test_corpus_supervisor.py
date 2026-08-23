@@ -293,3 +293,67 @@ def test_the_cap_counts_only_jobs_this_supervisor_manages():
 def test_an_unmanaged_id_never_blocks_the_queue():
     from scripts.corpus_supervisor import managed_running
     assert managed_running([_job("a")], {"something_else"}) == set()
+
+
+# --- staleness: "done" must expire when inputs change ---------------------
+
+
+def test_a_job_is_stale_when_an_input_is_newer_than_its_output(tmp_path):
+    """The panel sat 10 hours behind reality because panel_rebuild_auto was
+    marked done that morning, while TWSE stage-02 grew by 10,000 rows
+    underneath it. `waiting: {}` meant "all my jobs are done", not "everything
+    is current" -- the same class of misleading completion signal this program
+    keeps meeting."""
+    import time
+    from scripts.corpus_supervisor import is_stale
+    out = tmp_path / "panel.parquet"
+    out.write_text("x")
+    time.sleep(0.02)
+    newer = tmp_path / "stage02.parquet"
+    newer.write_text("y")
+    assert is_stale(str(out), [str(newer)]) is True
+
+
+def test_a_job_is_not_stale_when_its_output_is_newest(tmp_path):
+    import time
+    older = tmp_path / "stage02.parquet"
+    older.write_text("y")
+    time.sleep(0.02)
+    out = tmp_path / "panel.parquet"
+    out.write_text("x")
+    from scripts.corpus_supervisor import is_stale
+    assert is_stale(str(out), [str(older)]) is False
+
+
+def test_a_missing_output_is_stale(tmp_path):
+    from scripts.corpus_supervisor import is_stale
+    src = tmp_path / "a"; src.write_text("y")
+    assert is_stale(str(tmp_path / "absent"), [str(src)]) is True
+
+
+def test_missing_inputs_do_not_make_a_job_stale(tmp_path):
+    """An input that does not exist yet is not evidence of staleness."""
+    from scripts.corpus_supervisor import is_stale
+    out = tmp_path / "panel.parquet"; out.write_text("x")
+    assert is_stale(str(out), [str(tmp_path / "nope")]) is False
+
+
+def test_a_stale_done_job_becomes_eligible_again(tmp_path):
+    """This is the fix: done must not mean done forever."""
+    import time
+    from scripts.corpus_supervisor import decide
+    out = tmp_path / "out.parquet"; out.write_text("x")
+    time.sleep(0.02)
+    src = tmp_path / "in.parquet"; src.write_text("y")
+    job = _job("panel", produces=str(out), stale_if_newer=[str(src)])
+    assert decide([job], state={"panel": "done"}, running=set(), cap=2) == ["panel"]
+
+
+def test_a_fresh_done_job_stays_done(tmp_path):
+    import time
+    from scripts.corpus_supervisor import decide
+    src = tmp_path / "in.parquet"; src.write_text("y")
+    time.sleep(0.02)
+    out = tmp_path / "out.parquet"; out.write_text("x")
+    job = _job("panel", produces=str(out), stale_if_newer=[str(src)])
+    assert decide([job], state={"panel": "done"}, running=set(), cap=2) == []

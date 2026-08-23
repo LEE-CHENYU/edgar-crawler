@@ -75,6 +75,36 @@ class Job:
     # will start a duplicate -- two downloaders against one rate-limited host is
     # how a cooldown becomes a ban.
     running_pattern: Optional[str] = None
+    # Inputs whose mtime, if NEWER than `produces`, means this job's output no
+    # longer reflects reality and "done" must expire. The panel sat 10 hours
+    # behind because panel_rebuild_auto was marked done while TWSE stage-02 grew
+    # by 10,000 rows underneath it.
+    stale_if_newer: List[str] = field(default_factory=list)
+
+
+def is_stale(produces: Optional[str], inputs: Sequence[str]) -> bool:
+    """True when any existing input is newer than the output.
+
+    A missing OUTPUT is stale (there is nothing to trust). A missing INPUT is
+    not evidence of staleness -- it simply has not been produced yet.
+    """
+    if not produces:
+        return False
+    out = Path(produces)
+    if not out.exists():
+        return True
+    try:
+        out_mtime = out.stat().st_mtime
+    except OSError:
+        return True
+    for src in inputs or []:
+        path = Path(src)
+        try:
+            if path.exists() and path.stat().st_mtime > out_mtime:
+                return True
+        except OSError:
+            continue
+    return False
 
 
 def pattern_is_running(pattern: Optional[str]) -> bool:
@@ -139,7 +169,10 @@ def decide(jobs: Sequence[Job], state: Dict[str, str], running: Set[str],
     for job in jobs:
         if slots <= 0:
             break
-        if job.id in running or state.get(job.id) in ("done", "running"):
+        if job.id in running or state.get(job.id) == "running":
+            continue
+        if state.get(job.id) == "done" and not (
+                job.stale_if_newer and is_stale(job.produces, job.stale_if_newer)):
             continue
         if pattern_is_running(job.running_pattern):
             continue
@@ -430,6 +463,25 @@ def build_jobs() -> List[Job]:
             produces=f"{D}/TWSE_FINANCIALS/canonical_metrics_wide.parquet",
             min_rows=15000, total=25978, unit="filings"),
 
+        # --- Europe: 27 markets that had raw and no structured data ---------
+        Job(id="esef_stage02", title="ESEF stage-02 (27 European markets)",
+            purpose="Parse 16,002 iXBRL packages. This was the binding "
+                    "constraint on screening coverage, not acquisition.",
+            command=[PY_, "scripts/esef_extract.py", "--workers", "6",
+                     "--log-every", "500"],
+            running_pattern="esef_extract",
+            produces="/Users/lichenyu/datasets/derived/ESEF_FINANCIALS/canonical_metrics_wide.parquet",
+            min_rows=10000, total=16002, unit="filings"),
+
+        Job(id="dart_stage02_resume", title="DART stage-02 (OpenDART API)",
+            purpose="Complete Korea's structured sweep: 9,193 of ~14,000 "
+                    "company-years done. Resume-safe; stops at OpenDART's "
+                    "20k/day call cap and continues the next run.",
+            command=[PY_, "dart_financials_sweep.py", "--workers", "4"],
+            running_pattern="dart_financials_sweep",
+            produces=f"{D}/DART_FINANCIALS/three_statement_parquet/canonical_metrics_wide.parquet",
+            min_rows=9000, total=14049, unit="company-years"),
+
         # --- downstream -----------------------------------------------------
         Job(id="screening_inputs_auto", title="Screening inputs (live FX)",
             purpose="Rebuild au/tw/ph/in screening inputs on live FX once both "
@@ -438,9 +490,24 @@ def build_jobs() -> List[Job]:
             needs=["asx_stage02_refresh", "twse_stage02_refresh"],
             total=4, unit="markets"),
         Job(id="panel_rebuild_auto", title="Panel rebuild",
-            purpose="Rebuild the panel once screening inputs are refreshed.",
+            purpose="Rebuild the panel whenever any stage-02 output is newer "
+                    "than the panel itself.",
             command=[PY_, "-m", "panel.build"],
-            needs=["screening_inputs_auto"], total=9, unit="markets"),
+            needs=["screening_inputs_auto"],
+            produces="/Users/lichenyu/datasets/panel/panel.parquet",
+            # "done" expires when any of these moves. Without it the panel sat
+            # 10 hours behind a refreshed TWSE stage-02 while the supervisor
+            # reported waiting: {}.
+            stale_if_newer=[
+                f"/Volumes/OWC Express 1M2/datasets/MARKET_FILINGS/derived/ASX_FINANCIALS/canonical_metrics_wide.parquet",
+                f"/Volumes/OWC Express 1M2/datasets/MARKET_FILINGS/derived/TWSE_FINANCIALS/canonical_metrics_wide.parquet",
+                f"/Volumes/OWC Express 1M2/datasets/MARKET_FILINGS/derived/IN_BSE_FINANCIALS/canonical_metrics_wide.parquet",
+                f"/Volumes/OWC Express 1M2/datasets/MARKET_FILINGS/derived/NORDIC_FINANCIALS/canonical_metrics_wide.parquet",
+                f"/Volumes/OWC Express 1M2/datasets/MARKET_FILINGS/derived/BR_CVM_FINANCIALS/canonical_metrics_wide.parquet",
+                f"/Volumes/OWC Express 1M2/datasets/MARKET_FILINGS/derived/PSE_FINANCIALS/canonical_metrics_wide.parquet",
+                "/Volumes/OWC Express 1M2/datasets/markets/uk/02_structured/esef/canonical_metrics_wide.parquet",
+            ],
+            total=43, unit="markets"),
     ]
 
 
