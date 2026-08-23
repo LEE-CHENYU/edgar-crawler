@@ -76,6 +76,12 @@ MARKET_SOURCES: Dict[str, dict] = {
     # currency and (eventually) universe hash. See panel/adapters/nordic.py.
     "nordic": {"kind": "nordic", "currency": None,
                "path": DATA_ROOT / "MARKET_FILINGS/derived/NORDIC_FINANCIALS/canonical_metrics_wide.parquet"},
+    # Brazil and ESEF are the only sources that need NOTHING inferred: both
+    # ship a real period end, per-filing currency and an explicit unit scale.
+    "br": {"kind": "brazil", "currency": "BRL",
+           "path": DATA_ROOT / "MARKET_FILINGS/derived/BR_CVM_FINANCIALS/canonical_metrics_wide.parquet"},
+    "esef": {"kind": "esef", "currency": None,
+             "path": DATA_ROOT / "markets"},
     "in_bse": {"kind": "canonical", "currency": "INR",
                "path": DATA_ROOT / "MARKET_FILINGS/derived/IN_BSE_FINANCIALS/canonical_metrics_wide.parquet"},
     "hk": {"kind": "hk", "currency": "HKD",
@@ -303,6 +309,23 @@ def load_market(market: str, limit: int = 0,
         return rows_from_canonical_metrics(
             df, market, currency, drops=drops, source_artifact=str(path),
         )
+    if kind == "brazil":
+        from panel.adapters.brazil import rows_from_brazil
+        df = pd.read_parquet(path)
+        meta["source_rows"] = len(df)
+        return rows_from_brazil(df, drops=drops, source_artifact=str(path))
+    if kind == "esef":
+        # One parquet per country under markets/<cc>/02_structured/esef/.
+        from panel.adapters.esef import rows_from_esef
+        frames = sorted(Path(path).glob("*/02_structured/esef/canonical_metrics_wide.parquet"))
+        rows: List[dict] = []
+        total = 0
+        for f in frames:
+            sub = pd.read_parquet(f)
+            total += len(sub)
+            rows.extend(rows_from_esef(sub, drops=drops, source_artifact=str(f)))
+        meta["source_rows"] = total
+        return rows
     if kind == "nordic":
         from panel.adapters.nordic import rows_from_nordic
         df = pd.read_parquet(path)

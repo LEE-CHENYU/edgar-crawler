@@ -64,6 +64,20 @@ EXCH_CODES = {
     "lt": "LH",   # Nasdaq Vilnius
 }
 
+# Markets whose local_id is NOT a ticker, so OpenFIGI's ticker+exchCode mapping
+# cannot resolve them and every row legitimately gets a surrogate key:
+#   esef (27 countries) -- identity is the LEI
+#   br                  -- identity is the CVM registration code
+# Submitting a LEI as a ticker returns silence, and a resolution rate computed
+# over identifiers that were never resolvable is how "17,801 resolved" turned
+# out to be 0 of 767,541.
+ESEF_MARKETS = frozenset(f"esef_{c}" for c in (
+    "at", "be", "cy", "cz", "dk", "ee", "es", "fi", "fr", "gr", "hr", "hu",
+    "is", "it", "lt", "lu", "lv", "mt", "nl", "no", "pl", "pt", "ro", "se",
+    "si", "sk", "uk",
+))
+SURROGATE_KEYED_MARKETS = frozenset({"br"}) | ESEF_MARKETS
+
 Key = Tuple[str, str]
 
 

@@ -121,3 +121,31 @@ def test_the_balance_sheet_identity_alias_is_deliberately_absent():
     tagged ifrs-full:Assets. Recorded so it is not re-added on a hunch."""
     from scripts.esef_extract import canonical_metric
     assert canonical_metric("ifrs-full:EquityAndLiabilities") is None
+
+
+# --- canonical layout ----------------------------------------------------
+
+
+def test_market_dir_comes_from_the_path_not_the_iso_subdir():
+    """The corpus stores the UK under markets/uk/ while the ESEF ISO subdir
+    says GB: markets/uk/01_raw/.../xbrl_org/GB/... Deriving the market from the
+    ISO code writes esef_gb and leaves markets/uk/02_structured empty forever."""
+    from scripts.esef_extract import market_dir_from_path
+    p = "/Volumes/X/datasets/markets/uk/01_raw/europe_annual_reports/xbrl_org/GB/LEI/2020-12-31/x.zip"
+    assert market_dir_from_path(p) == "uk"
+    p2 = "/Volumes/X/datasets/markets/at/01_raw/europe_annual_reports/xbrl_org/AT/LEI/2020-12-31/x.zip"
+    assert market_dir_from_path(p2) == "at"
+
+
+def test_an_unrecognisable_path_returns_none_rather_than_guessing():
+    from scripts.esef_extract import market_dir_from_path
+    assert market_dir_from_path("/tmp/somewhere/else.zip") is None
+
+
+def test_canonical_output_path_follows_the_documented_layout():
+    """CLAUDE.md's canonical layout is markets/{cc}/02_structured/. Writing only
+    a combined file under derived/ leaves all 27 European markets showing 0
+    bytes in the layout the inventory treats as authoritative."""
+    from scripts.esef_extract import canonical_out_path
+    got = canonical_out_path("uk", root="/Volumes/X/datasets/markets")
+    assert got.endswith("markets/uk/02_structured/esef/canonical_metrics_wide.parquet")

@@ -333,10 +333,27 @@ def test_nordic_markets_have_their_own_exchange_codes():
         assert EXCH_CODES[market] == code, market
 
 
-def test_every_panel_market_has_an_exchange_code():
+def test_every_ticker_keyed_market_has_an_exchange_code():
+    """Only markets whose local_id is a TICKER need an exchange code.
+
+    ESEF is keyed by LEI and Brazil by CVM registration code -- neither is an
+    identifier OpenFIGI's ticker+exchCode mapping accepts, so those rows resolve
+    to surrogate keys by design. Inventing an exchange code for them would
+    submit a LEI as a ticker and get silence back, which is how "17,801
+    resolved" turned out to be 0."""
     from panel.build import MARKET_SOURCES
-    from panel.spine import EXCH_CODES
-    # nordic is a corpus key that fans out into per-country markets
-    expected = {m for m in MARKET_SOURCES if m != "nordic"}
+    from panel.spine import EXCH_CODES, SURROGATE_KEYED_MARKETS
+    fans_out = {"nordic", "esef"}
+    expected = {m for m in MARKET_SOURCES if m not in fans_out}
     expected |= {"no", "se", "dk", "fi", "is", "ee", "lv", "lt"}
+    expected -= SURROGATE_KEYED_MARKETS
     assert expected <= set(EXCH_CODES), sorted(expected - set(EXCH_CODES))
+
+
+def test_lei_and_regulator_id_markets_are_declared_surrogate_keyed():
+    from panel.spine import SURROGATE_KEYED_MARKETS
+    assert "br" in SURROGATE_KEYED_MARKETS          # CVM code, not a ticker
+    assert "esef_uk" in SURROGATE_KEYED_MARKETS     # LEI
+    # the ticker-keyed Nordic markets must NOT be swept in
+    assert "se" not in SURROGATE_KEYED_MARKETS
+    assert len(SURROGATE_KEYED_MARKETS) >= 28       # br + 27 ESEF countries
