@@ -34,6 +34,10 @@ import pandas as pd
 
 from panel.schema import METRIC_COLUMNS, period_type_for, to_number
 
+import re
+
+_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
 
 def rows_from_esef(df: pd.DataFrame, drops: Optional[Counter] = None,
                    source_artifact: Optional[str] = None) -> List[dict]:
@@ -53,7 +57,12 @@ def rows_from_esef(df: pd.DataFrame, drops: Optional[Counter] = None,
         if not rec.get("n_metrics"):
             drops["no_metrics"] += 1
             continue
-        period_end = str(period_end)[:10]
+        # Strip BEFORE slicing: iXBRL dates can carry pretty-printed
+        # whitespace, and slicing the unstripped value fed '\n   ' to int().
+        period_end = str(period_end).strip()[:10]
+        if not _DATE.match(period_end):
+            drops["unparseable_period_end"] += 1
+            continue
         country = str(rec.get("market") or "").strip().lower()
         # Namespaced: Sweden/Denmark/Norway/Finland etc. also appear in the
         # Nasdaq Nordic corpus with TICKER identifiers and real exchange codes.

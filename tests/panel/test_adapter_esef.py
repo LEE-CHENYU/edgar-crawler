@@ -112,3 +112,21 @@ def test_esef_markets_are_namespaced_to_avoid_colliding_with_nordic():
     assert rows[0]["market"] == "esef_se"
     rows = rows_from_esef(_frame(market="uk"))
     assert rows[0]["market"] == "esef_uk"
+
+
+def test_a_period_end_with_surrounding_whitespace_is_parsed(tmp_path):
+    """iXBRL contexts sometimes carry pretty-printed whitespace inside the date
+    element. The guard stripped before the emptiness check but sliced the
+    UNSTRIPPED value, so int(period_end[:4]) hit '\\n   ' and killed the whole
+    27-market load with one bad row."""
+    rows = rows_from_esef(_frame(period_end="\n   2025-09-30\n  "))
+    assert rows[0]["period_end"] == "2025-09-30"
+    assert rows[0]["fiscal_year"] == 2025
+
+
+def test_a_malformed_period_end_drops_the_row_not_the_market():
+    """One unparseable date must not abort a 15,652-row load."""
+    from collections import Counter
+    drops = Counter()
+    assert rows_from_esef(_frame(period_end="not-a-date"), drops=drops) == []
+    assert drops["unparseable_period_end"] == 1
