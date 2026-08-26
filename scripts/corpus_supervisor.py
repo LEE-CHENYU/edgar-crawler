@@ -169,7 +169,11 @@ def decide(jobs: Sequence[Job], state: Dict[str, str], running: Set[str],
     for job in jobs:
         if slots <= 0:
             break
-        if job.id in running or state.get(job.id) == "running":
+        # `running` is pid-checked; the tracker's status STRING is not. A job
+        # whose process died leaves status="running" forever, and trusting it
+        # blocked panel_rebuild_auto from Saturday to Tuesday while the
+        # supervisor reported every job satisfied.
+        if job.id in running:
             continue
         if state.get(job.id) == "done" and not (
                 job.stale_if_newer and is_stale(job.produces, job.stale_if_newer)):

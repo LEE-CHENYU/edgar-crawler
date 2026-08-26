@@ -370,3 +370,20 @@ def test_a_raw_directory_can_trigger_staleness(tmp_path):
     time.sleep(0.02)
     raw = tmp_path / "raw"; raw.mkdir()
     assert is_stale(str(out), [str(raw)]) is True
+
+
+def test_a_stale_running_entry_does_not_block_forever():
+    """decide() trusted the tracker's "running" STRING while live_jobs()
+    checked pid liveness -- so a job whose process died left an entry that
+    blocked its own re-election permanently. panel_rebuild_auto sat like this
+    from Saturday's SIGTERM until Tuesday, with the supervisor reporting all
+    jobs satisfied. Liveness is decided by `running`, which is already
+    pid-checked; the raw status string must not veto on its own."""
+    jobs = [_job("panel")]
+    # tracker says running, but the id is NOT in the live set
+    assert decide(jobs, state={"panel": "running"}, running=set(), cap=2) == ["panel"]
+
+
+def test_a_genuinely_running_job_is_still_skipped():
+    jobs = [_job("panel")]
+    assert decide(jobs, state={"panel": "running"}, running={"panel"}, cap=2) == []
