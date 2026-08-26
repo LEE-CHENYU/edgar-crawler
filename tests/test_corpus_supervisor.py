@@ -357,3 +357,16 @@ def test_a_fresh_done_job_stays_done(tmp_path):
     out = tmp_path / "out.parquet"; out.write_text("x")
     job = _job("panel", produces=str(out), stale_if_newer=[str(src)])
     assert decide([job], state={"panel": "done"}, running=set(), cap=2) == []
+
+
+def test_a_raw_directory_can_trigger_staleness(tmp_path):
+    """TWSE had 379 documents acquired-but-unswept while nothing looked stale:
+    is_stale compared PARQUET mtimes, but the new input was raw PDFs, so the
+    stage-02 output was never flagged. A raw directory must be usable as a
+    staleness input -- adding a filing changes the tree's mtime."""
+    import time
+    from scripts.corpus_supervisor import is_stale
+    out = tmp_path / "stage02.parquet"; out.write_text("x")
+    time.sleep(0.02)
+    raw = tmp_path / "raw"; raw.mkdir()
+    assert is_stale(str(out), [str(raw)]) is True

@@ -454,6 +454,7 @@ def build_jobs() -> List[Job]:
                      "--workers", "6", "--log-every", "500"],
             needs=["rescue_asx"],
             produces=f"{D}/ASX_FINANCIALS/canonical_metrics_wide.parquet",
+            stale_if_newer=["/Volumes/OWC Express 1M2/datasets/MARKET_FILINGS/raw/ASX"],
             min_rows=27000, total=28202, unit="filings"),
         Job(id="twse_stage02_refresh", title="TWSE stage-02 refresh",
             purpose="Re-sweep TWSE after the rescue adds up to 3,228 documents.",
@@ -461,6 +462,10 @@ def build_jobs() -> List[Job]:
                      "--workers", "6", "--log-every", "500"],
             needs=["rescue_twse"],
             produces=f"{D}/TWSE_FINANCIALS/canonical_metrics_wide.parquet",
+            # The RAW tree is a staleness input, not just the parquet: 379 TWSE
+            # documents sat acquired-but-unswept because a parquet-only check
+            # sees nothing when new PDFs land.
+            stale_if_newer=["/Volumes/OWC Express 1M2/datasets/MARKET_FILINGS/raw/TWSE_REPORTS"],
             min_rows=15000, total=25978, unit="filings"),
 
         # --- Europe: 27 markets that had raw and no structured data ---------
