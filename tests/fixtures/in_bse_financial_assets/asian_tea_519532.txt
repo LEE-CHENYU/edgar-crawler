@@ -1,0 +1,132 @@
+BALANCE SHEET AS AT 31ST MARCH, 2025
+                                               [All amounts in Rs. in thousands unless otherwise stated]
+
+                                                   Notes         As at 31st           As at 31st
+ Particulars
+                                                                March, 2025          March, 2024
+ ASSETS
+ Non- Current assets
+ (a) Property, Plant and Equipment                     2                   904                1,234
+ (b) Investment in Subsidiary and Associates           3              1,42,279             1,42,279
+ (c) Financial Assets
+       Investments                                     4                58,641               58,475
+ (d) Deferred Tax Assets (Net)                         5                   462                  497
+ (e) Other Non-Current Assets                          6                12,513               12,385
+ Total Non-Current Assets                                             2,14,799             2,14,869
+
+ Current Assets
+ (a) Inventories                                      7               1,00,386               14,999
+ (b) Financial Assets
+      (i) Trade Receivables                           8               2,03,977             1,45,088
+      (ii) Cash & Cash Equivalents                    9                  1,219                1,002
+      (iii) Other Bank Balances                      10                    486                  455
+      (iv) Loans                                     11               1,01,866             1,43,181
+      (v) Other Financial Assets                     12                  3,088                2,812
+ (c) Current Tax Assets (Net)                        13                  2,696                6,561
+ (d) Other Current Assets                            14                 88,794             1,03,206
+ Total Current Assets                                                 5,02,512             4,17,305
+
+ TOTAL ASSETS                                                         7,17,311             6,32,174
+
+ EQUITY AND LIABILITIES
+ Equity
+ Equity Share Capital                                15               2,49,418             2,00,000
+ Other Equity                                        16               2,90,643             2,44,264
+ Total Equity                                                         5,40,061             4,44,264
+
+ Liabilities
+ Non- current Liabilities
+ (a) Financial Liabilities
+       (i) Borrowings                                 17                 9,878               19,575
+ (b) Employee Benefit Obligations                     18                   861                  778
+ Total Non- current Liabilities                                         10,738               20,354
+
+
+
+
+Page | 90
+
+                                                                Notes          As at 31st        As at 31st
+ Particulars
+                                                                              March, 2025      March, 2024
+
+ Current Liabilities
+ (a) Financial Liabilities
+        Borrowings                                                   19           1,19,807        1,49,049
+        Trade Payables                                               20             32,697             721
+        Other Financial Liabilities                                  21             10,126          13,963
+ (b) Other Current Liabilities                                       22              1,941           1,884
+ (c) Employee Benefit Obligations                                    23              1,941           1,939
+ Total Current Liabilities                                                        1,66,512        1,67,557
+ TOTAL LIABILITIES                                                                1,77,250        1,87,911
+
+
+ TOTAL EQUITY AND LIABILITIES                                                     7,17,311        6,32,174
+
+
+This is the Balance Sheet referred to in our report of even date.
+The above statement of Balance Sheet should be read in conjunction with the accompanying
+notes.
+Summary of significant accounting policies 1
+Notes to Financial Statement               2-56
+The accompanying notes are integral Part of the Financial Statements
+
+
+                                                                          For & on behalf of the Board
+
+ For Agarwal Kejriwal & Co.
+ Chartered Accountants
+ Firm Registration No. 316112E
+
+
+ Sd/-                                                                          Sd/-                      Sd/-
+ (M. Agarwal)                                                       (Hariram Garg)             (Sunil Garg)
+ Partner                                                     Managing Director                     Director
+ Membership No. : 052474                                            DIN: 00216053            DIN: 00216155
+ UDIN: 25052474BMTENS9942
+                                                                               Sd/-                      Sd/-
+                                                                     (Rajesh Garg)            (Anjali Shaw)
+ Place: Kolkata                                           Chief Financial Officer      Company Secretory
+ Date: 29/05/2025                                                                         M. No. A48857
+
+
+
+Page | 91
+
+STATEMENT OF PROFIT AND LOSS FOR THE PERIOD ENDED 31ST MARCH, 2025
+                                                             [All amounts in Rs. in thousands unless otherwise stated]
+                                                                         Year ended 31st            Year ended
+ Particulars                                                   Notes
+                                                                            March 25               31st March 24
+ Income:
+ Revenue from operations                                        24                5,09,176                3,43,077
+ Other Income                                                   25                  16,459                  26,886
+ Total Income                                                                     5,25,635                3,69,963
+
+ Expenses:
+ Purchases of stock in trade                                    26                5,78,661                3,01,821
+ Changes in inventories of finished goods                       27                (85,387)                  32,029
+ Employee benefits expense                                      28                   2,903                   3,054
+ Finance Costs                                                  29                  16,786                  15,909
+ Depreciation and Amortization Expense                          30                     330                     633
+ Other expenses                                                 31                   9,503                  13,535
+ Total Expenses                                                                   5,22,796                3,66,981
+
+
+ Profit before tax                                                                    2,840                   2,981
+ Income Tax Expense
+ (1) Current Tax                                                                         716                       -
+ (2) Deferred Tax                                                                         (4)                    120
+ (3) Taxes for Earlier Years                                                             339                       -
+ Total Tax Expense                                                                    1,051                     120
+ Profit for the year                                                                  1,788                   2,861
+ Other Comprehensive Income
+ Items that will not be reclassified to profit or loss
+    Re measurements of net defined benefit plans                                         153                    192
+    Income tax relating to above items                                                   (39)                   (48)
+ Other Comprehensive Income for the year, net of tax                                    115                     144
+ Total Comprehensive Income for the year                                              1,903                   3,005
+ Earning per equity share (Face Value of Rs.10 each)            32
+ (1) Basic                                                                              0.09                    0.14
+ (2) Diluted                                                                            0.09                    0.14
+

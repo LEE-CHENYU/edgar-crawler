@@ -1,0 +1,133 @@
+STANDALONE BALANCE SHEET
+                                         PIX TRANSMISSIONS LIMITED
+                                STANDALONE BALANCE SHEET AS ON 31 March, 2026
+                                                                                                           (Amount in lacs `)
+                                                                                  As at 31st               As at 31st
+          Particulars                                               Note         March, 2026              March, 2025
+         ASSETS
+         NON CURRENT ASSETS
+         (a) Property, Plant & Equipment                             3 (a)           26,563.37                26,194.62
+         (b) Capital Work in Progress                                3 (b)              343.94                   165.06
+         (c) Right-of-use-Asset                                      3 (c)               99.75                   101.63
+         (d) Other Intangible Assets                                   4                117.88                   241.58
+         (e) Financial Assets
+             (i) Investments                                           5                105.76                  105.76
+             (ii) Other Financial Assets                               6                446.86                  517.99
+         (g) Other Non Current assets                                  7                 57.99                  499.49
+                           TOTAL NON CURRENT ASSETS                                  27,735.55               27,826.13
+         CURRENT ASSETS
+         (a) Inventories                                               8              8,326.16                10,172.35
+         (b) Financial Assets
+             (i) Investments                                          9              19,957.39               12,783.91
+             (ii) Trade Receivables                                   10             12,343.26               11,024.00
+             (iii) Cash & Cash equivalents                            11              6,776.30                3,873.52
+             (iv) Bank balances other than (iii) above                12                713.18                1,701.62
+             (v) Loans                                                13                  4.16                   24.53
+             (vi) Other Financial Assets                              14                111.29                  266.69
+         (c) Other Current Assets                                     15                508.07                  916.34
+                           TOTAL CURRENT ASSETS                                      48,739.81               40,762.98
+                           TOTAL ASSETS                                              76,475.36               68,589.11
+         EQUITY AND LIABILITIES
+         Equity Share Capital                                         16              1,362.41                1,362.41
+         Other Equity                                                 17             62,238.65               54,152.08
+                           TOTAL EQUITY                                              63,601.06               55,514.49
+         LIABILITIES
+         Non-current liabilities
+         (a) Financial liabilities
+             (i) Borrowings                                           18              1,807.90                 2,354.20
+         (b) Provisions                                               19              2,796.72                 3,326.38
+         (c) Deferred Tax Liabilities(net)                            20                653.68                   910.48
+                           TOTAL NON CURRENT LIABILITIES                              5,258.30                 6,591.06
+         Current liabilities
+         (a) Financial liabilities                                                       614.73                1,183.75
+             (i) Borrowings                                           21
+             (ii) Trade Payables                                      22
+                  (a) total outstanding dues of micro and                                763.48                   415.76
+                      small enterprises
+                  (b) total outstanding dues other than (iii)                         1,696.33                 2,134.90
+                      (a) above
+             (iii) Other Financial liabilities                        23              1,057.73                1,115.07
+         (b) Other Current Liabilities                                24                590.76                  222.04
+         (c) Provisions                                               25              2,368.28                1,270.72
+         (d) Current tax liabilities (net)                                              524.69                  141.31
+                      TOTAL CURRENT LIABILITIES                                       7,616.00                6,483.55
+                      TOTAL EQUITY & LIABILITIES                                     76,475.36               68,589.11
+         MATERIAL ACCOUNTING POLICIES, KEY                             2
+         ACCOUNTING ESTIMATES AND JUDGEMENTS
+            The accompanying notes 1 to 46 are an integral part of these standalone financial statements
+       As per our report of even date                    For and on behalf of the Board of Directors of PIX Transmissions Limited
+       FOR S G C O & Co. LLP                             CIN: L25192MH1981PLC024837
+       CHARTERED ACCOUNTANTS
+       Firm Registration No : 112081W/W100184            AMARPAL SETHI                                        SONEPAL SETHI
+                                                         CHAIRMAN & MANAGING DIRECTOR               JOINT MANAGING DIRECTOR
+       SURESH MURARKA                                    DIN: 00129462                                         DIN: 00129276
+       PARTNER
+                                                         RISHIPAL SETHI                                     KARANPAL SETHI
+       MEMBERSHIP NO: 044739                             JOINT MANAGING DIRECTOR                  WHOLE TIME DIRECTOR & CFO
+       PLACE: MUMBAI                                     DIN: 00129304                                         DIN: 01711384
+       DATE : MAY 22, 2026
+                                                         SHYBU VARGHESE
+                                                         COMPANY SECRETARY
+                                                         MEMBERSHIP NO. A15504
+
+                                                                                                                                    110
+ Annual Report 2025-26 I PIX TRANSMISSIONS LIMITED
+
+ STANDALONE PROFIT & LOSS STATEMENT (Contd.)
+
+                               PIX TRANSMISSIONS LIMITED
+         STANDALONE STATEMENT OF PROFIT AND LOSS FOR THE YEAR ENDED 31 March, 2026
+                                                                                                                  (Amount in lacs `)
+                                                                          For the year ended For the year ended
+  Particulars                                                        Note   31 March, 2026     31 March, 2025
+  Revenue from operations                                              26            53,016.34                   55,564.77
+  Other income                                                         27             1,842.54                    1,416.74
+                          Total Income                                               54,858.88                   56,981.51
+  Cost of Materials Consumed                                           28            16,999.70                   19,648.54
+  Purchases of Stock-in-Trade                                                         1,725.19                    1,676.25
+  Changes in inventories of finished goods, work-in                    29             1,285.55                    (279.22)
+  progress and stock -in- trade
+  Employee benefits expense                                            30             8,415.74                    7,822.84
+  Finance costs                                                        31               305.20                      360.57
+  Depreciation and amortization expenses                               32             2,283.96                    2,306.11
+  Other expenses                                                       33            11,375.74                   11,282.92
+                          Total Expenses                                             42,391.08                   42,818.01
+  Profit before tax                                                                  12,467.80                   14,163.50
+  Tax expenses
+   a) Current Tax                                                                      3,551.42                   3,623.92
+   b) Deferred Tax                                                                     (291.95)                       2.61
+   c) Prior Year Tax                                                                          -                          -
+                          Total Tax Expenses                                           3,259.47                   3,626.53
+  Profit for the year                                                                  9,208.33                  10,536.97
+  Other comprehensive income / (expense)
+  (i) Items that will not be reclassified to profit or loss                              139.68                     (60.60)
+       Remeasurement of the defined benefit plans
+  (ii) Tax on above                                                                      (35.16)                      15.25
+  Other Comprehensive Income / (Expense) for the year,                                   104.52                     (45.35)
+  net of taxes
+                  Total comprehensive income for the year                              9,312.85                  10,491.62
+  Earning per share of par value of `10 each
+  Basic and Diluted (in `)                                             42                  67.58                      77.33
+  MATERIAL ACCOUNTING POLICIES, KEY ACCOUNTING                         2
+  ESTIMATES AND JUDGEMENTS
+                      The accompanying notes 1 to 46 are an integral part of these financial statements
+As per our report of even date                               For and on behalf of the Board of Directors of PIX Transmissions Limited
+FOR S G C O & Co. LLP                                        CIN: L25192MH1981PLC024837
+CHARTERED ACCOUNTANTS
+Firm Registration No : 112081W/W100184                       AMARPAL SETHI                                        SONEPAL SETHI
+                                                             CHAIRMAN & MANAGING DIRECTOR               JOINT MANAGING DIRECTOR
+SURESH MURARKA                                               DIN: 00129462                                         DIN: 00129276
+PARTNER
+MEMBERSHIP NO: 044739                                        RISHIPAL SETHI                                     KARANPAL SETHI
+                                                             JOINT MANAGING DIRECTOR                  WHOLE TIME DIRECTOR & CFO
+PLACE: MUMBAI                                                DIN: 00129304                                         DIN: 01711384
+DATE : MAY 22, 2026
+                                                             SHYBU VARGHESE
+                                                             COMPANY SECRETARY
+                                                             MEMBERSHIP NO. A15504
+
+
+
+
+                                                                                                                                 111
+   Annual Report 2025-26 I PIX TRANSMISSIONS LIMITED

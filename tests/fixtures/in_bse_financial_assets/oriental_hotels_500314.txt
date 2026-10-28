@@ -1,0 +1,75 @@
+BALANCE SHEET                                                                                                                           PROFIT AND LOSS STATEMENT
+Standalone Balance Sheet as at March 31, 2026                                                                                ` Lakhs    Standalone Statement of Profit and Loss for the year ended March 31, 2026                                                        ` Lakhs
+                                                                                          As at                    As at                                                                                                            Year ended               Year ended
+Particulars                                                           Note                                                               Particulars                                                              Note
+                                                                                      March 31, 2026           March 31, 2025                                                                                                      March 31, 2026           March 31, 2025
+ASSETS                                                                                                                                   INCOME
+Non-current Assets
+Property, Plant and Equipment                                         3                         42,995.30               43,104.93        Revenue from Operations                                                  23                        49,143.94                43,762.24
+Right of Use Assets                                                   4                          4,766.85                4,939.23
+Capital work-in-progress                                              5                            129.88                  139.89        Other Income                                                             24                            922.35                    701.04
+Other Intangible Assets                                               6                             65.52                   83.01        Total                                                                                              50,066.29                44,463.28
+                                                                                                47,957.55               48,267.06
+Financial Assets                                                                                                                         EXPENSES
+   Investments                                                        7                         11,947.99               12,167.47
+   Other financial assets                                             8(a)                       1,069.14                  527.53        Food and Beverages Consumed                                              25                          4,876.19                   4,408.65
+Deferred Tax Assets (Net)                                             9                            643.98                  752.91        Employee Benefits Expense and Payment to Contractors                     26                        10,691.21                    9,849.34
+Income Tax Asset (Net)                                                31(iv)                       573.56                  997.96
+Other non current assets                                              10(a)                        607.21                  874.60        Finance Costs                                                            27                          1,360.40                   1,701.38
+                                                                                                62,799.43               63,587.53
+Current Assets                                                                                                                           Depreciation and Amortisation                                            3, 4 & 6                    3,446.64                   3,313.17
+Inventories                                                           12                         1,116.91                    1,147.07
+                                                                                                                                         Other Operating and General Expenses                                     28                        20,517.12                18,646.18
+Financial Assets
+   Trade Receivables                                                  13                         2,800.34                 2,182.02       Total                                                                                              40,891.56                37,918.72
+   Cash and Cash Equivalents                                          14                           709.42                   373.56
+   Bank Balances other than Cash and Cash Equivalents                 15                           436.23                   360.60
+   Other financial assets                                             8(b)                         769.32                 1,071.12       Profit/(Loss) before exceptional items and tax                                                       9,174.73                   6,544.56
+Other current assets                                                  10(b)                      1,346.18                 1,598.62
+                                                                                                                                         Exceptional Items                                                        30                             79.87                          -
+                                                                                                 7,178.40                 6,732.99
+Total                                                                                           69,977.83                70,320.52       Profit/(Loss) Before Tax                                                                             9,094.86                   6,544.56
+EQUITY AND LIABILITIES
+Equity                                                                                                                                   TAX EXPENSE                                                              31
+Equity Share capital                                                  16                         1,785.99                1,785.99
+                                                                                                                                         Current Tax                                                                                          1,636.47                   1,149.26
+Other Equity                                                          17                        46,259.85               41,730.98
+Total Equity                                                                                    48,045.84               43,516.97        Deferred Tax                                                                                           381.84                    943.13
+Non-current Liabilities
+Financial Liabilities                                                                                                                    Total                                                                                                2,018.31                   2,092.39
+   Borrowings                                                         18(a)                      3,742.48                6,089.29        Profit/(Loss) for the year                                                                           7,076.55                   4,452.17
+   Lease Liabilities                                                                             3,406.84                3,362.30
+   Other financial Liabilities                                        19(a)                        218.53                  214.02        Other comprehensive income, net of tax
+Provisions                                                            22(a)                        584.47                  627.21        Items that will not be reclassified subsequently to profit and loss
+Other non-current Liabilities                                         21(a)                             -                  113.00
+                                                                                                 7,952.32               10,405.82        Remeasurements of defined benefit plans                                                              (230.15)                     14.71
+Current Liabilities
+                                                                                                                                         Change in fair value of equity instruments designated irrevocably as                               (1,777.86)                   1,572.02
+Financial Liabilities
+   Borrowings                                                         18(b)                      5,909.23                    8,858.37    FVTOCI
+   Trade Payables
+                                                                                                                                         Less : Income tax                                                                                      353.33                   (353.28)
+      - Total outstanding dues of Micro Enterprises and Small         20(i)                        522.57                     270.09
+   Enterprises                                                                                                                           TOTAL                                                                                              (1,654.68)                   1,233.45
+      - Total outstanding dues of Creditors other than Micro          20(ii)&(iii)               3,068.41                    3,270.30
+   enterprises and Small Enterprises                                                                                                     Total comprehensive income for the year                                                              5,421.87                   5,685.62
+   Other financial Liabilities                                        19(b)                      2,108.30                2,267.00        Earnings per equity share:
+Other current liabilities                                             21(b)                      1,655.39                1,286.01
+Provisions                                                            22(b)                        715.77                  445.96        Basic & Diluted (Face value ` 1/- per share)                             32                              3.96                       2.49
+                                                                                                13,979.67               16,397.73        Material Accounting Policies                                               2
+Total                                                                                           69,977.83               70,320.52
+Material Accounting Policies                                   2                                                                         The accompanying notes forms an integral part of Standalone financial statements
+The accompanying notes forms an integral part of Standalone financial statements
+As per our Report of even date attached             For and on behalf of the Board of Directors of Oriental Hotels Limited              As per our Report of even date attached                 For and on behalf of the Board of Directors of Oriental Hotels Limited
+For PKF Sridhar & Santhanam LLP                     Pramod Ranjan                                 Harish Lakshman                       For PKF Sridhar & Santhanam LLP                         Pramod Ranjan                                 Harish Lakshman
+Chartered Accountants                               Managing Director & CEO                       Director                              Chartered Accountants                                   Managing Director & CEO                       Director
+Firm Registration No 003990S/S200018                DIN: 00887569                                 DIN:00012602                          Firm Registration No 003990S/S200018                    DIN: 00887569                                 DIN:00012602
+V Kothandaraman       Paras Puri                                                                 S Akila                                V Kothandaraman       Paras Puri                                                                     S Akila
+Partner		             Chief Financial Officer                                                    Company Secretary                      Partner		             Chief Financial Officer                                                        Company Secretary
+Membership No.025973		                                                                           M.No : A15861                          Membership No.025973		                                                                               M.No : A15861
+Place : Alibag                                                                                                                          Place : Alibag
+Date : May 04, 2026                                                                                                                     Date : May 04, 2026
+
+142        Annual Report 2025-26                                                                                                                                                                                                           Annual Report 2025-26              143
+
+Financial Statements                                                                                                                                                                                                       ORIENTAL HOTELS LIMITED

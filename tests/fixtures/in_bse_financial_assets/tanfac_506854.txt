@@ -1,0 +1,84 @@
+Balance Sheet                                                                                                                                              Statement of Profit and Loss
+As at 31 March 2025
+              st
+                                                                                                                                                           For the period ended 31st March 2025
+                                                                                                                                        (₹ in Lakhs)                                                                                                                                           (₹ in Lakhs)
+Particulars                                                                                Note          As at 31-Mar-2025         As at 31-Mar-2024       Particulars                                                                            Note             31-Mar-2025               31-Mar-2024
+ASSETS
+                                                                                                                                                           INCOME
+1) Non-Current Assets
+      a) Property, Plant and Equipment                                                      2                       16,778.52                 6,064.08     Revenue from Operations                                                                 20                 55,698.07                   37,814.50
+      b) Capital Work in Progress                                                           2                         839.54                   2,910.12    Other Income                                                                            21                       295.70                   707.93
+      c) Financial Assets
+                                                                                                                                                           Total Income (A)                                                                                           55,993.77                  38,522.43
+          i) Investments                                                                    3                          157.15                   144.82
+          ii) Other Financial Assets                                                        4                           15.37                     10.31    EXPENDITURE
+      d) Other Non-Current Assets                                                           5                          211.60                   838.41
+                                                                                                                                                           Cost of Materials Consumed                                                              22                 30,759.94                  22,044.48
+Total Non-Current Assets (A)                                                                                       18,002.18                  9,967.74
+2) Current Assets                                                                                                                                          Changes in inventories of Finished goods, Stock in Trade and Work in                    23                      (237.52)                  36.63
+                                                                                                                                                           Progress
+      a) Inventories                                                                        6                       9,015.95                  5,870.61
+      b) Financial Assets                                                                                                                                  Employee Benefit Expenses                                                               24                     2,291.45                2,032.82
+          i) Investments                                                                     7                        698.93                  6,516.92     Finance cost                                                                            25                       259.76                    73.03
+          ii) Trade Receivables                                                             8                        9,926.11                  6,112.33
+                                                                                                                                                           Depreciation/Amortization and Impairment Expenses                                        2                      1,046.27                 700.42
+          iii) Cash & Cash Equivalents                                                      9A                       3,011.80                    712.27
+          iv) Bank balances other than (iii) above                                          9B                        775.43                    218.75     Power and Fuel                                                                          26                     3,833.27                 1,995.30
+          vi) Other Financial Assets                                                        10                          0.76                      0.76
+                                                                                                                                                           Other Expenses                                                                          27                      6,164.53                4,633.77
+      c) Current Tax Assets                                                                 11                         123.18                    80.00
+      d) Other Current Assets                                                               11                      1,086.80                    621.63
+                                                                                                                                                           Total Expenses (B)                                                                                             44,117.70              31,516.45
+Total Current Assets (B)                                                                                           24,638.96                 20,133.27     Profit Before Tax (C = A-B)                                                                                11,876.07                   7,005.98
+Total Assets (A+B)                                                                                                 42,641.14                 30,101.01
+                                                                                                                                                           Tax Expense
+EQUITY & LIABILITIES
+Equity                                                                                                                                                     i)    Current Tax                                                                                               2,927.31                1,723.91
+      a) Equity Share Capital                                                               12                        997.50                    997.50     ii)   Deferred Tax                                                                                               134.05                    34.04
+      b) Other Equity                                                                       13                      30,199.91                22,047.01
+                                                                                                                                                           Profit for the Year (D)                                                                                        8,814.71                5,248.03
+Total Equity (C)                                                                                                    31,197.41               23,044.51
+Liabilities                                                                                                                                                Other Comprehensive Income (OCI)
+1)    Non-Current Liabilities                                                                                                                              (i) Items that will not be reclassified to Profit or Loss                               28                        48.41                    23.18
+      a) Financial Liabilities                                                                                              -                         -
+                                                                                                                                                           (ii) Income tax relating to items that will not be reclassified to Profit or loss                                (11.95)                  (5.78)
+      b) Provisions                                                                         14                        188.95                    148.46
+      c) Deferred Tax Liability (net)                                                                                 489.04                     352.12    (iii) Items that will be reclassified subsequently to profit or loss                                                   -                       -
+Total Non Current Liabilities (D)                                                                                     677.99                   500.58      (iv) Income tax relating to items that will be reclassified to Profit or loss                                          -                       -
+2)    Current Liabilities
+                                                                                                                                                           Other Comprehensive Income for the Year (E)                                                                       36.46                    17.40
+      a) Financial Liabilities
+          i) Borrowings                                                                     15                       4,142.63                         -    Total Comprehensive Income for the year (D+E)                                                                   8,851.17               5,265.43
+          ii) Trade Payables                                                                16
+                                                                                                                                                           Earnings per Share (Face Value of ₹ 10 each fully paid up)                             29.8
+               - Outstanding Dues of Micro and Small Enterprises                                                      296.07                    150.47
+               - Outstanding Dues of Creditors other than Micro and Small Enterprises                               3,594.78                  4,385.92
+                                                                                                                                                           -     Basic                                                                                                       88.37                    52.61
+      b) Other Current Liabilities                                                          17                      2,483.72                   1,873.84    -     Diluted                                                                                                     88.37                    52.61
+      c) Provisions                                                                         18                        126.22                     127.83
+                                                                                                                                                           Material Accounting Policies, Key Accounting Estimates and Judgements.                   1
+      d) Current Tax Liabilities (Net)                                                      19                        122.32                      17.86
+Total Current Liabilities (E)                                                                                      10,765.74                 6,555.92      The accompanying Notes are an integral part of the Financial Statements.
+TOTAL EQUITY AND LIABILITIES (C+D+E)                                                                               42,641.14                 30,101.01     As per our report of even date attached
+Material Accounting Policies, Key Accounting Estimates and Judgements.                       1
+The accompanying Notes are an integral part of the Financial Statements.
+As per our report of even date attached                                                                                                                    For Singhi & Co.,                                                                                For and on behalf of the Board of Directors of
+                                                                                                                                                           Chartered Accountants                                                                                            TANFAC Industries Limited
+For Singhi & Co.,                                                                                         For and on behalf of the Board of Directors of
+Chartered Accountants                                                                                                     TANFAC Industries Limited        Firm Registration No. 302049E                                                                                  CIN: L24117TN1972PLC006271
+Firm Registration No. 302049E                                                                                           CIN: L24117TN1972PLC006271
+                                                                                                                                                           Sudesh Choraria                                                                     Afzal Harunbhai Malkani                      R. Karthikeyan
+Sudesh Choraria                                                                         Afzal Harunbhai Malkani                         R. Karthikeyan     Partner                                                                                             Director                            Director
+Partner                                                                                                 Director                               Director    Membership No. 204936                                                                          DIN 07194226                       DIN 00824621
+Membership No. 204936                                                                              DIN 07194226                          DIN 00824621
+
+
+
+Place: Chennai                                                                                  S Vinod Kumar                      N.R.Ravichandran        Place: Chennai                                                                              S Vinod Kumar                    N.R.Ravichandran
+Date: 28.04.2025                                                                             Company Secretary                   Chief Financial Officer   Date: 28.04.2025                                                                         Company Secretary                 Chief Financial Officer
+
+120     Tanfac Industries Limited | Annual Report 2024-2025                                                                    Corporate Overview      Statutory Reports     Financial Statements                                                 121
+
+
+
