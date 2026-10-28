@@ -1,0 +1,1316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<document>
+<document-name acode="00760">감사보고서</document-name>
+<company-name>성우하이텍</company-name>
+<table aclass="EXTRACTION" afixtable="Y" border="0" width="600">
+<colgroup>
+<col width="291"/>
+<col width="291"/>
+</colgroup>
+<tbody>
+<tr acopy="Y" adelete="Y">
+<td align="CENTER" colspan="2" height="30" valign="MIDDLE" width="600">제 37 기 2009년 12월 31일 현재</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td align="CENTER" colspan="2" height="30" valign="MIDDLE" width="600">제 36 기 2008년 12월 31일 현재</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" valign="BOTTOM" width="300">회사명 : 주식회사 경동나비엔</td>
+<tu align="RIGHT" aunit="WON" aunitvalue="1" height="30" valign="BOTTOM" width="300">(단위 : 원)</tu>
+</tr>
+</tbody>
+</table>
+<table aclass="FINANCE" afixtable="N" border="1" frame="BORDER" rules="ALL" width="954">
+<colgroup>
+<col width="295"/>
+<col width="154"/>
+<col width="154"/>
+<col width="153"/>
+<col width="153"/>
+</colgroup>
+<thead>
+<tr acopy="N" adelete="N">
+<th acopycol="N" adeletecol="N" align="CENTER" amovecol="N" height="30" valign="MIDDLE" width="304">과                        목</th>
+<th acopycol="N" adeletecol="N" align="CENTER" amovecol="Y" colspan="2" height="30" valign="MIDDLE" width="326">제 37(당) 기</th>
+<th acopycol="Y" adeletecol="Y" align="CENTER" amovecol="N" colspan="2" height="30" valign="MIDDLE" width="324">제 36(전) 기</th>
+</tr>
+</thead>
+<tbody>
+<tr acopy="Y" adelete="N">
+<te acode="11000000000000" adelim="0" alevel="0" height="30" width="304">자                        산</te>
+<te acode="11000000000000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11000000000000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11000000000000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11000000000000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11200000040000" adelim="0" alevel="0" height="30" width="304">Ⅰ. 유동자산</te>
+<te acode="11200000040000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11200000040000" adelim="2" align="RIGHT" height="30" width="163">97,447,787,562 </te>
+<te acode="11200000040000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11200000040000" adelim="4" align="RIGHT" height="30" width="162">89,955,618,385 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11130000030000" adelim="0" alevel="1" height="30" usermark=" P16" width="304">(1) 당좌자산</te>
+<te acode="11130000030000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11130000030000" adelim="2" align="RIGHT" height="30" width="163">68,481,118,308 </te>
+<te acode="11130000030000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11130000030000" adelim="4" align="RIGHT" height="30" width="162">56,003,264,703 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11110000040000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">1. 현금및현금성자산(주석13)</te>
+<te acode="11110000040000" adelim="1" align="RIGHT" height="30" width="163">23,316,834,318 </te>
+<te acode="11110000040000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11110000040000" adelim="3" align="RIGHT" height="30" width="162">12,613,703,863 </te>
+<te acode="11110000040000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999901" adelim="0" alevel="2" height="30" usermark=" P32" width="304">    국고보조금</te>
+<te acode="99999999999901" adelim="1" align="RIGHT" height="30" width="163">(415,361,850)</te>
+<te acode="99999999999901" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="99999999999901" adelim="3" align="RIGHT" height="30" width="162">- </te>
+<te acode="99999999999901" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11114000020000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">2. 단기투자자산</te>
+<te acode="11114000020000" adelim="1" align="RIGHT" height="30" width="163">90,000,000 </te>
+<te acode="11114000020000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11114000020000" adelim="3" align="RIGHT" height="30" width="162">90,000,000 </te>
+<te acode="11114000020000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11115000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">3. 매출채권(주석13과 20)</te>
+<te acode="11115000010000" adelim="1" align="RIGHT" height="30" width="163">41,743,778,725 </te>
+<te acode="11115000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11115000010000" adelim="3" align="RIGHT" height="30" width="162">42,124,530,049 </te>
+<te acode="11115000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11115900020001" adelim="0" alevel="2" height="30" usermark=" P32" width="304">    대손충당금</te>
+<te acode="11115900020001" adelim="1" align="RIGHT" height="30" width="163">(3,091,779,504)</te>
+<te acode="11115900020001" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11115900020001" adelim="3" align="RIGHT" height="30" width="162">(2,505,202,130)</te>
+<te acode="11115900020001" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11117000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">4. 단기대여금</te>
+<te acode="11117000010000" adelim="1" align="RIGHT" height="30" width="163">- </te>
+<te acode="11117000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11117000010000" adelim="3" align="RIGHT" height="30" width="162">45,000,000 </te>
+<te acode="11117000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11118000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">5. 미수금(주석13과 20)</te>
+<te acode="11118000010000" adelim="1" align="RIGHT" height="30" width="163">920,461,105 </te>
+<te acode="11118000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11118000010000" adelim="3" align="RIGHT" height="30" width="162">1,623,846,239 </te>
+<te acode="11118000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11118900020001" adelim="0" alevel="2" height="30" usermark=" P32" width="304">    대손충당금</te>
+<te acode="11118900020001" adelim="1" align="RIGHT" height="30" width="163">(265,023,428)</te>
+<te acode="11118900020001" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11118900020001" adelim="3" align="RIGHT" height="30" width="162">(328,060,847)</te>
+<te acode="11118900020001" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11119000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">6. 미수수익</te>
+<te acode="11119000010000" adelim="1" align="RIGHT" height="30" width="163">33,077,922 </te>
+<te acode="11119000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11119000010000" adelim="3" align="RIGHT" height="30" width="162">3,528,340 </te>
+<te acode="11119000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11141000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">7. 선급금</te>
+<te acode="11141000010000" adelim="1" align="RIGHT" height="30" width="163">3,711,260,526 </te>
+<te acode="11141000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11141000010000" adelim="3" align="RIGHT" height="30" width="162">1,285,339,297 </te>
+<te acode="11141000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11142000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">8. 선급비용</te>
+<te acode="11142000010000" adelim="1" align="RIGHT" height="30" width="163">352,136,845 </te>
+<te acode="11142000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11142000010000" adelim="3" align="RIGHT" height="30" width="162">62,385,845 </te>
+<te acode="11142000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11121000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">9. 이연법인세자산(주석19)</te>
+<te acode="11121000010000" adelim="1" align="RIGHT" height="30" width="163">2,085,733,649 </te>
+<te acode="11121000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11121000010000" adelim="3" align="RIGHT" height="30" width="162">988,194,047 </te>
+<te acode="11121000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11140000040000" adelim="0" alevel="1" height="30" usermark=" P16" width="304">(2) 재고자산</te>
+<te acode="11140000040000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11140000040000" adelim="2" align="RIGHT" height="30" width="163">28,966,669,254 </te>
+<te acode="11140000040000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11140000040000" adelim="4" align="RIGHT" height="30" width="162">33,952,353,682 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11131000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">1. 상품</te>
+<te acode="11131000010000" adelim="1" align="RIGHT" height="30" width="163">3,464,516,994 </te>
+<te acode="11131000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11131000010000" adelim="3" align="RIGHT" height="30" width="162">4,037,311,528 </te>
+<te acode="11131000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="2" height="30" usermark=" P32" width="304">    상품평가손실충당금</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="163">(42,763,855)</te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="162">(178,714,295)</te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11132000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">2. 제품</te>
+<te acode="11132000010000" adelim="1" align="RIGHT" height="30" width="163">10,758,937,389 </te>
+<te acode="11132000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11132000010000" adelim="3" align="RIGHT" height="30" width="162">12,065,164,647 </te>
+<te acode="11132000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="2" height="30" usermark=" P32" width="304">    제품평가손실충당금</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="163">(199,092,954)</te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="162">(68,988,311)</te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11134000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">3. 재공품</te>
+<te acode="11134000010000" adelim="1" align="RIGHT" height="30" width="163">3,805,416,921 </te>
+<te acode="11134000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11134000010000" adelim="3" align="RIGHT" height="30" width="162">4,784,582,863 </te>
+<te acode="11134000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11135000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">4. 원재료</te>
+<te acode="11135000010000" adelim="1" align="RIGHT" height="30" width="163">10,154,021,103 </te>
+<te acode="11135000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11135000010000" adelim="3" align="RIGHT" height="30" width="162">12,046,108,001 </te>
+<te acode="11135000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11137000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">5. 미착품</te>
+<te acode="11137000010000" adelim="1" align="RIGHT" height="30" width="163">996,039,514 </te>
+<te acode="11137000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11137000010000" adelim="3" align="RIGHT" height="30" width="162">1,221,332,566 </te>
+<te acode="11137000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11136000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">6. 저장품</te>
+<te acode="11136000010000" adelim="1" align="RIGHT" height="30" width="163">29,594,142 </te>
+<te acode="11136000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11136000010000" adelim="3" align="RIGHT" height="30" width="162">45,556,683 </te>
+<te acode="11136000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11400000050000" adelim="0" alevel="0" height="30" width="304">Ⅱ. 비유동자산</te>
+<te acode="11400000050000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11400000050000" adelim="2" align="RIGHT" height="30" width="163">103,000,860,598 </te>
+<te acode="11400000050000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11400000050000" adelim="4" align="RIGHT" height="30" width="162">102,072,362,283 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11300000030000" adelim="0" alevel="1" height="30" usermark=" P16" width="304">(1) 투자자산</te>
+<te acode="11300000030000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11300000030000" adelim="2" align="RIGHT" height="30" width="163">42,149,068,231 </te>
+<te acode="11300000030000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11300000030000" adelim="4" align="RIGHT" height="30" width="162">48,137,907,622 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="2" height="30" usermark=" P32" width="304">1. 장기투자자산(주석3)</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="163">330,385,080 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="162">279,969,680 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11212100010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">2. 매도가능증권(주석4)</te>
+<te acode="11212100010000" adelim="1" align="RIGHT" height="30" width="163">2,792,630,390 </te>
+<te acode="11212100010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11212100010000" adelim="3" align="RIGHT" height="30" width="162">10,319,915,567 </te>
+<te acode="11212100010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11212200010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">3. 만기보유증권(주석5)</te>
+<te acode="11212200010000" adelim="1" align="RIGHT" height="30" width="163">574,435,000 </te>
+<te acode="11212200010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11212200010000" adelim="3" align="RIGHT" height="30" width="162">583,525,000 </te>
+<te acode="11212200010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="2" height="30" usermark=" P32" width="304">4. 지분법적용투자주식(주석6)</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="163">36,278,387,408 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="162">36,425,379,022 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11215000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">5. 투자부동산(주석7)</te>
+<te acode="11215000010000" adelim="1" align="RIGHT" height="30" width="163">435,598,353 </te>
+<te acode="11215000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11215000010000" adelim="3" align="RIGHT" height="30" width="162">499,468,353 </te>
+<te acode="11215000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11221000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">6. 장기대여금(주석13과 20)</te>
+<te acode="11221000010000" adelim="1" align="RIGHT" height="30" width="163">1,737,632,000 </te>
+<te acode="11221000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11221000010000" adelim="3" align="RIGHT" height="30" width="162">29,650,000 </te>
+<te acode="11221000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11320000050000" adelim="0" alevel="1" height="30" usermark=" P16" width="304">(2) 유형자산(주석8)</te>
+<te acode="11320000050000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11320000050000" adelim="2" align="RIGHT" height="30" width="163">52,586,318,835 </te>
+<te acode="11320000050000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11320000050000" adelim="4" align="RIGHT" height="30" width="162">46,274,242,887 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11311000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">1. 토지</te>
+<te acode="11311000010000" adelim="1" align="RIGHT" height="30" width="163">15,560,805,438 </te>
+<te acode="11311000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11311000010000" adelim="3" align="RIGHT" height="30" width="162">15,560,805,438 </te>
+<te acode="11311000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11312000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">2. 건물</te>
+<te acode="11312000010000" adelim="1" align="RIGHT" height="30" width="163">13,017,849,086 </te>
+<te acode="11312000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11312000010000" adelim="3" align="RIGHT" height="30" width="162">12,923,160,676 </te>
+<te acode="11312000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11312100030003" adelim="0" alevel="2" height="30" usermark=" P32" width="304">    감가상각누계액</te>
+<te acode="11312100030003" adelim="1" align="RIGHT" height="30" width="163">(4,681,225,831)</te>
+<te acode="11312100030003" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11312100030003" adelim="3" align="RIGHT" height="30" width="162">(4,389,747,226)</te>
+<te acode="11312100030003" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11313000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">3. 구축물</te>
+<te acode="11313000010000" adelim="1" align="RIGHT" height="30" width="163">1,429,591,114 </te>
+<te acode="11313000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11313000010000" adelim="3" align="RIGHT" height="30" width="162">1,408,777,538 </te>
+<te acode="11313000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11313100030003" adelim="0" alevel="2" height="30" usermark=" P32" width="304">    감가상각누계액</te>
+<te acode="11313100030003" adelim="1" align="RIGHT" height="30" width="163">(1,113,611,217)</te>
+<te acode="11313100030003" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11313100030003" adelim="3" align="RIGHT" height="30" width="162">(1,078,408,089)</te>
+<te acode="11313100030003" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11314000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">4. 기계장치</te>
+<te acode="11314000010000" adelim="1" align="RIGHT" height="30" width="163">14,916,869,422 </te>
+<te acode="11314000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11314000010000" adelim="3" align="RIGHT" height="30" width="162">13,980,914,174 </te>
+<te acode="11314000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11314100030003" adelim="0" alevel="2" height="30" usermark=" P32" width="304">    감가상각누계액</te>
+<te acode="11314100030003" adelim="1" align="RIGHT" height="30" width="163">(11,759,178,047)</te>
+<te acode="11314100030003" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11314100030003" adelim="3" align="RIGHT" height="30" width="162">(10,808,470,208)</te>
+<te acode="11314100030003" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11316000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">5. 차량운반구</te>
+<te acode="11316000010000" adelim="1" align="RIGHT" height="30" width="163">1,566,322,492 </te>
+<te acode="11316000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11316000010000" adelim="3" align="RIGHT" height="30" width="162">1,392,070,313 </te>
+<te acode="11316000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11316100030003" adelim="0" alevel="2" height="30" usermark=" P32" width="304">    감가상각누계액</te>
+<te acode="11316100030003" adelim="1" align="RIGHT" height="30" width="163">(1,204,992,964)</te>
+<te acode="11316100030003" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11316100030003" adelim="3" align="RIGHT" height="30" width="162">(1,161,772,940)</te>
+<te acode="11316100030003" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="2" height="30" usermark=" P32" width="304">6. 공기구비품</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="163">31,904,587,147 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="162">27,984,729,379 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999901" adelim="0" alevel="2" height="30" usermark=" P32" width="304">    감가상각누계액</te>
+<te acode="99999999999901" adelim="1" align="RIGHT" height="30" width="163">(26,299,125,604)</te>
+<te acode="99999999999901" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="99999999999901" adelim="3" align="RIGHT" height="30" width="162">(23,415,263,598)</te>
+<te acode="99999999999901" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11319900010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">7. 건설중인자산</te>
+<te acode="11319900010000" adelim="1" align="RIGHT" height="30" width="163">19,248,427,799 </te>
+<te acode="11319900010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11319900010000" adelim="3" align="RIGHT" height="30" width="162">13,877,447,430 </te>
+<te acode="11319900010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11340000070000" adelim="0" alevel="1" height="30" usermark=" P16" width="304">(3) 무형자산(주석9)</te>
+<te acode="11340000070000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11340000070000" adelim="2" align="RIGHT" height="30" width="163">1,496,151,811 </te>
+<te acode="11340000070000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11340000070000" adelim="4" align="RIGHT" height="30" width="162">1,555,948,898 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11322000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">1. 산업재산권</te>
+<te acode="11322000010000" adelim="1" align="RIGHT" height="30" width="163">570,330,308 </te>
+<te acode="11322000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11322000010000" adelim="3" align="RIGHT" height="30" width="162">545,291,421 </te>
+<te acode="11322000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11329600010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">2. 개발비</te>
+<te acode="11329600010000" adelim="1" align="RIGHT" height="30" width="163">64,356,100 </te>
+<te acode="11329600010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11329600010000" adelim="3" align="RIGHT" height="30" width="162">96,534,151 </te>
+<te acode="11329600010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="2" height="30" usermark=" P32" width="304">3. 소프트웨어</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="163">672,984,070 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="162">853,050,393 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11330000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">4. 기타무형자산</te>
+<te acode="11330000010000" adelim="1" align="RIGHT" height="30" width="163">188,481,333 </te>
+<te acode="11330000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11330000010000" adelim="3" align="RIGHT" height="30" width="162">61,072,933 </te>
+<te acode="11330000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11360000010000" adelim="0" alevel="1" height="30" usermark=" P16" width="304">(4) 기타비유동자산 </te>
+<te acode="11360000010000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11360000010000" adelim="2" align="RIGHT" height="30" width="163">6,769,321,721 </te>
+<te acode="11360000010000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11360000010000" adelim="4" align="RIGHT" height="30" width="162">6,104,262,876 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11221600010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">1.장기성매출채권(주석12)</te>
+<te acode="11221600010000" adelim="1" align="RIGHT" height="30" width="163">105,596,500 </te>
+<te acode="11221600010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11221600010000" adelim="3" align="RIGHT" height="30" width="162">105,596,500 </te>
+<te acode="11221600010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11221700020001" adelim="0" alevel="2" height="30" usermark=" P32" width="304">   현재가치할인차금</te>
+<te acode="11221700020001" adelim="1" align="RIGHT" height="30" width="163">(23,965,707)</te>
+<te acode="11221700020001" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11221700020001" adelim="3" align="RIGHT" height="30" width="162">(30,988,831)</te>
+<te acode="11221700020001" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11226100010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">2. 보증금</te>
+<te acode="11226100010000" adelim="1" align="RIGHT" height="30" width="163">6,109,420,269 </te>
+<te acode="11226100010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11226100010000" adelim="3" align="RIGHT" height="30" width="162">5,451,384,548 </te>
+<te acode="11226100010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="2" height="30" usermark=" P32" width="304">3. 기타투자자산</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="163">578,270,659 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="162">578,270,659 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11500000010000" adelim="0" alevel="0" height="30" width="304">자      산      총      계</te>
+<te acode="11500000010000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11500000010000" adelim="2" align="RIGHT" height="30" width="163">200,448,648,160 </te>
+<te acode="11500000010000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11500000010000" adelim="4" align="RIGHT" height="30" width="162">192,027,980,668 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11000000000000" adelim="0" alevel="0" height="30" width="304">부                        채</te>
+<te acode="11000000000000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11000000000000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11000000000000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11000000000000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11600000050000" adelim="0" alevel="0" height="30" width="304">Ⅰ. 유동부채</te>
+<te acode="11600000050000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11600000050000" adelim="2" align="RIGHT" height="30" width="163">55,042,156,677 </te>
+<te acode="11600000050000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11600000050000" adelim="4" align="RIGHT" height="30" width="162">45,029,518,554 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11511000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">1. 매입채무(주석13과 20)</te>
+<te acode="11511000010000" adelim="1" align="RIGHT" height="30" width="163">33,023,606,775 </te>
+<te acode="11511000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11511000010000" adelim="3" align="RIGHT" height="30" width="162">23,919,240,413 </te>
+<te acode="11511000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11514000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">2. 미지급금(주석13)</te>
+<te acode="11514000010000" adelim="1" align="RIGHT" height="30" width="163">11,283,520,505 </te>
+<te acode="11514000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11514000010000" adelim="3" align="RIGHT" height="30" width="162">10,890,949,293 </te>
+<te acode="11514000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11515000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">3. 선수금(주석 20)</te>
+<te acode="11515000010000" adelim="1" align="RIGHT" height="30" width="163">5,246,715,322 </te>
+<te acode="11515000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11515000010000" adelim="3" align="RIGHT" height="30" width="162">2,273,684,883 </te>
+<te acode="11515000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11518000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">4. 미지급비용</te>
+<te acode="11518000010000" adelim="1" align="RIGHT" height="30" width="163">2,010,759,656 </te>
+<te acode="11518000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11518000010000" adelim="3" align="RIGHT" height="30" width="162">2,060,631,174 </te>
+<te acode="11518000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11514400010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">5. 미지급법인세</te>
+<te acode="11514400010000" adelim="1" align="RIGHT" height="30" width="163">596,699,634 </te>
+<te acode="11514400010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11514400010000" adelim="3" align="RIGHT" height="30" width="162">3,334,136,530 </te>
+<te acode="11514400010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11513000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">6. 단기차입금</te>
+<te acode="11513000010000" adelim="1" align="RIGHT" height="30" width="163">127,133,141 </te>
+<te acode="11513000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11513000010000" adelim="3" align="RIGHT" height="30" width="162">- </te>
+<te acode="11513000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11519000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">7. 유동성장기부채(주석10)</te>
+<te acode="11519000010000" adelim="1" align="RIGHT" height="30" width="163">150,400,000 </te>
+<te acode="11519000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11519000010000" adelim="3" align="RIGHT" height="30" width="162">150,400,000 </te>
+<te acode="11519000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11516000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">8. 예수금(주석20)</te>
+<te acode="11516000010000" adelim="1" align="RIGHT" height="30" width="163">304,151,230 </te>
+<te acode="11516000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11516000010000" adelim="3" align="RIGHT" height="30" width="162">311,291,571 </te>
+<te acode="11516000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="2" height="30" usermark=" P32" width="304">9. 보증금</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="163">5,000,000 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="162">5,000,000 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="2" height="30" usermark=" P32" width="304">10. 판매보증충당금</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="163">2,294,170,414 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="162">2,084,184,690 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11700000040000" adelim="0" alevel="0" height="30" width="304">Ⅱ. 비유동부채</te>
+<te acode="11700000040000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11700000040000" adelim="2" align="RIGHT" height="30" width="163">5,385,359,459 </te>
+<te acode="11700000040000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11700000040000" adelim="4" align="RIGHT" height="30" width="162">6,186,769,071 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11621000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">1. 장기차입금(주석10)</te>
+<te acode="11621000010000" adelim="1" align="RIGHT" height="30" width="163">413,600,000 </te>
+<te acode="11621000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11621000010000" adelim="3" align="RIGHT" height="30" width="162">564,000,000 </te>
+<te acode="11621000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11640000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">2. 장기미지급금</te>
+<te acode="11640000010000" adelim="1" align="RIGHT" height="30" width="163">131,400,000 </te>
+<te acode="11640000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11640000010000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11640000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11680000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">3. 임대보증금</te>
+<te acode="11680000010000" adelim="1" align="RIGHT" height="30" width="163">898,356,000 </te>
+<te acode="11680000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11680000010000" adelim="3" align="RIGHT" height="30" width="162">931,774,000 </te>
+<te acode="11680000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11661000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">4. 퇴직급여충당부채(주석11)</te>
+<te acode="11661000010000" adelim="1" align="RIGHT" height="30" width="163">10,374,571,380 </te>
+<te acode="11661000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11661000010000" adelim="3" align="RIGHT" height="30" width="162">9,540,159,744 </te>
+<te acode="11661000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11661900010006" adelim="0" alevel="2" height="30" usermark=" P32" width="304">    국민연금전환금</te>
+<te acode="11661900010006" adelim="1" align="RIGHT" height="30" width="163">(64,083,900)</te>
+<te acode="11661900010006" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11661900010006" adelim="3" align="RIGHT" height="30" width="162">(80,544,700)</te>
+<te acode="11661900010006" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11661200010001" adelim="0" alevel="2" height="30" usermark=" P32" width="304">    퇴직연금운용자산</te>
+<te acode="11661200010001" adelim="1" align="RIGHT" height="30" width="163">(7,757,890,463)</te>
+<te acode="11661200010001" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11661200010001" adelim="3" align="RIGHT" height="30" width="162">(6,176,419,010)</te>
+<te acode="11661200010001" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="2" height="30" usermark=" P32" width="304">5. 이연법인세부채(주석19)</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="163">1,389,406,442 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="162">1,407,799,037 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11800000010000" adelim="0" alevel="0" height="30" width="304">부      채      총      계</te>
+<te acode="11800000010000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11800000010000" adelim="2" align="RIGHT" height="30" width="163">60,427,516,136 </te>
+<te acode="11800000010000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11800000010000" adelim="4" align="RIGHT" height="30" width="162">51,216,287,625 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11000000000000" adelim="0" alevel="0" height="30" width="304">자                        본</te>
+<te acode="11000000000000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11000000000000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11000000000000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11000000000000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11810000010000" adelim="0" alevel="0" height="30" width="304">Ⅰ. 자본금</te>
+<te acode="11810000010000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11810000010000" adelim="2" align="RIGHT" height="30" width="163">11,520,000,000 </te>
+<te acode="11810000010000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11810000010000" adelim="4" align="RIGHT" height="30" width="162">11,520,000,000 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11811000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">1. 보통주자본금(주석1과 15)</te>
+<te acode="11811000010000" adelim="1" align="RIGHT" height="30" width="163">11,520,000,000 </te>
+<te acode="11811000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11811000010000" adelim="3" align="RIGHT" height="30" width="162">11,520,000,000 </te>
+<te acode="11811000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11820000010000" adelim="0" alevel="0" height="30" width="304">Ⅱ. 자본잉여금(주석15)</te>
+<te acode="11820000010000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11820000010000" adelim="2" align="RIGHT" height="30" width="163">20,183,240,920 </te>
+<te acode="11820000010000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11820000010000" adelim="4" align="RIGHT" height="30" width="162">20,183,240,920 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11821100010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">1. 주식발행초과금</te>
+<te acode="11821100010000" adelim="1" align="RIGHT" height="30" width="163">16,192,000,000 </te>
+<te acode="11821100010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11821100010000" adelim="3" align="RIGHT" height="30" width="162">16,192,000,000 </te>
+<te acode="11821100010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11823000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">2. 기타자본잉여금</te>
+<te acode="11823000010000" adelim="1" align="RIGHT" height="30" width="163">3,991,240,920 </te>
+<te acode="11823000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11823000010000" adelim="3" align="RIGHT" height="30" width="162">3,991,240,920 </te>
+<te acode="11823000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11860000010000" adelim="0" alevel="0" height="30" width="304">Ⅲ. 기타포괄손익누계액</te>
+<te acode="11860000010000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11860000010000" adelim="2" align="RIGHT" height="30" width="163">4,308,611,141 </te>
+<te acode="11860000010000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11860000010000" adelim="4" align="RIGHT" height="30" width="162">7,642,836,177 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11854100010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">1. 매도가능증권평가이익(주석4와 17)</te>
+<te acode="11854100010000" adelim="1" align="RIGHT" height="30" width="163">1,214,467,153 </te>
+<te acode="11854100010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11854100010000" adelim="3" align="RIGHT" height="30" width="162">3,021,234,101 </te>
+<te acode="11854100010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11854300010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">2. 지분법자본변동(주석6과 17)</te>
+<te acode="11854300010000" adelim="1" align="RIGHT" height="30" width="163">3,176,142,278 </te>
+<te acode="11854300010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11854300010000" adelim="3" align="RIGHT" height="30" width="162">4,621,602,076 </te>
+<te acode="11854300010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11853300010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">3. 부의지분법자본변동(주석6과 17)</te>
+<te acode="11853300010000" adelim="1" align="RIGHT" height="30" width="163">(81,998,290)</te>
+<te acode="11853300010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11853300010000" adelim="3" align="RIGHT" height="30" width="162">- </te>
+<te acode="11853300010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11830000010000" adelim="0" alevel="0" height="30" width="304">Ⅳ. 이익잉여금(주석16)</te>
+<te acode="11830000010000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11830000010000" adelim="2" align="RIGHT" height="30" width="163">104,009,279,963 </te>
+<te acode="11830000010000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11830000010000" adelim="4" align="RIGHT" height="30" width="162">101,465,615,946 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="2" height="30" usermark=" P32" width="304">1. 법정적립금</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="163">5,760,000,000 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="162">5,760,000,000 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11832000020000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">2. 임의적립금</te>
+<te acode="11832000020000" adelim="1" align="RIGHT" height="30" width="163">94,363,500,000 </te>
+<te acode="11832000020000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11832000020000" adelim="3" align="RIGHT" height="30" width="162">87,763,500,000 </te>
+<te acode="11832000020000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11833000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="304">3. 미처분이익잉여금</te>
+<te acode="11833000010000" adelim="1" align="RIGHT" height="30" width="163">3,885,779,963 </te>
+<te acode="11833000010000" adelim="2" align="RIGHT" height="30" width="163"></te>
+<te acode="11833000010000" adelim="3" align="RIGHT" height="30" width="162">7,942,115,946 </te>
+<te acode="11833000010000" adelim="4" align="RIGHT" height="30" width="162"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11890000010000" adelim="0" alevel="0" height="30" width="304">자      본      총      계</te>
+<te acode="11890000010000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11890000010000" adelim="2" align="RIGHT" height="30" width="163">140,021,132,024 </te>
+<te acode="11890000010000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11890000010000" adelim="4" align="RIGHT" height="30" width="162">140,811,693,043 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="11900000010000" adelim="0" alevel="0" height="30" width="304">부  채  및  자  본  총  계</te>
+<te acode="11900000010000" adelim="1" align="RIGHT" height="30" width="163"></te>
+<te acode="11900000010000" adelim="2" align="RIGHT" height="30" width="163">200,448,648,160 </te>
+<te acode="11900000010000" adelim="3" align="RIGHT" height="30" width="162"></te>
+<te acode="11900000010000" adelim="4" align="RIGHT" height="30" width="162">192,027,980,668 </te>
+</tr>
+</tbody>
+</table>
+<table aclass="EXTRACTION" afixtable="Y" border="0" width="600">
+<colgroup>
+<col width="291"/>
+<col width="291"/>
+</colgroup>
+<tbody>
+<tr acopy="Y" adelete="Y">
+<td align="CENTER" colspan="2" height="30" valign="MIDDLE" width="600">제 37기 2009년 01월 01일 부터  2009년 12월 31일 까지</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td align="CENTER" colspan="2" height="30" valign="MIDDLE" width="600">제 36기 2008년 01월 01일 부터  2008년 12월 31일 까지</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" valign="BOTTOM" width="300">회사명 : 주식회사 경동나비엔</td>
+<tu align="RIGHT" aunit="WON" aunitvalue="1" height="30" valign="BOTTOM" width="300">(단위 : 원)</tu>
+</tr>
+</tbody>
+</table>
+<table aclass="FINANCE" afixtable="N" border="1" frame="BORDER" rules="ALL" width="875">
+<colgroup>
+<col width="196"/>
+<col width="159"/>
+<col width="159"/>
+<col width="158"/>
+<col width="158"/>
+</colgroup>
+<thead>
+<tr acopy="N" adelete="N">
+<th acopycol="N" adeletecol="N" align="CENTER" amovecol="N" height="30" valign="MIDDLE" width="205">과                        목</th>
+<th acopycol="N" adeletecol="N" align="CENTER" amovecol="Y" colspan="2" height="30" valign="MIDDLE" width="336">제 37(당) 기</th>
+<th acopycol="Y" adeletecol="Y" align="CENTER" amovecol="N" colspan="2" height="30" valign="MIDDLE" width="334">제 36(전) 기</th>
+</tr>
+</thead>
+<tbody>
+<tr acopy="Y" adelete="Y">
+<te acode="12112000010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">1. 제품매출액</te>
+<te acode="12112000010000" adelim="1" align="RIGHT" height="30" width="168">204,546,352,307 </te>
+<te acode="12112000010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12112000010000" adelim="3" align="RIGHT" height="30" width="167">167,541,414,998 </te>
+<te acode="12112000010000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12111000010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">2. 상품매출액</te>
+<te acode="12111000010000" adelim="1" align="RIGHT" height="30" width="168">27,820,536,729 </te>
+<te acode="12111000010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12111000010000" adelim="3" align="RIGHT" height="30" width="167">32,940,662,929 </te>
+<te acode="12111000010000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12117000060000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">3. 용역매출액</te>
+<te acode="12117000060000" adelim="1" align="RIGHT" height="30" width="168">622,203,523  </te>
+<te acode="12117000060000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12117000060000" adelim="3" align="RIGHT" height="30" width="167">726,293,965 </te>
+<te acode="12117000060000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12114000050000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">4. 공사매출액</te>
+<te acode="12114000050000" adelim="1" align="RIGHT" height="30" width="168">325,500,590 </te>
+<te acode="12114000050000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12114000050000" adelim="3" align="RIGHT" height="30" width="167">443,849,818 </te>
+<te acode="12114000050000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12200000010000" adelim="0" alevel="0" height="30" width="205">Ⅱ. 매출원가(주석20)</te>
+<te acode="12200000010000" adelim="1" align="RIGHT" height="30" width="168">　</te>
+<te acode="12200000010000" adelim="2" align="RIGHT" height="30" width="168">181,450,138,972 </te>
+<te acode="12200000010000" adelim="3" align="RIGHT" height="30" width="167">　</te>
+<te acode="12200000010000" adelim="4" align="RIGHT" height="30" width="167">153,071,100,460 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12220000010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">1. 제품매출원가</te>
+<te acode="12220000010000" adelim="1" align="RIGHT" height="30" width="168">160,647,341,254 </te>
+<te acode="12220000010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12220000010000" adelim="3" align="RIGHT" height="30" width="167">126,986,721,971 </te>
+<te acode="12220000010000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12221000020000" adelim="0" alevel="2" height="30" usermark=" P32" width="205">(1) 기초제품재고액</te>
+<te acode="12221000020000" adelim="1" align="RIGHT" height="30" width="168">11,996,176,336 </te>
+<te acode="12221000020000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12221000020000" adelim="3" align="RIGHT" height="30" width="167">7,010,134,428 </te>
+<te acode="12221000020000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12222000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="205">(2) 당기제품제조원가</te>
+<te acode="12222000010000" adelim="1" align="RIGHT" height="30" width="168">159,856,022,068 </te>
+<te acode="12222000010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12222000010000" adelim="3" align="RIGHT" height="30" width="167">129,644,943,282 </te>
+<te acode="12222000010000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12222500010000" adelim="0" alevel="2" height="30" usermark=" P32" width="205">(3) 타계정에서 대체</te>
+<te acode="12222500010000" adelim="1" align="RIGHT" height="30" width="168">5,169,302,753 </te>
+<te acode="12222500010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12222500010000" adelim="3" align="RIGHT" height="30" width="167">4,243,972,485 </te>
+<te acode="12222500010000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12000000030000" adelim="0" alevel="2" height="30" usermark=" P32" width="205">계</te>
+<te acode="12000000030000" adelim="1" align="RIGHT" height="30" width="168">177,021,501,157 </te>
+<te acode="12000000030000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12000000030000" adelim="3" align="RIGHT" height="30" width="167">140,899,050,195 </te>
+<te acode="12000000030000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12223000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="205">(4) 타계정으로 대체</te>
+<te acode="12223000010000" adelim="1" align="RIGHT" height="30" width="168">(5,814,315,468)</te>
+<te acode="12223000010000" adelim="2" align="RIGHT" height="30" width="168"></te>
+<te acode="12223000010000" adelim="3" align="RIGHT" height="30" width="167">(1,916,151,888)</te>
+<te acode="12223000010000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12224000020000" adelim="0" alevel="2" height="30" usermark=" P32" width="205">(5) 기말 제품재고액</te>
+<te acode="12224000020000" adelim="1" align="RIGHT" height="30" width="168">(10,559,844,435)</te>
+<te acode="12224000020000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12224000020000" adelim="3" align="RIGHT" height="30" width="167">(11,996,176,336)</te>
+<te acode="12224000020000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12210000010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">2. 상품매출원가</te>
+<te acode="12210000010000" adelim="1" align="RIGHT" height="30" width="168">20,095,407,344 </te>
+<te acode="12210000010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12210000010000" adelim="3" align="RIGHT" height="30" width="167">25,225,790,575 </te>
+<te acode="12210000010000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12211000020000" adelim="0" alevel="2" height="30" usermark=" P32" width="205">(1) 기초상품재고액</te>
+<te acode="12211000020000" adelim="1" align="RIGHT" height="30" width="168">3,858,597,233 </te>
+<te acode="12211000020000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12211000020000" adelim="3" align="RIGHT" height="30" width="167">5,280,672,127 </te>
+<te acode="12211000020000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12212000020000" adelim="0" alevel="2" height="30" usermark=" P32" width="205">(2) 당기상품매입액</te>
+<te acode="12212000020000" adelim="1" align="RIGHT" height="30" width="168">16,376,190,369 </te>
+<te acode="12212000020000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12212000020000" adelim="3" align="RIGHT" height="30" width="167">18,561,647,377 </te>
+<te acode="12212000020000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12212500010000" adelim="0" alevel="2" height="30" usermark=" P32" width="205">(3) 타계정에서 대체</te>
+<te acode="12212500010000" adelim="1" align="RIGHT" height="30" width="168"> 3,791,728,194 </te>
+<te acode="12212500010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12212500010000" adelim="3" align="RIGHT" height="30" width="167">5,516,672,571 </te>
+<te acode="12212500010000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12000000020000" adelim="0" alevel="2" height="30" usermark=" P32" width="205">계</te>
+<te acode="12000000020000" adelim="1" align="RIGHT" height="30" width="168">24,026,515,796 </te>
+<te acode="12000000020000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12000000020000" adelim="3" align="RIGHT" height="30" width="167">29,358,992,075 </te>
+<te acode="12000000020000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12213000010000" adelim="0" alevel="2" height="30" usermark=" P32" width="205">(4) 타계정으로 대체</te>
+<te acode="12213000010000" adelim="1" align="RIGHT" height="30" width="168">(509,355,313)</te>
+<te acode="12213000010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12213000010000" adelim="3" align="RIGHT" height="30" width="167">(274,604,267)</te>
+<te acode="12213000010000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12214000020000" adelim="0" alevel="2" height="30" usermark=" P32" width="205">(5) 기말 상품재고액</te>
+<te acode="12214000020000" adelim="1" align="RIGHT" height="30" width="168">(3,421,753,139)</te>
+<te acode="12214000020000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12214000020000" adelim="3" align="RIGHT" height="30" width="167">(3,858,597,233)</te>
+<te acode="12214000020000" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="1" height="30" usermark=" P16" width="205">3. 용역매출원가</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="168">381,889,784 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="167">434,390,278 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="1" height="30" usermark=" P16" width="205">4. 공사매출원가</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="168">325,500,590 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="167">424,197,636 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="167">　</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12300000010000" adelim="0" alevel="0" height="30" width="205">Ⅲ. 매출총이익</te>
+<te acode="12300000010000" adelim="1" align="RIGHT" height="30" width="168">　</te>
+<te acode="12300000010000" adelim="2" align="RIGHT" height="30" width="168">99,999,999,999</te>
+<te acode="12300000010000" adelim="3" align="RIGHT" height="30" width="167">　</te>
+<te acode="12300000010000" adelim="4" align="RIGHT" height="30" width="167">99,999,999,999</te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12400000010000" adelim="0" alevel="0" height="30" width="205">Ⅳ. 판매비와관리비(주석23)</te>
+<te acode="12400000010000" adelim="1" align="RIGHT" height="30" width="168">　 </te>
+<te acode="12400000010000" adelim="2" align="RIGHT" height="30" width="168">45,495,647,503 </te>
+<te acode="12400000010000" adelim="3" align="RIGHT" height="30" width="167"></te>
+<te acode="12400000010000" adelim="4" align="RIGHT" height="30" width="167">43,543,561,410 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12412000170000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">1. 급여</te>
+<te acode="12412000170000" adelim="1" align="RIGHT" height="30" width="168">10,083,218,827 </te>
+<te acode="12412000170000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12412000170000" adelim="3" align="RIGHT" height="30" width="167">10,348,079,273 </te>
+<te acode="12412000170000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12415000120000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">2. 퇴직급여</te>
+<te acode="12415000120000" adelim="1" align="RIGHT" height="30" width="168">1,193,538,204 </te>
+<te acode="12415000120000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12415000120000" adelim="3" align="RIGHT" height="30" width="167">1,323,990,003 </te>
+<te acode="12415000120000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12417000010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">3. 복리후생비(주석25)</te>
+<te acode="12417000010000" adelim="1" align="RIGHT" height="30" width="168">1,824,032,550 </te>
+<te acode="12417000010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12417000010000" adelim="3" align="RIGHT" height="30" width="167">1,774,154,559 </te>
+<te acode="12417000010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12421300660000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">4. 수도광열비</te>
+<te acode="12421300660000" adelim="1" align="RIGHT" height="30" width="168">332,044,733 </te>
+<te acode="12421300660000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12421300660000" adelim="3" align="RIGHT" height="30" width="167">212,359,825 </te>
+<te acode="12421300660000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12421500100000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">5. 임차료</te>
+<te acode="12421500100000" adelim="1" align="RIGHT" height="30" width="168">851,187,228 </te>
+<te acode="12421500100000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12421500100000" adelim="3" align="RIGHT" height="30" width="167">799,745,850 </te>
+<te acode="12421500100000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12431600010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">6. 운반비</te>
+<te acode="12431600010000" adelim="1" align="RIGHT" height="30" width="168">1,980,035,290 </te>
+<te acode="12431600010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12431600010000" adelim="3" align="RIGHT" height="30" width="167">2,395,853,287 </te>
+<te acode="12431600010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12421600010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">7. 감가상각비</te>
+<te acode="12421600010000" adelim="1" align="RIGHT" height="30" width="168">1,190,311,145 </te>
+<te acode="12421600010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12421600010000" adelim="3" align="RIGHT" height="30" width="167">1,387,968,512 </te>
+<te acode="12421600010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12445000240000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">8. 무형자산상각비</te>
+<te acode="12445000240000" adelim="1" align="RIGHT" height="30" width="168">567,920,592 </te>
+<te acode="12445000240000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12445000240000" adelim="3" align="RIGHT" height="30" width="167">561,600,953 </te>
+<te acode="12445000240000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12421700010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">9. 수선비</te>
+<te acode="12421700010000" adelim="1" align="RIGHT" height="30" width="168">215,100,525 </te>
+<te acode="12421700010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12421700010000" adelim="3" align="RIGHT" height="30" width="167">189,617,383 </te>
+<te acode="12421700010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12422000010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">10. 소모품비</te>
+<te acode="12422000010000" adelim="1" align="RIGHT" height="30" width="168">289,354,682 </te>
+<te acode="12422000010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12422000010000" adelim="3" align="RIGHT" height="30" width="167">266,828,842 </te>
+<te acode="12422000010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12421400010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">11. 세금과공과</te>
+<te acode="12421400010000" adelim="1" align="RIGHT" height="30" width="168">676,917,844 </te>
+<te acode="12421400010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12421400010000" adelim="3" align="RIGHT" height="30" width="167">563,013,389 </te>
+<te acode="12421400010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12421800010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">12. 보험료</te>
+<te acode="12421800010000" adelim="1" align="RIGHT" height="30" width="168">295,389,824 </te>
+<te acode="12421800010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12421800010000" adelim="3" align="RIGHT" height="30" width="167">184,983,043 </te>
+<te acode="12421800010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12421100010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">13. 여비교통비</te>
+<te acode="12421100010000" adelim="1" align="RIGHT" height="30" width="168">1,238,298,900 </te>
+<te acode="12421100010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12421100010000" adelim="3" align="RIGHT" height="30" width="167">889,540,622 </te>
+<te acode="12421100010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12421200010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">14. 통신비</te>
+<te acode="12421200010000" adelim="1" align="RIGHT" height="30" width="168">456,282,632 </te>
+<te acode="12421200010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12421200010000" adelim="3" align="RIGHT" height="30" width="167">475,175,346 </te>
+<te acode="12421200010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12422200010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">15. 차량유지비</te>
+<te acode="12422200010000" adelim="1" align="RIGHT" height="30" width="168">872,850,924 </te>
+<te acode="12422200010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12422200010000" adelim="3" align="RIGHT" height="30" width="167">932,081,429 </te>
+<te acode="12422200010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12422300010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">16. 교육훈련비</te>
+<te acode="12422300010000" adelim="1" align="RIGHT" height="30" width="168">248,455,067 </te>
+<te acode="12422300010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12422300010000" adelim="3" align="RIGHT" height="30" width="167">270,609,478 </te>
+<te acode="12422300010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12422100010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">17. 도서인쇄비</te>
+<te acode="12422100010000" adelim="1" align="RIGHT" height="30" width="168">100,277,836 </te>
+<te acode="12422100010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12422100010000" adelim="3" align="RIGHT" height="30" width="167">377,030,738 </te>
+<te acode="12422100010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="1" height="30" usermark=" P16" width="205">18. 제수수료</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="168">2,522,340,279 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="167">2,484,344,393 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12431200010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">19. 광고선전비</te>
+<te acode="12431200010000" adelim="1" align="RIGHT" height="30" width="168">8,724,654,497 </te>
+<te acode="12431200010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12431200010000" adelim="3" align="RIGHT" height="30" width="167">8,793,459,456 </te>
+<te acode="12431200010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12442000010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">20. 경상개발비(주석9)</te>
+<te acode="12442000010000" adelim="1" align="RIGHT" height="30" width="168">2,298,245,055 </te>
+<te acode="12442000010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12442000010000" adelim="3" align="RIGHT" height="30" width="167">2,140,074,297 </te>
+<te acode="12442000010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12431100060000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">21. 접대비</te>
+<te acode="12431100060000" adelim="1" align="RIGHT" height="30" width="168">256,953,802 </te>
+<te acode="12431100060000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12431100060000" adelim="3" align="RIGHT" height="30" width="167">218,691,722 </te>
+<te acode="12431100060000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12446000260000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">22. 회의비</te>
+<te acode="12446000260000" adelim="1" align="RIGHT" height="30" width="168">17,200,430 </te>
+<te acode="12446000260000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12446000260000" adelim="3" align="RIGHT" height="30" width="167">15,117,010 </te>
+<te acode="12446000260000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="1" height="30" usermark=" P16" width="205">23. 판매비용</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="168">70,019,916 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="167">75,535,460 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12432000020000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">24. 수출경비</te>
+<te acode="12432000020000" adelim="1" align="RIGHT" height="30" width="168">3,292,040,256 </te>
+<te acode="12432000020000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12432000020000" adelim="3" align="RIGHT" height="30" width="167">2,451,642,311 </te>
+<te acode="12432000020000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12422800010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">25. 하자보수비</te>
+<te acode="12422800010000" adelim="1" align="RIGHT" height="30" width="168">- </te>
+<te acode="12422800010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12422800010000" adelim="3" align="RIGHT" height="30" width="167">5,300,000 </te>
+<te acode="12422800010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12444000040000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">26. 대손상각비</te>
+<te acode="12444000040000" adelim="1" align="RIGHT" height="30" width="168">915,299,057 </te>
+<te acode="12444000040000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12444000040000" adelim="3" align="RIGHT" height="30" width="167">724,278,924 </te>
+<te acode="12444000040000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="1" height="30" usermark=" P16" width="205">27. A/S비</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="168">3,926,432,229 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="167">3,106,140,116 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12431400010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">28. 견본비</te>
+<te acode="12431400010000" adelim="1" align="RIGHT" height="30" width="168">143,204,898 </te>
+<te acode="12431400010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12431400010000" adelim="3" align="RIGHT" height="30" width="167">56,692,803 </te>
+<te acode="12431400010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="1" height="30" usermark=" P16" width="205">29. 용역비</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="168">705,969,989 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="167">385,264,446 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="1" height="30" usermark=" P16" width="205">30. 보관비</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="168">208,070,292 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="167">134,387,940 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12500000010000" adelim="0" alevel="0" height="30" width="205">Ⅴ. 영업이익</te>
+<te acode="12500000010000" adelim="1" align="RIGHT" height="30" width="168">　 </te>
+<te acode="12500000010000" adelim="2" align="RIGHT" height="30" width="168">6,368,806,674 </te>
+<te acode="12500000010000" adelim="3" align="RIGHT" height="30" width="167"></te>
+<te acode="12500000010000" adelim="4" align="RIGHT" height="30" width="167">5,037,559,840 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12510000010000" adelim="0" alevel="0" height="30" width="205">Ⅵ. 영업외수익</te>
+<te acode="12510000010000" adelim="1" align="RIGHT" height="30" width="168">　</te>
+<te acode="12510000010000" adelim="2" align="RIGHT" height="30" width="168">7,771,430,848 </te>
+<te acode="12510000010000" adelim="3" align="RIGHT" height="30" width="167"></te>
+<te acode="12510000010000" adelim="4" align="RIGHT" height="30" width="167">9,234,012,943 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12510100010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">1. 이자수익</te>
+<te acode="12510100010000" adelim="1" align="RIGHT" height="30" width="168">284,929,769 </te>
+<te acode="12510100010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12510100010000" adelim="3" align="RIGHT" height="30" width="167">551,973,083 </te>
+<te acode="12510100010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="1" height="30" usermark=" P16" width="205">2. 퇴직연금운용수익</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="168">361,896,076 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="167">249,800,669 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12510300010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">3. 배당금수익</te>
+<te acode="12510300010000" adelim="1" align="RIGHT" height="30" width="168">54,535,000 </te>
+<te acode="12510300010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12510300010000" adelim="3" align="RIGHT" height="30" width="167">54,535,000 </te>
+<te acode="12510300010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12510500110000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">4. 임대료</te>
+<te acode="12510500110000" adelim="1" align="RIGHT" height="30" width="168">186,496,651 </te>
+<te acode="12510500110000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12510500110000" adelim="3" align="RIGHT" height="30" width="167">192,549,653 </te>
+<te acode="12510500110000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12514700010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">5. 매도가능증권처분이익</te>
+<te acode="12514700010000" adelim="1" align="RIGHT" height="30" width="168">2,225,336,379 </te>
+<te acode="12514700010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12514700010000" adelim="3" align="RIGHT" height="30" width="167">- </te>
+<te acode="12514700010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12510900010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">6. 외환차익</te>
+<te acode="12510900010000" adelim="1" align="RIGHT" height="30" width="168">2,576,407,481 </te>
+<te acode="12510900010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12510900010000" adelim="3" align="RIGHT" height="30" width="167">3,548,665,797 </te>
+<te acode="12510900010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12511100010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">7. 외화환산이익(주석13)</te>
+<te acode="12511100010000" adelim="1" align="RIGHT" height="30" width="168">42,837,709 </te>
+<te acode="12511100010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12511100010000" adelim="3" align="RIGHT" height="30" width="167">821,901,000 </te>
+<te acode="12511100010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12512700010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">8. 지분법이익(주석6)</te>
+<te acode="12512700010000" adelim="1" align="RIGHT" height="30" width="168">476,128,126 </te>
+<te acode="12512700010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12512700010000" adelim="3" align="RIGHT" height="30" width="167">2,329,147,703 </te>
+<te acode="12512700010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12512300020000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">9. 유형자산처분이익</te>
+<te acode="12512300020000" adelim="1" align="RIGHT" height="30" width="168">22,229,761 </te>
+<te acode="12512300020000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12512300020000" adelim="3" align="RIGHT" height="30" width="167">11,408,764 </te>
+<te acode="12512300020000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12512200010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">10. 투자자산처분이익</te>
+<te acode="12512200010000" adelim="1" align="RIGHT" height="30" width="168">13,598,511 </te>
+<te acode="12512200010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12512200010000" adelim="3" align="RIGHT" height="30" width="167">- </te>
+<te acode="12512200010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12511500190000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">11. 잡이익</te>
+<te acode="12511500190000" adelim="1" align="RIGHT" height="30" width="168">1,527,035,385 </te>
+<te acode="12511500190000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12511500190000" adelim="3" align="RIGHT" height="30" width="167">1,474,031,274 </te>
+<te acode="12511500190000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12600000010000" adelim="0" alevel="0" height="30" width="205">Ⅶ. 영업외비용</te>
+<te acode="12600000010000" adelim="1" align="RIGHT" height="30" width="168">　</te>
+<te acode="12600000010000" adelim="2" align="RIGHT" height="30" width="168">7,736,742,622 </te>
+<te acode="12600000010000" adelim="3" align="RIGHT" height="30" width="167">　</te>
+<te acode="12600000010000" adelim="4" align="RIGHT" height="30" width="167">4,040,647,098 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12611000010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">1. 이자비용</te>
+<te acode="12611000010000" adelim="1" align="RIGHT" height="30" width="168">28,222,577 </te>
+<te acode="12611000010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12611000010000" adelim="3" align="RIGHT" height="30" width="167">373,917,908 </te>
+<te acode="12611000010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12613200030000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">2. 매출채권처분손실</te>
+<te acode="12613200030000" adelim="1" align="RIGHT" height="30" width="168">54,075,244 </te>
+<te acode="12613200030000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12613200030000" adelim="3" align="RIGHT" height="30" width="167">137,521,447 </te>
+<te acode="12613200030000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12616000010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">3. 외환차손</te>
+<te acode="12616000010000" adelim="1" align="RIGHT" height="30" width="168">3,219,812,623 </te>
+<te acode="12616000010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12616000010000" adelim="3" align="RIGHT" height="30" width="167">542,508,812 </te>
+<te acode="12616000010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12617400010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">4. 외화환산손실(주석13)</te>
+<te acode="12617400010000" adelim="1" align="RIGHT" height="30" width="168">505,285,874 </te>
+<te acode="12617400010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12617400010000" adelim="3" align="RIGHT" height="30" width="167">1,515,321,581 </te>
+<te acode="12617400010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12615000010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">5. 기부금(주석25)</te>
+<te acode="12615000010000" adelim="1" align="RIGHT" height="30" width="168">237,322,530 </te>
+<te acode="12615000010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12615000010000" adelim="3" align="RIGHT" height="30" width="167">182,669,080 </te>
+<te acode="12615000010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12626000020000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">6. 유형자산처분손실</te>
+<te acode="12626000020000" adelim="1" align="RIGHT" height="30" width="168">1,248,610 </te>
+<te acode="12626000020000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12626000020000" adelim="3" align="RIGHT" height="30" width="167">423,426 </te>
+<te acode="12626000020000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12631000010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">7. 지분법손실(주석6)</te>
+<te acode="12631000010000" adelim="1" align="RIGHT" height="30" width="168">1,925,411,652 </te>
+<te acode="12631000010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12631000010000" adelim="3" align="RIGHT" height="30" width="167">517,961,746 </te>
+<te acode="12631000010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12624000090000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">8. 기타의대손상각비</te>
+<te acode="12624000090000" adelim="1" align="RIGHT" height="30" width="168">149,317,370 </te>
+<te acode="12624000090000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12624000090000" adelim="3" align="RIGHT" height="30" width="167">159,798,500 </te>
+<te acode="12624000090000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12614700010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">9. 매도가능증권감액손실</te>
+<te acode="12614700010000" adelim="1" align="RIGHT" height="30" width="168">41,080,000 </te>
+<te acode="12614700010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12614700010000" adelim="3" align="RIGHT" height="30" width="167">- </te>
+<te acode="12614700010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12628000010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">10. 사채상환손실</te>
+<te acode="12628000010000" adelim="1" align="RIGHT" height="30" width="168">- </te>
+<te acode="12628000010000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12628000010000" adelim="3" align="RIGHT" height="30" width="167">59,412,754 </te>
+<te acode="12628000010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="99999999999999" adelim="0" alevel="1" height="30" usermark=" P16" width="205">11. 재고자산처분손실</te>
+<te acode="99999999999999" adelim="1" align="RIGHT" height="30" width="168">225,805,684 </te>
+<te acode="99999999999999" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="99999999999999" adelim="3" align="RIGHT" height="30" width="167">233,901,399 </te>
+<te acode="99999999999999" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12625000130000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">12. 잡손실</te>
+<te acode="12625000130000" adelim="1" align="RIGHT" height="30" width="168">1,349,160,458 </te>
+<te acode="12625000130000" adelim="2" align="RIGHT" height="30" width="168">　</te>
+<te acode="12625000130000" adelim="3" align="RIGHT" height="30" width="167">317,210,445 </te>
+<te acode="12625000130000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12800000040000" adelim="0" alevel="0" height="30" width="205">VIII. 법인세비용차감전순이익</te>
+<te acode="12800000040000" adelim="1" align="RIGHT" height="30" width="168">　</te>
+<te acode="12800000040000" adelim="2" align="RIGHT" height="30" width="168">6,403,494,900 </te>
+<te acode="12800000040000" adelim="3" align="RIGHT" height="30" width="167"></te>
+<te acode="12800000040000" adelim="4" align="RIGHT" height="30" width="167">10,230,925,685 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12810000040000" adelim="0" alevel="0" height="30" width="205">IX. 법인세비용(주석19)</te>
+<te acode="12810000040000" adelim="1" align="RIGHT" height="30" width="168">　</te>
+<te acode="12810000040000" adelim="2" align="RIGHT" height="30" width="168">2,707,830,883 </te>
+<te acode="12810000040000" adelim="3" align="RIGHT" height="30" width="167"></te>
+<te acode="12810000040000" adelim="4" align="RIGHT" height="30" width="167">2,492,740,849 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12900000010000" adelim="0" alevel="0" height="30" width="205">X. 당 기 순 이 익</te>
+<te acode="12900000010000" adelim="1" align="RIGHT" height="30" width="168">　</te>
+<te acode="12900000010000" adelim="2" align="RIGHT" height="30" width="168">3,695,664,017 </te>
+<te acode="12900000010000" adelim="3" align="RIGHT" height="30" width="167"></te>
+<te acode="12900000010000" adelim="4" align="RIGHT" height="30" width="167">7,738,184,836 </te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12900500010000" adelim="0" alevel="0" height="30" width="205">XI.주당손익(주석18)</te>
+<te acode="12900500010000" adelim="1" align="RIGHT" height="30" width="168"></te>
+<te acode="12900500010000" adelim="2" align="RIGHT" height="30" width="168"></te>
+<te acode="12900500010000" adelim="3" align="RIGHT" height="30" width="167"></te>
+<te acode="12900500010000" adelim="4" align="RIGHT" height="30" width="167"></te>
+</tr>
+<tr acopy="Y" adelete="Y">
+<te acode="12900900010000" adelim="0" alevel="1" height="30" usermark=" P16" width="205">1. 기본주당순이익</te>
+<te acode="12900900010000" adelim="1" align="RIGHT" height="30" width="168"></te>
+<te acode="12900900010000" adelim="2" align="RIGHT" height="30" width="168">1,604 </te>
+<te acode="12900900010000" adelim="3" align="RIGHT" height="30" width="167"></te>
+<te acode="12900900010000" adelim="4" align="RIGHT" height="30" width="167">3,373 </te>
+</tr>
+</tbody>
+</table>
+</document>

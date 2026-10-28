@@ -1,0 +1,694 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DOCUMENT><DOCUMENT-NAME ACODE="00761">연결감사보고서</DOCUMENT-NAME>
+<COMPANY-NAME>대웅제약</COMPANY-NAME>
+<TABLE><TR><TD>(단위: 원)</TD></TR></TABLE>
+<table aclass="NORMAL" afixtable="N" border="1" width="876">
+<colgroup>
+<col width="224"/>
+<col width="68"/>
+<col width="133"/>
+<col width="133"/>
+<col width="132"/>
+<col width="132"/>
+</colgroup>
+<thead>
+<tr acopy="Y" adelete="Y">
+<th acopycol="Y" adeletecol="Y" align="CENTER" amovecol="N" height="30" valign="MIDDLE" width="233">과                   목</th>
+<th acopycol="Y" adeletecol="Y" align="CENTER" amovecol="N" height="30" valign="MIDDLE" width="77">주석</th>
+<th acopycol="Y" adeletecol="Y" align="CENTER" amovecol="N" colspan="2" height="30" valign="MIDDLE" width="284">제34기</th>
+<th acopycol="Y" adeletecol="Y" align="CENTER" amovecol="N" colspan="2" height="30" valign="MIDDLE" width="282">제33기</th>
+</tr>
+</thead>
+<tbody>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">자            산</td>
+<td align="CENTER" height="30" width="77"></td>
+<td align="RIGHT" height="30" width="142"></td>
+<td align="RIGHT" height="30" width="142"></td>
+<td align="RIGHT" height="30" width="141"></td>
+<td align="RIGHT" height="30" width="141"></td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233"> I.유동자산</td>
+<td align="CENTER" height="30" width="77"></td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="142">424,130,487,081 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+<td align="RIGHT" height="30" width="141">297,017,009,079 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  1.현금및현금성자산</td>
+<td align="CENTER" height="30" width="77">41</td>
+<td align="RIGHT" height="30" width="142">133,113,103,870 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">23,631,639,118 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  2.단기금융상품</td>
+<td align="CENTER" height="30" width="77">38,39</td>
+<td align="RIGHT" height="30" width="142">25,374,090,000 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">21,542,852,500 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  3.당기손익인식금융자산</td>
+<td align="CENTER" height="30" width="77">6,38,39</td>
+<td align="RIGHT" height="30" width="142">7,005,396,000 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">2,081,990,000 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  4.매출채권및기타채권</td>
+<td align="CENTER" height="30" width="77">7,38,39</td>
+<td align="RIGHT" height="30" width="142">160,922,712,966 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">140,951,961,197 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  5.매도가능금융자산</td>
+<td align="CENTER" height="30" width="77">8,38,39</td>
+<td align="RIGHT" height="30" width="142">- </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">820,958,811 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  6.만기보유금융자산</td>
+<td align="CENTER" height="30" width="77">9,38,39</td>
+<td align="RIGHT" height="30" width="142">144,440,000 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">282,905,000 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  7.재고자산</td>
+<td align="CENTER" height="30" width="77">10</td>
+<td align="RIGHT" height="30" width="142">83,605,634,132 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">99,499,168,114 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  8.기타금융자산</td>
+<td align="CENTER" height="30" width="77">15,38,39</td>
+<td align="RIGHT" height="30" width="142">567,885,820 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">466,364,795 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  9.기타유동자산</td>
+<td align="CENTER" height="30" width="77">16</td>
+<td align="RIGHT" height="30" width="142">12,053,230,232 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">6,239,629,544 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  10.매각예정비유동자산</td>
+<td align="CENTER" height="30" width="77">35</td>
+<td align="RIGHT" height="30" width="142">1,343,994,061 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">1,499,540,000 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233"> II.비유동자산</td>
+<td align="CENTER" height="30" width="77">　</td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="142">456,761,863,012 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+<td align="RIGHT" height="30" width="141">546,064,782,260 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  1.장기금융상품</td>
+<td align="CENTER" height="30" width="77">5,38,39</td>
+<td align="RIGHT" height="30" width="142">5,500,000 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">5,500,000 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  2.장기매출채권및기타채권</td>
+<td align="CENTER" height="30" width="77">7,38,39</td>
+<td align="RIGHT" height="30" width="142">150,000,000 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">150,000,000 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  3.매도가능금융자산</td>
+<td align="CENTER" height="30" width="77">5,8,38,39</td>
+<td align="RIGHT" height="30" width="142">33,038,290,310 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">90,835,193,815 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  4.만기보유금융자산</td>
+<td align="CENTER" height="30" width="77">9,38,39</td>
+<td align="RIGHT" height="30" width="142">395,070,000 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">489,215,000 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  5.관계기업투자</td>
+<td align="CENTER" height="30" width="77">11</td>
+<td align="RIGHT" height="30" width="142">44,837,876,836 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">47,624,192,632 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  6.유형자산</td>
+<td align="CENTER" height="30" width="77">12</td>
+<td align="RIGHT" height="30" width="142">360,808,404,748 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">381,150,419,802 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  7.투자부동산</td>
+<td align="CENTER" height="30" width="77">13</td>
+<td align="RIGHT" height="30" width="142">2,850,626,466 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">5,239,291,044 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  8.무형자산</td>
+<td align="CENTER" height="30" width="77">14</td>
+<td align="RIGHT" height="30" width="142">11,206,189,064 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">17,597,148,330 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  9.기타금융자산</td>
+<td align="CENTER" height="30" width="77">15,38,39</td>
+<td align="RIGHT" height="30" width="142">2,019,325,153 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">2,347,398,266 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  10.기타비유동자산</td>
+<td align="CENTER" height="30" width="77">16</td>
+<td align="RIGHT" height="30" width="142">1,450,580,435 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">626,423,371 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">자  산  총  계</td>
+<td align="CENTER" height="30" width="77">　</td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="142">880,892,350,093 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+<td align="RIGHT" height="30" width="141">843,081,791,339 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">부            채</td>
+<td align="CENTER" height="30" width="77">　</td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">　</td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233"> I.유동부채</td>
+<td align="CENTER" height="30" width="77">　</td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="142">244,273,764,615 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+<td align="RIGHT" height="30" width="141">178,154,609,237 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  1.당기손익인식금융부채</td>
+<td align="CENTER" height="30" width="77">17,38,39</td>
+<td align="RIGHT" height="30" width="142">- </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">127,744,830 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  2.매입채무및기타채무</td>
+<td align="CENTER" height="30" width="77">18,38,39</td>
+<td align="RIGHT" height="30" width="142">60,434,042,566 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">62,901,142,206 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  3.차입금</td>
+<td align="CENTER" height="30" width="77">19,38,39</td>
+<td align="RIGHT" height="30" width="142">169,687,550,979 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">111,431,860,928 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  4.당기법인세부채</td>
+<td align="CENTER" height="30" width="77"></td>
+<td align="RIGHT" height="30" width="142">12,266,387,604 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">1,986,965,998 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  5.기타금융부채</td>
+<td align="CENTER" height="30" width="77">22,38,39</td>
+<td align="RIGHT" height="30" width="142">71,022,374 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">69,902,479 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  6.기타유동부채</td>
+<td align="CENTER" height="30" width="77">23</td>
+<td align="RIGHT" height="30" width="142">1,814,761,092 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">1,636,992,796 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233"> II.비유동부채</td>
+<td align="CENTER" height="30" width="77">　</td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="142">142,306,655,327 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+<td align="RIGHT" height="30" width="141">193,095,700,015 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  1.차입금</td>
+<td align="CENTER" height="30" width="77">19,38,39</td>
+<td align="RIGHT" height="30" width="142">119,322,075,118 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">156,544,788,790 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  2.순확정급여부채</td>
+<td align="CENTER" height="30" width="77">20</td>
+<td align="RIGHT" height="30" width="142">4,626,778,196 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">6,999,213,179 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  3.이연법인세부채</td>
+<td align="CENTER" height="30" width="77">34</td>
+<td align="RIGHT" height="30" width="142">15,398,694,495 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">25,638,149,613 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  4.충당부채</td>
+<td align="CENTER" height="30" width="77">21</td>
+<td align="RIGHT" height="30" width="142">363,293,457 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">349,628,877 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  5.기타금융부채</td>
+<td align="CENTER" height="30" width="77">22,38,39</td>
+<td align="RIGHT" height="30" width="142">1,337,917,978 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">1,831,780,485 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  6.기타비유동부채</td>
+<td align="CENTER" height="30" width="77">23</td>
+<td align="RIGHT" height="30" width="142">1,257,896,083 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">1,732,139,071 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">부  채  총  계</td>
+<td align="CENTER" height="30" width="77">　</td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="142">386,580,419,942 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+<td align="RIGHT" height="30" width="141">371,250,309,252 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">자            본</td>
+<td align="CENTER" height="30" width="77"></td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">　</td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233"> I.지배기업의 소유주지분</td>
+<td align="CENTER" height="30" width="77"></td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="142">492,080,693,799 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+<td align="RIGHT" height="30" width="141">468,576,761,484 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  1.자본금</td>
+<td align="CENTER" height="30" width="77">24</td>
+<td align="RIGHT" height="30" width="142">32,925,345,000 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">32,925,345,000 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  2.기타불입자본</td>
+<td align="CENTER" height="30" width="77">25</td>
+<td align="RIGHT" height="30" width="142">12,748,107,132 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">9,212,778,433 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  3.이익잉여금</td>
+<td align="CENTER" height="30" width="77">26</td>
+<td align="RIGHT" height="30" width="142">419,457,454,475 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">378,361,815,897 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">  4.기타자본구성요소</td>
+<td align="CENTER" height="30" width="77">27</td>
+<td align="RIGHT" height="30" width="142">26,949,787,192 </td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="141">48,076,822,154 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233"> II.비지배지분</td>
+<td align="CENTER" height="30" width="77"></td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="142">2,231,236,352 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+<td align="RIGHT" height="30" width="141">3,254,720,603 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">자  본  총  계</td>
+<td align="CENTER" height="30" width="77"></td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="142">494,311,930,151 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+<td align="RIGHT" height="30" width="141">471,831,482,087 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="233">부채및자본총계</td>
+<td align="CENTER" height="30" width="77"></td>
+<td align="RIGHT" height="30" width="142">　</td>
+<td align="RIGHT" height="30" width="142">880,892,350,093 </td>
+<td align="RIGHT" height="30" width="141">　</td>
+<td align="RIGHT" height="30" width="141">843,081,791,339 </td>
+</tr>
+</tbody>
+</table>
+<TABLE><TR><TD>(단위: 원)</TD></TR></TABLE>
+<table aclass="NORMAL" afixtable="N" border="1" width="977">
+<colgroup>
+<col width="327"/>
+<col width="48"/>
+<col width="137"/>
+<col width="137"/>
+<col width="137"/>
+<col width="137"/>
+</colgroup>
+<thead>
+<tr acopy="Y" adelete="Y">
+<th acopycol="Y" adeletecol="Y" align="CENTER" amovecol="N" height="30" valign="MIDDLE" width="336">과          목</th>
+<th acopycol="Y" adeletecol="Y" align="CENTER" amovecol="N" height="30" valign="MIDDLE" width="57">주석</th>
+<th acopycol="Y" adeletecol="Y" align="CENTER" amovecol="N" colspan="2" height="30" valign="MIDDLE" width="292">제34기 </th>
+<th acopycol="Y" adeletecol="Y" align="CENTER" amovecol="N" colspan="2" height="30" valign="MIDDLE" width="292">제33기 </th>
+</tr>
+</thead>
+<tbody>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">I.매출</td>
+<td align="CENTER" height="30" width="57">28,40</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">681,887,317,248 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">648,367,610,944 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">II.매출원가</td>
+<td align="CENTER" height="30" width="57">36,40</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(544,816,608,407)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(537,008,926,789)</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">III.매출총이익</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">137,070,708,841 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">111,358,684,155 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  1.판매비</td>
+<td align="CENTER" height="30" width="57">29</td>
+<td align="RIGHT" height="30" width="146">(65,206,450,864)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(59,180,201,675)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  2.관리비</td>
+<td align="CENTER" height="30" width="57">29</td>
+<td align="RIGHT" height="30" width="146">(19,524,054,913)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(17,614,036,415)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  3.경상연구개발비</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">(3,766,482,766)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(5,501,907,466)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">IV.영업이익</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">48,573,720,298 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">29,062,538,599 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  1.금융수익</td>
+<td align="CENTER" height="30" width="57">30</td>
+<td align="RIGHT" height="30" width="146">15,771,369,534 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">11,532,532,144 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  2.금융원가</td>
+<td align="CENTER" height="30" width="57">31</td>
+<td align="RIGHT" height="30" width="146">(19,514,795,491)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(18,526,033,097)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  3.지분법투자손실</td>
+<td align="CENTER" height="30" width="57">11</td>
+<td align="RIGHT" height="30" width="146">(3,282,077,534)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(603,809,186)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  4.종속기업처분손실</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">- </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(1,502,312,305)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  5.기타영업외이익</td>
+<td align="CENTER" height="30" width="57">32</td>
+<td align="RIGHT" height="30" width="146">27,692,155,133 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">10,797,541,373 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  6.기타영업외비용</td>
+<td align="CENTER" height="30" width="57">33</td>
+<td align="RIGHT" height="30" width="146">(16,704,637,590)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(23,728,503,537)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">V.법인세비용차감전순이익</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">52,535,734,350 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">7,031,953,991 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">VI.법인세비용</td>
+<td align="CENTER" height="30" width="57">34</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(16,611,446,533)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(2,112,000,952)</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">VII.당기순이익</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">35,924,287,817 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">4,919,953,039 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">VIII.기타포괄손익</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(18,737,887,483)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">694,374,475 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">후속적으로 당기손익으로 재분류되지 않는 항목</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">2,389,147,479 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(867,011,120)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  1.확정급여제도의 재측정요소</td>
+<td align="CENTER" height="30" width="57">20</td>
+<td align="RIGHT" height="30" width="146">2,389,147,479 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(867,011,120)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">후속적으로 당기손익으로 재분류될 수 있는 항목</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">(21,127,034,962)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">1,561,385,595 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  1.매도가능금융자산평가손익</td>
+<td align="CENTER" height="30" width="57">27</td>
+<td align="RIGHT" height="30" width="146">(22,754,082,000)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">7,709,565,195 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  2.관계기업자본변동</td>
+<td align="CENTER" height="30" width="57">27</td>
+<td align="RIGHT" height="30" width="146">963,939,402 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">329,271,025 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  3.해외사업장환산외환차이</td>
+<td align="CENTER" height="30" width="57">27</td>
+<td align="RIGHT" height="30" width="146">663,107,636 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(6,477,450,625)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">IX.당기총포괄이익</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">17,186,400,334 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">5,614,327,514 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">X.당기순이익의 귀속</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  1.지배기업의 소유주</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">43,561,639,003 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">8,187,314,937 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  2.비지배지분</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(7,637,351,186)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(3,267,361,898)</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">XI.총포괄이익의 귀속</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  1.지배기업의 소유주</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">24,849,055,366 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">9,001,938,688 </td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  2.비지배지분</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(7,662,655,032)</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">(3,387,611,174)</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">XII.주당이익</td>
+<td align="CENTER" height="30" width="57"></td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">　</td>
+</tr>
+<tr acopy="Y" adelete="Y">
+<td height="30" width="336">  1.기본주당순이익</td>
+<td align="CENTER" height="30" width="57">37</td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">6,662 </td>
+<td align="RIGHT" height="30" width="146">　</td>
+<td align="RIGHT" height="30" width="146">1,252 </td>
+</tr>
+</tbody>
+</table>
+</DOCUMENT>
